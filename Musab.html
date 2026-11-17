@@ -596,7 +596,7 @@ function lShow(q){
       if(ch.ok){
         done=true;el.classList.add('pulse');sfx.good();speak(q.ok);lr++;
         lsay(cheers[rnd(0,cheers.length-1)]+' '+'⭐'.repeat(lr));
-        setTimeout(()=>lr>=LTOTAL?winL():lNext(),1900);
+        setTimeout(()=>lr>=LTOTAL?winL():(isNum()?nNext():lNext()),1900);
       }else{el.classList.remove('wob');void el.offsetWidth;el.classList.add('wob');sfx.bad();lsay(tries[rnd(0,tries.length-1)])}
     };
     $('lch').appendChild(el);
@@ -985,5 +985,6 @@ function nSort(){
   lsay('Small to BIG! 📶 '+stars());
   setTimeout(()=>speak('Tap the numbers from smallest to biggest'),300);
 }</script>
+<a href="index.html" id="whoBtn" style="position:fixed;top:8px;left:8px;z-index:9999;background:#fff;color:#333;text-decoration:none;font:bold 14px/1 Arial,sans-serif;padding:9px 13px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.3)">👥 Who is playing?</a>
 </body>
 </html>
