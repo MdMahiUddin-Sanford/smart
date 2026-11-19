@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>বাংলা Bangla</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400;700&family=Noto+Nastaliq+Urdu&family=Amiri+Quran&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400;700&family=Amiri+Quran&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{--arfont:"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif;--bg:#10243a;--card:#1b3a5c;--acc:#f5b942;--ok:#3ecf8e;--bad:#ef5b5b;--txt:#f2f6fa;--in:#12304f}
   *{box-sizing:border-box}
@@ -67,7 +67,7 @@
 <body>
 <div id="app">
   <h1>🇧🇩 বাংলা Bangla</h1>
-  <div class="fontsel">Arabic font: <select id="fontSel"><option value="sa">South Asian Quranic (Lateef)</option><option value="nq">Nastaliq (Noto Nastaliq Urdu)</option><option value="am">Uthmani / Madani (Amiri Quran)</option></select></div>
+  <div class="fontsel">Arabic font: <select id="fontSel"><option value="sa">South Asian Quranic (Lateef)</option><option value="am">Uthmani / Madani (Amiri Quran)</option></select></div>
   <div class="tabs top"><button data-s="letters" class="on">🔤 Arabic Letters</button><button data-s="quran">📖 Learning Quran</button><button data-s="duas">🤲 Duas &amp; Salah</button><button data-s="bangla">🇧🇩 বাংলা Bangla</button></div>
 
   <div id="letters" style="display:none">
@@ -1050,7 +1050,6 @@ function wScore(g,strokes){
 
 /* ===== Arabic font choice ===== */
 const FONTS={sa:['Lateef','"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif'],
-  nq:['Noto Nastaliq Urdu','"Noto Nastaliq Urdu","Lateef","Noto Naskh Arabic","Segoe UI",serif'],
   am:['Amiri Quran','"Amiri Quran","Amiri","Scheherazade New","Traditional Arabic","Segoe UI",serif']};
 function applyFont(k){
   const f=FONTS[k]||FONTS.sa;localStorage.arFont=k;

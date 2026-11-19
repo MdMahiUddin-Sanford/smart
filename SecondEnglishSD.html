@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second English SD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Comic Sans MS","Chalkboard SE",sans-serif;background:linear-gradient(#7fd8ff,#c9f0ff 60%,#b8f08a 60%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cloud{position:fixed;font-size:70px;animation:drift 30s linear infinite;opacity:.9}
+@keyframes drift{from{transform:translateX(-150px)}to{transform:translateX(110vw)}}
+.card{position:relative;z-index:2;background:#fff;border:6px solid #ffb703;border-radius:32px;padding:20px;width:min(660px,94vw);max-height:98vh;overflow:auto;text-align:center;box-shadow:0 12px 0 #fb8500,0 20px 40px rgba(0,0,0,.25)}
+h1{margin:0 0 6px;color:#e63946;font-size:2.2rem}
+.btn{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#06d6a0;border:none;border-radius:20px;padding:10px 26px;cursor:pointer;box-shadow:0 6px 0 #049a75;margin:8px}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #049a75}
+.home{background:#8d99ae;box-shadow:0 6px 0 #5c677d}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.tile{font:inherit;font-weight:bold;font-size:1.1rem;color:#fff;border:none;border-radius:18px;padding:12px 8px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);line-height:1.25;text-decoration:none;display:block}
+.tile span{font-size:2.2rem;display:block}
+.tile small{display:block;font-size:.78rem;font-weight:normal;opacity:.95}
+.tile:hover{transform:scale(1.04)}
+.tile:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tile:last-child:nth-child(odd){grid-column:span 2}
+.hud{display:flex;justify-content:space-between;font-size:1.05rem;font-weight:bold;color:#444;margin-bottom:8px;gap:6px}
+.bar{height:18px;background:#eee;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.bar div{height:100%;width:100%;background:#06d6a0;transition:width .1s linear,background .3s}
+.qbox{font-size:1.5rem;font-weight:bold;color:#222;margin:8px 0;line-height:1.35}
+.qbox svg{max-width:100%;height:auto}
+.read{font-size:1.4rem;background:#fff;border:3px solid #ffb703;border-radius:50%;width:46px;height:46px;cursor:pointer;vertical-align:middle;margin-left:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.opt{font:inherit;font-size:1.35rem;font-weight:bold;color:#fff;border:none;border-radius:20px;padding:14px 8px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);word-break:break-word}
+.opt:nth-child(1){background:#ef476f}.opt:nth-child(2){background:#118ab2}.opt:nth-child(3){background:#9b5de5}.opt:nth-child(4){background:#f77f00}
+.opt.right,.chip.right{background:#06d6a0!important;animation:pop .4s}
+.opt.wrong{background:#555!important;animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.15)}}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.msg{min-height:2.2rem;font-size:1.2rem;font-weight:bold;margin-top:10px}
+input.ans{font:inherit;font-size:1.8rem;text-align:center;width:90%;max-width:360px;padding:10px;border:4px solid #118ab2;border-radius:18px;outline:none}
+.slotrow,.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;min-height:56px}
+.slotrow{background:#eef7ff;border:3px dashed #118ab2;border-radius:16px;padding:8px}
+.chip{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#118ab2;border:none;border-radius:14px;padding:9px 14px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.chip.used{opacity:.25;pointer-events:none}
+.letters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.letters b{background:#ffd6e0;color:#d00060;border-radius:10px;padding:6px 12px;font-size:1.8rem}
+.bigico{font-size:5rem}
+.snd{position:fixed;top:12px;right:12px;z-index:5}
+.snd button{font-size:1.5rem;width:50px;height:50px;border-radius:50%;border:4px solid #ffb703;background:#fff;cursor:pointer;box-shadow:0 4px 0 #fb8500}
+.snd button.off{opacity:.45;filter:grayscale(1)}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.mt button{font:bold 1.05rem Arial,sans-serif;padding:12px 6px;border:3px solid #cbb8ff;border-radius:14px;background:#fff;color:#333;cursor:pointer}.mt button.sel{background:#ffe08a;border-color:#ffb703}.mt button.done{background:#c8f7dc;border-color:#06d6a0;opacity:.7}.mt button.bad{animation:shk .3s}@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div class="cloud" style="top:5%">☁️</div>
+<div class="cloud" style="top:20%;animation-delay:-12s">☁️</div>
+<div class="cloud" style="top:35%;animation-delay:-22s">☁️</div>
+<div class="snd"><button id="sndBtn" title="Sound and voice" onclick="toggleSnd()">🔊</button></div>
+
+<div class="card">
+  <div id="home">
+    <div class="bigico">📚🦉</div>
+    <h1>Second English SD 📘</h1>
+    <p style="margin:4px;font-size:1.1rem"><b>Practice time. Pick a subject!</b></p>
+    <div class="grid" id="subjects"></div>
+    <a class="btn home" href="Mahtab.html" style="text-decoration:none;display:inline-block">⬅ Mahtab</a>
+  </div>
+
+  <div id="topics" class="hidden">
+    <h1 id="subTitle"></h1>
+    <p style="margin:4px;font-size:1.1rem">10 questions each. <b>Choose a topic:</b></p>
+    <div class="grid" id="topicGrid"></div>
+    <button class="btn home" onclick="show('home')">⬅ Back</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="hud"><span>Q <span id="qn">1</span>/10</span><span id="tname"></span><span>⏱ <span id="time">30</span>s</span><span>⭐ <span id="score">0</span></span></div>
+    <div class="bar"><div id="bar"></div></div>
+    <div id="qarea"></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="end" class="hidden">
+    <div class="bigico" id="trophy">🏆</div>
+    <h1>Well done!</h1><div id="endt" style="font-size:1.1rem;font-weight:bold"></div>
+    <div style="font-size:2.6rem" id="stars"></div>
+    <p style="font-size:1.8rem;margin:6px">You scored <b id="final"></b> / 10</p>
+    <p style="font-size:1.2rem" id="comment"></p>
+    <button class="btn" onclick="startTopic(curTopic)">🔄 Play Again</button>
+    <button class="btn home" onclick="openSubject(curSub)">📋 Topics</button>
+    <button class="btn home" onclick="show('home')">🏠 Home</button>
+  </div>
+</div>
+
+<script>
+const TOTAL=10;
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[rnd(0,a.length-1)];
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const L=s=>s.trim().split('\n').map(x=>x.trim()).filter(Boolean);
+
+/* ---------- sound + voice ---------- */
+const AC=window.AudioContext||window.webkitAudioContext;
+let ac,sndOn=true,unlocked=false;
+function ctx(){try{ac=ac||new AC();if(ac.state!=='running')ac.resume();return ac}catch(e){return null}}
+function silentUrl(){
+  const n=4410,b=new ArrayBuffer(44+n*2),v=new DataView(b);
+  const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,22050,true);v.setUint32(28,44100,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+function unlock(){
+  const a=ctx();if(!a)return;
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(unlocked)return;
+  try{const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0)}catch(e){}
+  try{const el=new Audio(silentUrl());el.loop=true;el.volume=.01;const p=el.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+  if(a.state==='running')unlocked=true;
+}
+['pointerdown','touchstart','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+function tone(f,d,type='sine',vol=.15,delay=0){
+  const a=ctx();if(!a)return;
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+const sfx={
+  click(){if(sndOn)tone(700,.08,'triangle',.12)},
+  good(){if(sndOn)[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.18,i*.09))},
+  bad(){if(sndOn){tone(300,.25,'sawtooth',.1);tone(200,.4,'sawtooth',.1,.18)}},
+  tick(){if(sndOn)tone(1000,.06,'square',.06)},
+  end(s){if(sndOn)(s>=2?[523,659,784,1047,784,1047,1319]:s===1?[523,659,784,659,784]:[784,659,523]).forEach((f,i)=>tone(f,.3,'triangle',.18,i*.13))}
+};
+function say(t){
+  if(!sndOn||!window.speechSynthesis)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;u.lang='en-US';speechSynthesis.speak(u)}catch(e){}
+}
+const plain=h=>h.replace(/<svg[\s\S]*?<\/svg>/g,' ').replace(/<br>/g,'. ').replace(/<[^>]+>/g,'').replace(/___/g,'blank').replace(/\s+/g,' ').trim();
+function toggleSnd(){ctx();sndOn=!sndOn;$('sndBtn').textContent=sndOn?'🔊':'🔇';$('sndBtn').classList.toggle('off',!sndOn);if(!sndOn&&window.speechSynthesis)speechSynthesis.cancel();else sfx.click()}
+document.addEventListener('click',e=>{if(e.target.closest('.tile,.btn'))sfx.click()});
+
+/* ---------- generic builders ---------- */
+function bankMC(lines,o={}){
+  let deck=[];
+  return()=>{
+    if(!deck.length)deck=shuf(lines);
+    const [q,a,...w]=deck.pop().split('|');
+    const set=new Set([a]);
+    shuf(w).forEach(x=>{if(set.size<4)set.add(x)});
+    if(o.fill!==false)for(const l of shuf(lines)){if(set.size>=4)break;const x=l.split('|')[1];if(x!==a)set.add(x)}
+    return{t:'mc',q,a,opts:shuf([...set])};
+  };
+}
+function fixedMC(pairs,opts,qf){
+  let deck=[];
+  return()=>{if(!deck.length)deck=shuf(pairs);const [x,a]=deck.pop();return{t:'mc',q:qf(x),a,opts:[...opts],say:null}};
+}
+
+/* ---------- SPELLING ---------- */
+const W2=`about after again all always animal any around ask away back because been before best big black blue boy bring brown call came carry clean cold color come could day dear does done door down draw drink each early eat every fall far fast find first five fly food four friend from funny gave girl give going good great green grow happy have help here home house jump keep kind know last left light little long look made make many more much must name never night now off old once only open over own pick play please pretty pull put read right round said saw see seven should sing sit sleep small some soon stop take tell thank that their them then these they think this today together tree under upon use very walk want warm wash water week were what when where which white who why will wish with work would write year yellow your`.split(/\s+/);
+const W3=`able across against also answer area asked balloon basket beautiful believe beside between bicycle birthday body bottom bought breakfast bright brother build busy button candy captain careful castle cause center certain change chicken children circle city class climb clothes cloud country cousin crowd daughter decide different dinner discover doctor dollar double during earth enough evening everyone exercise explain family favorite finally flower follow forest forget forward garden gentle giant glass ground group guess guide half happen heavy history hospital hundred hungry idea important island jewel journey kitchen knew knife knock ladder laugh learn leave library listen machine marble measure medicine middle minute mirror money monkey morning mountain mouth moving music nature neighbor nothing notice number ocean office orange paper parent party people picture piece planet pocket police potato probably problem promise purple question quick quiet quite rabbit reason remember return river rocket school science second secret shadow shoulder simple sister smooth snowman someone special spring square station stomach straight strange street strong summer surprise sweater table teacher terrible thousand through thunder tomorrow touch toward travel trouble truck turtle uncle unhappy until usual vacation valley village visit voice weather weight whale whisper window winter wonder world wrong young`.split(/\s+/);
+const ALLW=new Set([...W2,...W3]);
+const WALL=[...ALLW];
+function misspell(w){
+  const out=new Set();let t=0;
+  while(out.size<3&&t++<80){
+    const s=w.split(''),r=rnd(0,4),i=rnd(1,s.length-1);
+    if(r===0&&s.length>3)[s[i-1],s[i]]=[s[i],s[i-1]];
+    else if(r===1&&s.length>3)s.splice(i,1);
+    else if(r===2)s.splice(i,0,s[i-1]);
+    else if(r===3){const idx=s.map((c,k)=>'aeiou'.includes(c)?k:-1).filter(k=>k>=0);if(idx.length){const k=pick(idx);s[k]=pick('aeiou'.split('').filter(x=>x!==s[k]))}}
+    else s.splice(i,0,pick('aeiou'.split('')));
+    const m=s.join('');if(m!==w&&!ALLW.has(m))out.add(m);
+  }
+  let k=0;while(out.size<3)out.add(w+'e'.repeat(++k));
+  return[...out];
+}
+function wordDeck(list){let d=[];return()=>{if(!d.length)d=shuf(list);return d.pop()}}
+const spellRight=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'mc',q:'Which is spelled <b>correctly</b>?',a:w,opts:shuf([w,...misspell(w)]),say:'Which is spelled correctly?'}}};
+const spellListen=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'type',q:'👂 Listen and <b>type the word</b>',a:w,speakWord:w,say:w}}};
+const spellScramble=list=>{const nx=wordDeck(list.filter(w=>w.length>=4));return()=>{const w=nx();let s=w;for(let i=0;i<20&&s===w;i++)s=shuf(w.split('')).join('');return{t:'type',q:'Unscramble the letters:<div class="letters">'+s.split('').map(c=>`<b>${c.toUpperCase()}</b>`).join('')+'</div>',a:w,say:'Unscramble the letters. '+s.split('').join(', ')}}};
+
+/* ---------- SECOND ENGLISH (SFSD 2nd grade ELA) ---------- */
+const bankType=lines=>{let d=[];return()=>{if(!d.length)d=shuf(lines);const [q,a]=d.pop().split('|');return{t:'type',q,a:a.toLowerCase()}}};
+const bankBuild=(list,prompt)=>{let d=[];return()=>{if(!d.length)d=shuf(list);const s=d.pop(),w=s.split(' ');let t=shuf(w);for(let i=0;i<10&&t.join(' ')===s;i++)t=shuf(w);return{t:'build',q:prompt||'Tap the words in the right order 🧩',words:t,a:s,say:prompt||'Put the words in the right order.'}}};
+const bankMatch=(lines,title)=>{let d=[];return()=>{if(d.length<4)d=shuf(lines);const ps=d.splice(0,4).map(x=>x.split('='));return{t:'match',q:title,pairs:ps,a:ps.map(p=>p[0]+' = '+p[1]).join(', '),say:title}}};
+const PS=(passage,qas)=>qas.map(x=>`<i>${passage}</i><br>${x}`);
+const ALLQ=(...arrs)=>arrs.flat();
+
+/* ===== 1. READING STORIES ===== */
+const P_MIA='Mia has a small brown dog named Biscuit. Every morning before school, Mia takes Biscuit for a walk in the park. One day, Biscuit saw a squirrel and pulled away. Mia ran after him and found him under a big oak tree. She hugged him and said, “No more running away!”';
+const P_BIRD='On Saturday, Omar and his dad built a birdhouse. First, they measured and cut the wood. Next, they nailed the pieces together. Then Omar painted it bright yellow. Last, they hung it on a tree. By Monday, a little bird had moved in!';
+const P_LENA='Lena wanted to win the spelling contest. Her friend Jo studied a little every night. Lena waited and studied only once, the night before. Jo won the contest. Lena learned that practicing a little every day works better than waiting until the last minute.';
+const P_BEN='Ben was nervous about his first day at a new school. His stomach felt like it was full of butterflies. Then a girl named Ava smiled and said, “Want to sit with me?” Ben smiled back. He felt much better.';
+const P_ANT='A little ant found a big crumb. It was too heavy to lift alone. The ant asked her friends for help. Together, they carried the crumb all the way home. “Many hands make light work,” said the ant.';
+const P_RAIN='It was raining on the day of the picnic. Sam and Nora were sad because they could not play outside. Then Nora had an idea. They spread the blanket on the living room floor and had an indoor picnic. It turned out to be the best picnic ever!';
+const P_FOX='Fox was hungry. He saw grapes high on a vine. He jumped and jumped, but he could not reach them. At last he walked away and said, “Those grapes are probably sour anyway.” He was just saying that because he could not get them.';
+const RL_WH=ALLQ(
+ PS(P_MIA,['<b>Who</b> is Biscuit?|Mia’s dog|Mia’s sister|A squirrel|A teacher','<b>Where</b> did Mia find Biscuit?|Under a big oak tree|At school|In the kitchen|On the bus','<b>When</b> does Mia walk Biscuit?|Every morning before school|Every night|On Sundays only|After lunch','<b>Why</b> did Biscuit pull away?|He saw a squirrel|He was hungry|He was sleepy|He heard a bell','<b>What</b> did Mia do when she found Biscuit?|She hugged him|She yelled at him|She went home alone|She hid']),
+ PS(P_BIRD,['<b>What</b> did Omar and his dad build?|A birdhouse|A doghouse|A treehouse|A boat','<b>When</b> did they build it?|On Saturday|On Monday|On Friday|On Sunday','<b>What color</b> did Omar paint it?|Yellow|Blue|Red|Green','<b>How</b> do we know the birdhouse worked?|A bird moved in|It rained|Omar smiled|It fell down']),
+ PS(P_RAIN,['<b>Why</b> were Sam and Nora sad?|They could not play outside|They lost their lunch|They were hungry|They were sleepy','<b>How</b> did they fix the problem?|They had an indoor picnic|They went to bed|They waited for sun|They went to school','<b>Where</b> did they spread the blanket?|On the living room floor|In the park|In the yard|On the roof'])
+);
+const RL_MSG=ALLQ(
+ PS(P_LENA,['What is the <b>lesson</b> of this story?|Practice a little every day|Never study|Spelling is not fun|Lena is the best','Who won the contest?|Jo|Lena|Nobody|The teacher']),
+ PS(P_ANT,['What is the <b>message</b> of this story?|Working together makes hard jobs easier|Ants are small|Crumbs are heavy|Never share','What did the ant do when the crumb was too heavy?|She asked friends for help|She gave up|She ate it all|She went to sleep']),
+ PS(P_FOX,['What is the <b>moral</b> of this story?|Do not pretend you did not want what you could not get|Grapes are sour|Foxes are fast|Always jump high','Why did Fox say the grapes were sour?|He could not reach them|He tasted them|He did not like grapes|He was full']),
+ L(`
+A girl tells the truth even when she is scared of getting in trouble. What is the <b>lesson</b>?|Honesty is important|Always be scared|Never tell anyone|Trouble is fun
+A boy shares his toys with a new friend and they play together all day. What is the <b>message</b>?|Sharing makes friends|Toys are fun|Never play|Friends are loud
+A bear keeps trying to climb a tree and finally makes it on the tenth try. What is the <b>lesson</b>?|Do not give up|Bears are strong|Trees are tall|Climbing is easy
+A duck helps a lost chick find its mom. What is the <b>message</b>?|Be kind and help others|Ducks are loud|Chicks are small|Never go outside
+A pig builds a strong house of bricks and stays safe. What is the <b>lesson</b>?|Work hard and do a good job|Pigs are fast|Bricks are red|Houses are big`)
+);
+const RL_FEEL=ALLQ(
+ PS(P_BEN,['How did Ben feel <b>at first</b>?|Nervous|Angry|Sleepy|Silly','How did Ben feel <b>at the end</b>?|Better and happy|Even more scared|Bored|Hungry','What does “butterflies in his stomach” mean?|Ben felt nervous|Ben ate bugs|Ben was hungry|Ben was sick of butterflies','Why did Ben feel better?|Ava was kind to him|He went home|He ate lunch|He got a toy']),
+ L(`
+Mom said, “I am so proud of you!” How does the child feel?|Happy|Sad|Scared|Bored
+Max dropped his ice cream on the ground. How does Max feel?|Upset|Excited|Sleepy|Proud
+The little girl hid under the blanket during the thunder. How does she feel?|Scared|Silly|Proud|Hungry
+Dan studied hard and got a perfect score. He probably feels…|Proud|Sad|Worried|Lonely
+Lily’s best friend moved far away. Lily feels…|Sad|Excited|Proud|Silly
+The wolf says the pigs were rude to him. The pigs say the wolf was blowing down their house. Why do the stories differ?|Different characters have different points of view|They are the same|The author forgot|Nobody is talking
+Tom thinks the roller coaster is exciting. His sister thinks it is scary. This shows different…|Points of view|Colors|Names|Places
+When the storm came, Carla closed the windows and lit a candle. How did Carla respond?|She got ready and stayed calm|She ran away|She cried loudly|She went outside`)
+);
+const RL_SET=L(`
+“Once upon a time, in a dark forest, a little owl lived in a tall pine tree.” What is the <b>setting</b>?|A dark forest|A little owl|A pine cone|A school
+“Kayla and her brother played in the sandbox at the park.” Who are the <b>characters</b>?|Kayla and her brother|The sandbox|The park|The sand
+“The setting of a story is…”|When and where it happens|Who is in it|How it ends|The title
+“The characters in a story are…”|The people or animals in it|The place|The time|The pictures
+“The plot of a story is…”|What happens in it|The title|The author|The cover
+“At the beach, Leo built a huge sandcastle, but a wave knocked it down.” What is the <b>problem</b>?|A wave knocked down the castle|Leo built a castle|It was sunny|Leo went home
+“The next morning, the snow was so deep that school was closed.” What is the <b>setting</b> time?|The next morning|Last year|At night|Summer
+“Grandma’s kitchen smelled like warm cookies.” What is the <b>setting</b>?|Grandma’s kitchen|The cookies|The oven|The school
+Which is a <b>character</b>?|A friendly dragon|A rainy day|The old barn|Last summer
+Which is a <b>setting</b>?|A busy city street|A brave knight|A sleepy cat|A talking fox
+The illustration shows a snowy hill, sleds, and kids in hats. What is the likely setting?|Winter|Summer|Beach|Desert`);
+const RL_STRUCT=L(`
+Which part of a story tells how the problem is solved?|The ending|The beginning|The title|The cover
+Which part of a story introduces the characters and setting?|The beginning|The ending|The middle|The glossary
+Which part of a story has the problem getting bigger?|The middle|The beginning|The title|The ending
+The story ends with, “So Mia and Biscuit walked home happily.” What does the ending do?|It finishes the action|It starts the story|It adds a new problem|It names the author
+Which happens <b>first</b>? Mia wakes up. Mia eats. Mia goes to school.|Mia wakes up|Mia eats|Mia goes to school|Mia sleeps
+Which happens <b>last</b>? Seed is planted. Plant grows. Flower blooms.|Flower blooms|Seed is planted|Plant grows|Plant is a seed
+A <b>paragraph</b> is…|A group of sentences about one idea|One word|A picture|A title
+A <b>sentence</b> begins with a capital letter and ends with…|An end mark|A comma|A number|Nothing
+A <b>stanza</b> is…|A group of lines in a poem|A kind of book|A character|A page number
+A <b>chapter</b> is…|A section of a book|A kind of word|A picture|A poem
+The words “First, Next, Then, Last” tell us the…|Order of events|Setting|Title|Author
+A story begins: “One day…” This is part of the…|Beginning|Ending|Glossary|Index`);
+const RL_FIG=L(`
+“The snow was soft as a blanket.” This is a…|Simile|Rhyme|Question|Title
+“Buzz! Splash! Boom!” These are…|Sound words|Colors|Names|Numbers
+“Sam is as quick as a rabbit.” This means Sam is…|Very fast|A rabbit|Slow|Sleepy
+“It’s raining cats and dogs.” This means…|It is raining very hard|Pets are falling|It is sunny|It is a pet show
+“Silly snakes slide slowly.” This repeats the same beginning sound. It is…|Alliteration|A simile|A question|A title
+Which words show a <b>scary</b> tone?|Dark, creepy, howling|Bright, sunny, cheerful|Soft, warm, cozy|Fun, silly, giggly
+Which words show a <b>happy</b> tone?|Sunny, giggling, joyful|Gloomy, dreary, cold|Dark, scary, spooky|Angry, loud, grumpy
+“She was a ray of sunshine.” This means she…|Made people feel happy|Was made of light|Was hot|Was in the sky
+“He was <b>over the moon</b> about the trip.” This means he was…|Very happy|On the moon|Very sleepy|Angry
+“The wind whispered through the trees.” The wind really…|Made a soft sound|Talked|Whistled a song|Sang words
+Which is <b>literal</b> (real)?|The dog ran down the street.|The dog flew to the moon.|The dog was a rocket.|The dog sang opera.
+“My backpack weighs a ton!” This means it is…|Very heavy|Exactly a ton|Very light|Empty`);
+const RL_CMP=L(`
+In “The Three Little Pigs,” the pigs build houses of straw, sticks, and bricks. Which house is the strongest?|Brick|Straw|Sticks|Cloth
+In “The Three Little Pigs,” who tries to blow the houses down?|The wolf|The fox|The bear|The cat
+In “The Three Little Wolves and the Big Bad Pig,” who is the “big bad” one?|The pig|The wolf|The fox|The bear
+Both stories have three animals building houses. This is how they are…|The same|Different|Not alike at all|Poems
+In “The Three Little Pigs” the wolf is the villain. In the other version the villain is the…|Pig|Wolf|Dog|Cat
+When we say two stories have the <b>same message</b>, we mean they…|Teach the same lesson|Have the same title|Use the same words|Are the same length
+To <b>compare</b> two stories means to tell how they are…|The same|Different|Long|Short
+To <b>contrast</b> two stories means to tell how they are…|Different|The same|Funny|Old
+Two authors write about bees. One shows photos, one shows drawings. How are they alike?|Both are about bees|Both use photos|Both use drawings|Both are poems
+A folktale told in two countries has different names but the same lesson. These are…|Two versions of the same story|Two different poems|Two dictionaries|Two maps`);
+
+/* ===== 2. NONFICTION ===== */
+const P_BEES='Honey bees live together in a hive. Each hive has one queen, many workers, and a few drones. Worker bees collect nectar from flowers and make honey. Bees also help flowers grow by carrying pollen from plant to plant.';
+const P_POLAR='The Arctic is very cold and covered in ice. Polar bears live there. They have thick white fur and a layer of fat to stay warm. Polar bears hunt seals by waiting by holes in the ice. Their white fur helps them hide in the snow.';
+const P_SNAIL='A snail has a soft body and a hard shell. The shell protects the snail. When it is in danger, the snail pulls its body inside. Snails move slowly on one muscular foot. They leave a trail of slime behind them.';
+const RI_MAIN=ALLQ(
+ PS(P_BEES,['What is the <b>main topic</b>?|Honey bees|Flowers|Honey recipes|Hives only','Which <b>detail</b> supports the main topic?|Workers collect nectar|Flowers are pretty|Bees are scary|Honey is sweet to everyone','What do bees carry from plant to plant?|Pollen|Water|Wax|Stones','How many queens does each hive have?|One|Two|Ten|None']),
+ PS(P_POLAR,['What is the <b>main topic</b>?|How polar bears live in the Arctic|How to cook seals|Why snow is white|Penguins in the desert','Why do polar bears have <b>white fur</b>?|To hide in the snow|To look pretty|To stay cool|To swim faster','How do polar bears stay <b>warm</b>?|Thick fur and fat|Fires|Wearing coats|Sleeping all year','What do polar bears hunt?|Seals|Bees|Rabbits|Cows']),
+ PS(P_SNAIL,['What is the <b>main topic</b>?|Snails|Slime|Rocks|Shells in the sea','What does a snail’s shell do?|Protects it|Helps it fly|Makes it fast|Keeps it cold','What do snails leave behind?|A trail of slime|Footprints|Leaves|Wings','How does a snail move?|Slowly on one foot|Fast on four legs|By flying|By swimming'])
+);
+const RI_FEAT=L(`
+The <b>title</b> of a book tells…|What the book is about|Who drew it|The page count|The price
+A <b>heading</b> tells…|What a section is about|The author’s name|How to spell|The end
+A <b>caption</b> is…|Words under a picture that explain it|A kind of poem|A book cover|A fact about the author
+A <b>glossary</b> is…|A mini dictionary of important words|A list of pages|A map|A story
+An <b>index</b> is…|An alphabetical list of topics with page numbers|A story|A poem|A picture
+A <b>table of contents</b> is found at the…|Front of a book|Back of a book|Middle of a page|Cover only
+You want to find a word’s meaning fast in a nonfiction book. Use the…|Glossary|Cover|Title|Author page
+You want to find which page talks about “sharks.” Use the…|Index|Cover|Title|Caption
+<b>Bold</b> words in a book often mean…|The word is important and may be in the glossary|The word is wrong|The word is silly|The word is a name
+A <b>diagram</b> is…|A labeled picture that shows parts or steps|A poem|A kind of story|A cover
+A <b>map</b> shows…|Where places are|How to spell|What a word means|Who the author is
+A <b>label</b> on a picture tells…|The name of a part|The title|The price|The author
+A <b>photograph</b> in a text helps us…|See what the real thing looks like|Learn to spell|Hear the story|Find the page
+A <b>chart</b> or <b>graph</b> helps us…|Compare facts and numbers|Hear a poem|Find rhymes|Find the author`);
+const RI_PURP=L(`
+An author writes “How to Make a Paper Plane.” The purpose is to…|Explain how to do something|Make us laugh|Persuade us to buy|Tell a scary story
+An author writes “Why Dogs Make the Best Pets!” The purpose is to…|Persuade (share an opinion)|Teach about volcanoes|Give directions|Describe a dream
+An author writes about how penguins live. The purpose is to…|Inform (give facts)|Persuade|Scare|Trick
+A poem about a rainy day describes the sights and sounds. The purpose is to…|Describe|Give directions|Sell|Argue
+An author asks, “Why do leaves change color?” and then answers it. The purpose is to…|Answer a question|Tell a joke|Sell leaves|Hide facts
+A recipe tells you the steps to bake cookies. It is a…|Functional (how-to) text|Poem|Fairy tale|Fable
+A letter to your grandma is a…|Friendly letter|Recipe|Fairy tale|Dictionary
+A <b>fact</b> is…|Something that can be proven true|What someone thinks|A feeling|A guess
+An <b>opinion</b> is…|What someone thinks or feels|Something proven|A map|A number
+Which is a <b>fact</b>?|Spiders have eight legs.|Spiders are scary.|Spiders are ugly.|Spiders are the worst.
+Which is an <b>opinion</b>?|Ice cream is the best food.|Ice cream is cold.|Ice cream melts.|Ice cream is made from milk.
+Which is a <b>fact</b>?|The sun is a star.|The sun is pretty.|The sun is boring.|The sun is the best.`);
+const RI_STEPS=L(`
+How to make a sandwich. Put these in order: Put on the bread, add cheese, eat. What is first?|Put on the bread|Eat|Add cheese|Wash dishes
+To plant a seed: dig a hole, put in the seed, cover it, water it. What comes right <b>after</b> digging a hole?|Put in the seed|Water it|Cover it|Pick flowers
+Words like <b>first, next, then, last</b> are clue words for…|Steps in order|Setting|Rhymes|Titles
+The ice melted <b>because</b> the sun was hot. What caused the ice to melt?|The hot sun|The cold|The wind|The snow
+The plant grew tall <b>because</b> it got water and sun. What is the <b>effect</b>?|The plant grew tall|It got water|It got sun|It was a seed
+The seed needs water and sun. Which is the <b>cause</b>?|Water and sun|A tall plant|A flower|A fruit
+The caterpillar becomes a chrysalis, then a butterfly. What is the <b>life cycle order</b>?|Caterpillar, chrysalis, butterfly|Butterfly, egg, flower|Chrysalis, egg, leaf|Flower, bee, honey
+Water goes up as vapor, forms clouds, then falls as rain. What happens right after clouds form?|Rain falls|Water goes up|Snow melts|Seeds grow
+A text says: “Bones give your body shape. Muscles help bones move.” How are they connected?|Muscles move the bones|Bones move muscles|They are not related|Both are food
+First you wash your hands. Why?|To get rid of germs|To get dirty|To play|To eat the soap`);
+const RI_FNF=L(`
+A book with real photos of tigers and facts about them is…|Nonfiction|Fiction|A fairy tale|A poem
+A story about a talking bear who drives a bus is…|Fiction|Nonfiction|A map|A textbook
+A book about the life of a real artist is…|Nonfiction|Fiction|A fairy tale|A made-up story
+“Peter Rabbit” by Beatrix Potter is…|Fiction|Nonfiction|A dictionary|A map
+A how-to book on making paper crafts is…|Nonfiction|Fiction|A fairy tale|A tall tale
+Fiction stories are…|Made up|All true|Always about animals|Always poems
+Nonfiction books give…|True information|Only made-up stories|Only rhymes|Only jokes
+A book with a glossary and index is probably…|Nonfiction|Fiction|A fairy tale|A song
+A book about real insects in the backyard is…|Nonfiction|Fiction|Fantasy|A fable
+A book where animals wear clothes and talk is…|Fiction|Nonfiction|A science book|A map
+“Narrative nonfiction” tells…|A true story|A made-up story|A poem|A joke`);
+const RI_DOM=L(`
+The <b>Arctic</b> and <b>Antarctic</b> are the…|Polar regions|Deserts|Rainforests|Oceans only
+Which animal lives in the <b>Arctic</b>?|Polar bear|Penguin|Giraffe|Lion
+Which animal lives in <b>Antarctica</b>?|Penguin|Polar bear|Elephant|Tiger
+A <b>habitat</b> is…|A home where animals live|A kind of food|A kind of weather|A toy
+How many legs does an <b>insect</b> have?|Six|Eight|Four|Ten
+How many legs does a <b>spider</b> have?|Eight|Six|Four|Two
+A spider spins a web to…|Catch food|Sleep in|Keep warm|Make honey
+A <b>butterfly</b> begins life as an…|Egg|Adult|Flower|Seed
+A baby butterfly is called a…|Caterpillar|Pup|Cub|Chick
+A <b>snail</b> carries its home on its back. This home is a…|Shell|Web|Nest|Hive
+Your <b>muscles</b> help your bones…|Move|Break|Grow leaves|Hear
+Your <b>skull</b> protects your…|Brain|Heart|Stomach|Feet
+Your <b>ribs</b> protect your…|Heart and lungs|Brain|Feet|Hands
+<b>Pollen</b> is carried from flower to flower by…|Bees|Fish|Snow|Stones
+Insects have three body parts: head, thorax, and…|Abdomen|Tail|Shell|Fin`);
+const RI_CMP=L(`
+Text A: “Bees make honey.” Text B: “Bees help flowers grow.” Both texts are about…|Bees|Flowers only|Honey only|Spiders
+Two books about the ocean both say that whales are mammals. This is something that is…|The same in both|Different|Wrong|Not true
+One book says a spider has 8 legs. A second book says insects have 6 legs. The two books are…|About different animals|Wrong|About the same animal|Both fiction
+To <b>compare</b> two texts on the same topic, you look for…|Facts that are alike|Only the pictures|Only the titles|Only the authors
+To <b>contrast</b> two texts, you look for…|Facts that are different|Facts that are alike|The page count|The price
+Two authors write about frogs. One includes a diagram of a life cycle. What does the diagram do?|Clarifies the text with a picture|Hides facts|Tells a joke|Adds a rhyme
+A <b>photograph</b> in a nonfiction text helps because it…|Shows what something really looks like|Is always funny|Is always blue|Replaces all words
+A text says, “Bears sleep all winter.” A detail that supports this is…|Bears hibernate in dens|Bears like berries|Bears can climb|Bears live in zoos`);
+/* ===== 3. SOUNDS (phonemic awareness) ===== */
+const SD_BLEND=bankType(L(`
+Blend the sounds: <b>c - a - t</b>|cat
+Blend the sounds: <b>d - o - g</b>|dog
+Blend the sounds: <b>s - u - n</b>|sun
+Blend the sounds: <b>s - t - o - p</b>|stop
+Blend the sounds: <b>f - r - o - g</b>|frog
+Blend the sounds: <b>j - u - m - p</b>|jump
+Blend the sounds: <b>c - l - a - p</b>|clap
+Blend the sounds: <b>s - l - ee - p</b>|sleep
+Blend the sounds: <b>t - r - ai - n</b>|train
+Blend the sounds: <b>b - l - ue</b>|blue
+Blend the sounds: <b>s - t - r - i - p</b>|strip
+Blend the sounds: <b>s - p - l - a - t</b>|splat
+Blend the sounds: <b>s - p - r - i - ng</b>|spring
+Blend the sounds: <b>p - l - a - n - t</b>|plant
+Blend the sounds: <b>sh - i - p</b>|ship
+Blend the sounds: <b>ch - ai - r</b>|chair
+Blend the sounds: <b>th - i - n - k</b>|think
+Blend the sounds: <b>b - r - ea - d</b>|bread
+Blend the sounds: <b>g - r - ee - n</b>|green
+Blend the sounds: <b>s - n - ow</b>|snow
+Blend the sounds: <b>t - r - u - ck</b>|truck
+Blend the sounds: <b>f - l - a - g</b>|flag
+Blend the sounds: <b>m - i - l - k</b>|milk
+Blend the sounds: <b>s - t - or - m</b>|storm`));
+const SD_SEG=fixedMC([["cat",'3'],["ship",'3'],["stop",'4'],["frog",'4'],["chair",'3'],["sleep",'4'],["jump",'4'],["strap",'5'],["clap",'4'],["strip",'5'],["splash",'5'],["think",'4'],["spring",'5'],["plant",'5'],["truck",'4'],["queen",'4'],["at",'2'],["me",'2'],["night",'3'],["flag",'4']],['2','3','4','5'],x=>`How many <b>sounds</b> (phonemes) in <b>“${x}”</b>?`);
+const SD_ADD=bankType(L(`
+Say <b>and</b>. Add /s/ to the beginning. New word?|sand
+Say <b>at</b>. Add /b/ to the beginning. New word?|bat
+Say <b>top</b>. Add /s/ to the beginning. New word?|stop
+Say <b>lap</b>. Add /c/ to the beginning. New word?|clap
+Say <b>ram</b>. Add /p/ to the end. New word?|ramp
+Say <b>ten</b>. Add /t/ to the end. New word?|tent
+Say <b>cat</b>. Add /s/ to the end. New word?|cats
+Say <b>sip</b>. Add /k/ after /s/. New word?|skip
+Say <b>pay</b>. Add /l/ after /p/. New word?|play
+Say <b>bed</b>. Add /r/ after /b/. New word?|bred
+Say <b>fat</b>. Add /l/ after /f/. New word?|flat
+Say <b>tap</b>. Add /r/ after /t/. New word?|trap
+Say <b>ink</b>. Add /s/ to the beginning. New word?|sink
+Say <b>old</b>. Add /g/ to the beginning. New word?|gold`));
+const SD_DEL=bankType(L(`
+Say <b>smile</b>. Take away /s/. What is left?|mile
+Say <b>stop</b>. Take away /s/. What is left?|top
+Say <b>black</b>. Take away /b/. What is left?|lack
+Say <b>bring</b>. Take away /b/. What is left?|ring
+Say <b>plate</b>. Take away /p/. What is left?|late
+Say <b>slip</b>. Take away /s/. What is left?|lip
+Say <b>trip</b>. Take away /t/. What is left?|rip
+Say <b>spin</b>. Take away /s/. What is left?|pin
+Say <b>flip</b>. Take away /f/. What is left?|lip
+Say <b>bread</b>. Take away /b/. What is left?|red
+Say <b>clap</b>. Take away /c/. What is left?|lap
+Say <b>meat</b>. Take away /t/. What is left?|me
+Say <b>trail</b>. Take away /t/. What is left?|rail
+Say <b>seat</b>. Take away /t/. What is left?|sea`));
+const SD_SUB=bankType(L(`
+Change the /k/ in <b>cat</b> to /h/. New word?|hat
+Change the /m/ in <b>map</b> to /c/. New word?|cap
+Change the /a/ in <b>cat</b> to /u/. New word?|cut
+Change the /i/ in <b>big</b> to /a/. New word?|bag
+Change the last sound in <b>cap</b> to /t/. New word?|cat
+Change the /b/ in <b>boat</b> to /c/. New word?|coat
+Change the /s/ in <b>sun</b> to /r/. New word?|run
+Change the /o/ in <b>hot</b> to /i/. New word?|hit
+Change the /p/ in <b>pig</b> to /d/. New word?|dig
+Change the /ch/ in <b>chip</b> to /sh/. New word?|ship
+Change the /th/ in <b>thin</b> to /ch/. New word?|chin
+Change the /g/ in <b>goat</b> to /b/. New word?|boat
+Change the /e/ in <b>bed</b> to /u/. New word?|bud
+Change the /t/ in <b>tail</b> to /m/. New word?|mail
+Change the /f/ in <b>fish</b> to /d/. New word?|dish
+Change the /l/ in <b>log</b> to /d/. New word?|dog`));
+const SD_RHYME=bankMC(L(`
+Which word rhymes with <b>cake</b>?|lake|cat|cook|coat
+Which word rhymes with <b>night</b>?|light|nine|net|nut
+Which word rhymes with <b>play</b>?|day|pen|pie|pull
+Which word rhymes with <b>boat</b>?|goat|bat|beet|book
+Which word rhymes with <b>tree</b>?|bee|try|toy|ten
+Which word rhymes with <b>ring</b>?|sing|run|rain|rag
+Which word rhymes with <b>star</b>?|car|stir|stay|sun
+Which word rhymes with <b>moon</b>?|spoon|man|mine|mean
+Which word rhymes with <b>hop</b>?|stop|hip|hope|hat
+Which word rhymes with <b>bear</b>?|chair|beer|boar|bar
+Which word does <b>not</b> rhyme: cat, hat, dog, bat?|dog|cat|hat|bat
+Which word does <b>not</b> rhyme: sun, run, fun, pan?|pan|sun|run|fun`),{fill:false});
+const SD_SYL=fixedMC([["banana",'3'],["elephant",'3'],["pencil",'2'],["butterfly",'3'],["cat",'1'],["computer",'3'],["rabbit",'2'],["dinosaur",'3'],["watermelon",'4'],["alligator",'4'],["window",'2'],["strawberry",'3'],["dog",'1'],["umbrella",'3'],["helicopter",'4'],["pizza",'2'],["tomato",'3'],["school",'1']],['1','2','3','4'],x=>`Clap the syllables. How many in <b>“${x}”</b>?`);
+const SD_POS=bankMC(L(`
+What is the <b>first</b> sound in <b>ship</b>?|/sh/|/s/|/p/|/i/
+What is the <b>last</b> sound in <b>cat</b>?|/t/|/c/|/a/|/k/
+What is the <b>middle</b> sound in <b>sun</b>?|/u/|/s/|/n/|/a/
+What is the <b>first</b> sound in <b>chair</b>?|/ch/|/c/|/h/|/r/
+What is the <b>last</b> sound in <b>fish</b>?|/sh/|/f/|/i/|/s/
+What is the <b>first</b> sound in <b>think</b>?|/th/|/t/|/i/|/k/
+What is the <b>middle</b> sound in <b>boat</b>?|/oa/|/b/|/t/|/a/
+What is the <b>last</b> sound in <b>rain</b>?|/n/|/r/|/ai/|/i/
+What is the <b>middle</b> sound in <b>feet</b>?|/ee/|/f/|/t/|/e/
+What is the <b>first</b> sound in <b>whale</b>?|/w/|/h/|/l/|/a/
+What is the <b>last</b> sound in <b>ring</b>?|/ng/|/n/|/r/|/i/
+What is the <b>first</b> sound in <b>knee</b>?|/n/|/k/|/e/|/ee/`),{fill:false});
+
+/* ===== 4. PHONICS ===== */
+const PH_VOW=bankMC(L(`
+Which word has a <b>long a</b> sound?|cake|cat|cap|can
+Which word has a <b>short a</b> sound?|map|cake|rain|play
+Which word has a <b>long i</b> sound?|bike|big|bin|sit
+Which word has a <b>short i</b> sound?|pig|pine|kite|time
+Which word has a <b>long o</b> sound?|home|hot|top|dog
+Which word has a <b>short o</b> sound?|log|rope|boat|snow
+Which word has a <b>long u</b> sound?|cube|cup|bus|sun
+Which word has a <b>short u</b> sound?|bug|tube|mule|cute
+Which word has a <b>long e</b> sound?|green|bed|pet|hen
+Which word has a <b>short e</b> sound?|bed|feet|tree|bee
+Which word has the <b>same</b> vowel sound as <b>cake</b>?|rain|cap|cot|cut
+Which word has the <b>same</b> vowel sound as <b>sit</b>?|pin|pine|bike|hide`),{fill:false});
+const PH_SILE=bankType(L(`
+Add a silent <b>e</b> to <b>cap</b>. New word?|cape
+Add a silent <b>e</b> to <b>kit</b>. New word?|kite
+Add a silent <b>e</b> to <b>hop</b>. New word?|hope
+Add a silent <b>e</b> to <b>tub</b>. New word?|tube
+Add a silent <b>e</b> to <b>pin</b>. New word?|pine
+Add a silent <b>e</b> to <b>cub</b>. New word?|cube
+Add a silent <b>e</b> to <b>rob</b>. New word?|robe
+Add a silent <b>e</b> to <b>mad</b>. New word?|made
+Add a silent <b>e</b> to <b>not</b>. New word?|note
+Add a silent <b>e</b> to <b>plan</b>. New word?|plane
+Add a silent <b>e</b> to <b>slid</b>. New word?|slide
+Add a silent <b>e</b> to <b>bit</b>. New word?|bite
+Add a silent <b>e</b> to <b>fin</b>. New word?|fine
+Add a silent <b>e</b> to <b>tap</b>. New word?|tape`));
+const PH_TEAM=bankMC(L(`
+tr__n (it runs on tracks)|ai|ay|oa|ee
+pl__ (to have fun)|ay|ai|ee|oa
+b__t (it floats on water)|oa|ai|ee|ay
+s__d (a plant starts as this)|ee|ay|oa|oi
+l__f (grows on a tree)|ea|ay|oa|oi
+p__nt (use a brush)|ai|ay|ee|oa
+sn__ (white and cold)|ow|ai|ee|ay
+gr__n (a color)|ee|ay|oa|ai
+t__ (a drink)|ea|ay|oa|oi
+c__ch (a trainer)|oa|ai|ee|ay
+d__ (the opposite of night)|ay|ai|oa|ee
+r__d (to look at words)|ea|ay|oa|oi
+w__t (to stay until later)|ai|ay|ee|oa
+m__l (letters come in it)|ai|ay|ee|oa
+b__ (it makes honey)|ee|ay|oa|ai`));
+const PH_DIPH=bankMC(L(`
+c__n (a nickel)|oi|ou|aw|ay
+b__ (a young male)|oy|oi|ou|aw
+cl__d (in the sky)|ou|oi|oy|aw
+h__se (a home)|ou|oi|oy|aw
+s__ (a tool to cut wood)|aw|ou|oi|oy
+l__n (grass)|aw|ou|oi|oy
+br__n (a color)|ow|oi|oy|aw
+t__ (a plaything)|oy|oi|ou|aw
+m__se (a small animal)|ou|oi|oy|aw
+b__k (you read it)|oo|ou|oi|aw
+sp__n (you eat soup with it)|oo|ou|oi|aw
+Which word has the same vowel sound as <b>moon</b>?|spoon|book|coin|cow
+Which word has the same vowel sound as <b>book</b>?|cook|moon|toy|saw
+Which word has the same vowel sound as <b>cow</b>?|house|toy|saw|moon
+Which word has the same vowel sound as <b>boy</b>?|coin|cow|saw|moon`),{fill:false});
+const PH_VR=bankMC(L(`
+b__d (it flies)|ir|ar|or|oa
+f__k (you eat with it)|or|ar|ir|ur
+c__d (a playing ___)|ar|or|ir|er
+t__n (to go around)|ur|ar|or|ai
+st__ (twinkles at night)|ar|or|ir|ur
+h__ (not him)|er|ar|or|oi
+sh__t (you wear it)|ir|ar|or|oa
+c__n (yellow veggie)|or|ar|ir|ur
+f__m (animals live there)|ar|or|ir|er
+th__d (number three, ___)|ir|ar|or|oo
+Which word has the <b>ar</b> sound as in car?|star|bird|fork|her
+Which word has the <b>or</b> sound as in corn?|horn|farm|bird|turn
+Which word has the <b>ir</b> sound as in bird?|girl|barn|corn|car`),{fill:false});
+const PH_SIL=bankMC(L(`
+In <b>knife</b>, which letter is silent?|k|n|i|f
+In <b>write</b>, which letter is silent?|w|r|t|i
+In <b>lamb</b>, which letter is silent?|b|l|a|m
+In <b>gnat</b>, which letter is silent?|g|n|a|t
+In <b>climb</b>, which letter is silent?|b|c|l|i
+In <b>wrong</b>, which letter is silent?|w|r|o|n
+In <b>thumb</b>, which letter is silent?|b|u|m|t
+In <b>comb</b>, which letter is silent?|b|c|o|m
+In <b>gnome</b>, which letter is silent?|g|n|o|m
+In <b>wrap</b>, which letter is silent?|w|r|a|p
+In <b>island</b>, which letter is silent?|s|i|l|a
+In <b>listen</b>, which letter is silent?|t|l|s|n
+In <b>castle</b>, which letter is silent?|t|c|s|l
+In <b>knee</b>, which letter at the start is silent?|k|n|e|ee
+In <b>wrist</b>, which letter at the start is silent?|w|r|i|s`),{fill:false});
+const PH_AFFIX=bankMC(L(`
+<b>un</b> + happy means…|not happy|very happy|happy again|happy day
+<b>re</b> + read means…|read again|not read|read less|read before
+<b>pre</b> + heat means…|heat before|heat again|not heat|heat after
+<b>dis</b> + agree means…|not agree|agree again|agree more|agree before
+<b>mis</b> + spell means…|spell wrongly|spell again|not spell|spell more
+<b>un</b> + lock means…|open (not locked)|lock again|lock more|lock before
+The suffix <b>-ful</b> in <b>helpful</b> means…|full of|without|not|again
+The suffix <b>-less</b> in <b>careless</b> means…|without|full of|again|more
+The suffix <b>-ly</b> in <b>slowly</b> means…|in a slow way|not slow|slow again|more slow
+The suffix <b>-er</b> in <b>teacher</b> means…|a person who teaches|not teach|teach again|full of teach
+The suffix <b>-est</b> in <b>tallest</b> means…|the most tall|not tall|more tall|less tall
+The suffix <b>-ed</b> in <b>jumped</b> tells us it happened in the…|Past|Future|Present|Never
+Which word has a <b>prefix</b>?|unfair|jumped|careful|sadly
+Which word has a <b>suffix</b>?|hopeful|replay|unlock|dislike`),{fill:false});
+const PH_ADD=bankType(L(`
+jump + ed = ?|jumped
+hop + ed = ? (double the consonant)|hopped
+make + ing = ? (drop the e)|making
+happy + er = ? (change y to i)|happier
+run + ing = ? (double the consonant)|running
+bake + ed = ? (drop the e)|baked
+cry + ed = ? (change y to i)|cried
+big + er = ? (double the consonant)|bigger
+stop + ed = ?|stopped
+smile + ing = ?|smiling
+play + ed = ?|played
+carry + ed = ?|carried
+sad + er = ?|sadder
+hope + ing = ?|hoping
+fast + er = ?|faster`));
+const PH_SYLSPLIT=bankMC(L(`
+How do you split <b>rabbit</b> into syllables?|rab-bit|ra-bbit|rabb-it|r-abbit
+How do you split <b>pencil</b> into syllables?|pen-cil|pe-ncil|penc-il|p-encil
+How do you split <b>basket</b> into syllables?|bas-ket|ba-sket|b-asket|bask-et
+How do you split <b>robot</b> into syllables?|ro-bot|rob-ot|r-obot|robo-t
+How do you split <b>tiger</b> into syllables?|ti-ger|tig-er|t-iger|tige-r
+How do you split <b>napkin</b> into syllables?|nap-kin|na-pkin|napk-in|n-apkin
+How do you split <b>music</b> into syllables?|mu-sic|mus-ic|m-usic|musi-c
+How do you split <b>happen</b> into syllables?|hap-pen|ha-ppen|happ-en|h-appen
+How do you split <b>finish</b> into syllables?|fin-ish|fi-nish|finis-h|f-inish
+How do you split <b>sunset</b> into syllables?|sun-set|su-nset|suns-et|s-unset
+How do you split <b>paper</b> into syllables?|pa-per|pap-er|p-aper|pape-r
+How do you split <b>winter</b> into syllables?|win-ter|wi-nter|wint-er|w-inter`),{fill:false});
+const PH_SYLTYPE=bankMC(L(`
+<b>go</b> is an <b>open</b> syllable because it ends with…|a vowel|a consonant|silent e|an r
+<b>hop</b> is a <b>closed</b> syllable because it has a vowel followed by…|a consonant|another vowel|silent e|nothing
+<b>cake</b> is a <b>silent e</b> syllable. The e…|makes the a say its name|says /e/|is loud|comes first
+<b>car</b> is a <b>vowel-r</b> syllable because the vowel is followed by…|r|e|s|t
+What kind of syllable is <b>me</b>?|Open|Closed|Silent e|Vowel-r
+What kind of syllable is <b>bike</b>?|Silent e|Open|Closed|Vowel-r
+What kind of syllable is <b>her</b>?|Vowel-r|Open|Closed|Silent e
+What kind of syllable is <b>sit</b>?|Closed|Open|Silent e|Vowel-r
+What kind of syllable is <b>no</b>?|Open|Closed|Silent e|Vowel-r
+What kind of syllable is <b>fort</b>?|Vowel-r|Open|Closed|Silent e
+The first syllable of <b>paper</b> (<b>pa</b>) is…|Open|Closed|Silent e|Vowel-r
+The first syllable of <b>rabbit</b> (<b>rab</b>) is…|Closed|Open|Silent e|Vowel-r`),{fill:false});
+const PH_JOIN=bankType(L(`
+Put the syllables together: <b>sun + set</b>|sunset
+Put the syllables together: <b>pic + nic</b>|picnic
+Put the syllables together: <b>bas + ket</b>|basket
+Put the syllables together: <b>num + ber</b>|number
+Put the syllables together: <b>mon + key</b>|monkey
+Put the syllables together: <b>wa + ter</b>|water
+Put the syllables together: <b>fun + ny</b>|funny
+Put the syllables together: <b>pa + per</b>|paper
+Put the syllables together: <b>hap + py</b>|happy
+Put the syllables together: <b>rob + in</b>|robin
+Put the syllables together: <b>sis + ter</b>|sister
+Put the syllables together: <b>win + ter</b>|winter
+Put the syllables together: <b>sand + wich</b>|sandwich
+Put the syllables together: <b>but + ter + fly</b>|butterfly`));
+
+/* ===== 5. SPELLING LAB ===== */
+const spellMissing=list=>{const nx=wordDeck(list.filter(w=>w.length>=4));return()=>{const w=nx();const idx=[...w].map((_,i)=>i).filter(i=>i>0);const h=new Set();const n=w.length>=6?2:1;while(h.size<n)h.add(pick(idx));return{t:'type',q:'Type the whole word. Fill in the missing letters:<div class="letters">'+[...w].map((c,i)=>`<b>${h.has(i)?'_':c.toUpperCase()}</b>`).join('')+'</div>',a:w,speakWord:w,say:w}}};
+const SP_RULES=bankMC(L(`
+Add <b>-ed</b> to <b>stop</b>.|stopped|stoped|stopt|stopd
+Make <b>baby</b> mean more than one.|babies|babys|babyes|babis
+Make <b>box</b> mean more than one.|boxes|boxs|boxies|boxen
+Make <b>wish</b> mean more than one.|wishes|wishs|wishies|wishez
+Add <b>-ed</b> to <b>try</b>.|tried|tryed|trid|tryd
+Add <b>-ing</b> to <b>make</b>.|making|makeing|makking|makin
+Add <b>-est</b> to <b>big</b>.|biggest|bigest|bigiest|bigst
+Add <b>-ing</b> to <b>hop</b>.|hopping|hoping|hopeing|hopin
+Add <b>-ness</b> to <b>happy</b>.|happiness|happyness|happines|hapiness
+Make <b>city</b> mean more than one.|cities|citys|cityes|citis
+Make <b>knife</b> mean more than one.|knives|knifes|knifs|knifies
+Make <b>tooth</b> mean more than one.|teeth|tooths|toothes|teeths
+Make <b>child</b> mean more than one.|children|childs|childen|childrens
+Make <b>dress</b> mean more than one.|dresses|dresss|dressies|dreses
+Add <b>-ed</b> to <b>carry</b>.|carried|carryed|carrid|caried`),{fill:false});
+/* ===== 6. GRAMMAR ===== */
+const GR_NOUN=bankMC(L(`
+Which word is a <b>noun</b>?|dog|run|happy|quickly
+Which word is a <b>noun</b>?|school|jump|blue|softly
+Which word is a <b>verb</b>?|jump|table|red|very
+Which word is a <b>verb</b>?|swim|ball|tall|slowly
+Which word is an <b>adjective</b>?|tall|chair|climb|loudly
+Which word is an <b>adjective</b>?|shiny|run|girl|gently
+Which word is an <b>adverb</b>?|quickly|quick|runner|run
+Which word is an <b>adverb</b>?|softly|soft|song|sing
+In “The <b>cat</b> sleeps.” the word <b>cat</b> is a…|noun|verb|adjective|adverb
+In “She <b>runs</b> fast.” the word <b>runs</b> is a…|verb|noun|adjective|adverb
+In “A <b>red</b> apple.” the word <b>red</b> is an…|adjective|noun|verb|adverb
+In “He spoke <b>quietly</b>.” the word <b>quietly</b> is an…|adverb|adjective|noun|verb
+Which is a <b>collective noun</b>?|flock|bird|fly|feathery
+Which is a <b>proper noun</b>?|Sioux Falls|city|town|place
+Which is a <b>common noun</b>?|city|Sioux Falls|Mahtab|Monday`),{fill:false});
+const GR_PLURAL=bankMC(L(`
+More than one <b>foot</b> is…|feet|foots|feets|footes
+More than one <b>mouse</b> is…|mice|mouses|mices|meese
+More than one <b>man</b> is…|men|mans|mens|manes
+More than one <b>woman</b> is…|women|womans|womens|womenes
+More than one <b>goose</b> is…|geese|gooses|geeses|goosen
+More than one <b>sheep</b> is…|sheep|sheeps|sheepes|shep
+More than one <b>fish</b> is…|fish|fishes|fishs|fishen
+More than one <b>deer</b> is…|deer|deers|deeres|dears
+More than one <b>leaf</b> is…|leaves|leafs|leafes|leavs
+More than one <b>wolf</b> is…|wolves|wolfs|wolfes|wolvs
+More than one <b>child</b> is…|children|childs|childrens|childes
+More than one <b>tooth</b> is…|teeth|tooths|teeths|toothes
+More than one <b>ox</b> is…|oxen|oxes|oxs|ox's
+More than one <b>life</b> is…|lives|lifes|lifs|livees
+More than one <b>puppy</b> is…|puppies|puppys|puppyes|puppis`),{fill:false});
+const GR_SV=bankMC(L(`
+The dog ___ in the yard.|plays|play|playing|played to
+The dogs ___ in the yard.|play|plays|playing to|played to
+She ___ to school every day.|walks|walk|walking|walkes
+They ___ to school every day.|walk|walks|walking|walkes
+My brother ___ a book.|reads|read now|reading|readed
+The birds ___ in the tree.|sing|sings|singing|sang to
+He ___ his teeth every night.|brushes|brush|brushing|brushs
+We ___ lunch at noon.|eat|eats|eating|eated
+The cat ___ on the sofa.|sleeps|sleep|sleeping|sleepes
+The children ___ at recess.|play|plays|playing|played to
+Mom ___ dinner now.|cooks|cook|cooking|cooked to
+The bees ___ around the flowers.|buzz|buzzes|buzzing|buzzed to
+It ___ raining today.|is|are|am|be
+They ___ my friends.|are|is|am|be
+I ___ happy.|am|is|are|be`),{fill:false});
+const GR_PAST=bankMC(L(`
+Yesterday I ___ to the park. (go)|went|goed|gone|going
+Yesterday she ___ a picture. (draw)|drew|drawed|drawn|drawing
+Last night we ___ pizza. (eat)|ate|eated|eaten|eating
+Yesterday he ___ a big fish. (catch)|caught|catched|catch|catching
+Last week I ___ a new bike. (get)|got|getted|gotten|getting
+Yesterday they ___ to school. (run)|ran|runned|run|running
+Yesterday I ___ a book. (read)|read|readed|reading|red
+She ___ the ball to me. (throw)|threw|throwed|thrown|throwing
+The sun ___ at six this morning. (rise)|rose|rised|risen|rising
+He ___ his shoes. (wear)|wore|weared|worn|wearing
+I ___ my friend a card. (give)|gave|gived|given|giving
+We ___ a loud noise. (hear)|heard|hearded|hear|hearing
+The bird ___ away. (fly)|flew|flied|flown|flying
+She ___ her hand. (raise)|raised|rised|raise|raising
+He ___ the door. (shut)|shut|shutted|shutting|shuted`),{fill:false});
+const GR_PRON=bankMC(L(`
+Mahtab hurt ___ . (reflexive)|herself|himself|themselves|myself
+Ali made lunch for ___ .|himself|herself|themselves|yourself
+I can tie my shoes by ___ .|myself|himself|herself|ourselves
+We cleaned the room ___ .|ourselves|myself|himself|itself
+The cat washed ___ .|itself|himself|myself|themselves
+___ is my best friend. (a girl)|She|He|They are|It
+___ are playing outside. (more than one)|They|He|She|It
+Give the ball to ___ . (a boy)|him|he|his|she
+Mom gave ___ a hug. (me)|me|I|my|mine
+This is ___ book. (belongs to me)|my|me|I|mine is
+The dog wagged ___ tail.|its|it's|it|their
+___ going to the park. (We are)|We're|Were|Where|Wear
+Which pronoun can replace “Tom and I”?|We|They|He|You
+Which pronoun can replace “the girls”?|They|She|He|We
+Which pronoun can replace “the book”?|It|He|She|They`),{fill:false});
+const GR_PREP=bankMC(L(`
+The cat is ___ the box. (inside)|in|on|over|at the
+The bird sat ___ the branch. (on top)|on|under|in|between
+The dog hid ___ the table. (below)|under|over|on|above
+The plane flew ___ the clouds. (higher than)|above|below|under|in
+She stood ___ her two friends. (in the middle)|between|beside|behind|under
+He sat ___ me. (next to)|beside|beneath|inside|below
+We walked ___ the bridge. (from one side to the other)|across|inside|under|into
+The cat jumped ___ the box. (going in)|into|onto|over|from
+Which word is a <b>preposition</b>?|under|jump|happy|dog
+Which word is a <b>preposition</b>?|behind|run|soft|girl
+We play ___ recess. (a time)|at|on|of|by
+We eat breakfast ___ the morning.|in|on|at|by
+School starts ___ Monday.|on|in|at|by
+I go to bed ___ night.|at|on|of|by
+The book is ___ the shelf.|on|in front|at on|by on`),{fill:false});
+const GR_CONJ=bankMC(L(`
+I like apples ___ I like pears. (adds)|and|but|or|so
+I like soup, ___ I do not like salad. (shows a difference)|but|and|so|because
+Do you want milk ___ juice? (a choice)|or|and|but|so
+It was raining, ___ we stayed inside. (a result)|so|but|or|and
+I was happy ___ I won the game. (a reason)|because|but|or|so
+Which word is a <b>conjunction</b>?|and|jump|big|under
+Which word is a <b>conjunction</b>?|but|dog|happy|over
+He was tired, ___ he kept playing. (shows a difference)|but|so|because|or
+We can walk ___ ride our bikes.|or|because|so|but
+She smiled ___ she got a gift.|because|or|but|and
+Join: <b>I ran. I was late.</b>|I ran, but I was late.|I ran but, I was late.|I ran. but I was late|I ran I but was late.
+Which is a complete sentence?|The dog barked loudly.|The big dog.|Barked loudly.|Under the bed.
+Which is a <b>fragment</b> (not a full sentence)?|Under the big bed.|The dog barked.|We ran home.|I like pizza.
+Which is a <b>run-on</b> sentence?|I like pizza I like cake I like pie.|I like pizza.|I like pizza and cake.|Pizza is good.
+Which sentence is a <b>command</b>?|Please close the door.|Who is at the door?|The door is open.|What a big door!`),{fill:false});
+const GR_SENT=bankMC(L(`
+Which is a <b>statement</b>?|The sun is hot.|Is the sun hot?|How hot the sun is!|Stay out of the sun.
+Which is a <b>question</b>?|Where is my hat?|My hat is red.|Put on your hat.|What a nice hat!
+Which is an <b>exclamation</b>?|What a big dog!|The dog is big.|Is the dog big?|Pet the dog.
+Which sentence ends with a <b>question mark</b>?|What is your name|My name is Sam|Tell me your name|I love my name
+What end mark goes at the end of “Can you help me”?|?|.|!|,
+What end mark goes at the end of “Wow, that is amazing”?|!|?|.|,
+What end mark goes at the end of “I have a pet cat”?|.|?|!|,
+A sentence that gives an order is a…|command|question|statement|fragment
+A sentence that asks something is a…|question|statement|command|exclamation
+A sentence that shows strong feeling is an…|exclamation|statement|question|command`),{fill:false});
+const GR_BUILD=bankBuild([
+ "the dog runs fast","I like to read books","we play at the park","my cat sleeps all day",
+ "she is reading a big book","the birds sing in the tree","he wore a red hat",
+ "can you help me","our class went to the zoo","the sun is very hot",
+ "they made a snowman","I love my family"
+],"Tap the words in order to make a sentence:");
+const GR_CONFUSE=bankMC(L(`
+___ going to the park. (they are)|They're|Their|There|Thair
+The kids put ___ shoes away. (belongs to them)|their|there|they're|thare
+Put the book over ___ .|there|their|they're|thear
+I want to go ___ . (also)|too|to|two|tue
+I have ___ dogs. (the number 2)|two|to|too|tow
+We went ___ the store.|to|too|two|tu
+___ the best friend ever! (you are)|You're|Your|Youre|Yore
+Is this ___ coat? (belongs to you)|your|you're|yore|youre
+Which is correct?|It's a nice day.|Its a nice day.|Its' a nice day.|Its’s a nice day.
+The dog wagged ___ tail. (belongs to it)|its|it's|its'|it
+Can I ___ a cookie? (have permission)|have|of|has to|halve
+I could ___ gone. (could have)|have|of|ov|half
+I ___ the ball. (past of throw)|threw|through|thru|threw to
+We walked ___ the tunnel.|through|threw|thru|trew
+Which word means “to hear with”?|ears|hears|heres|here`),{fill:false});
+
+/* ===== 7. CAPITALS, COMMAS & APOSTROPHES ===== */
+const CP_CAP=bankMC(L(`
+Which sentence is written correctly?|My friend lives in Sioux Falls.|my friend lives in sioux falls.|My Friend lives in sioux falls.|my Friend Lives In Sioux Falls.
+Which is correct?|We go to school on Monday.|We go to school on monday.|we go to School on Monday.|We Go to school on Monday.
+Which is correct?|Mahtab has a pet cat.|mahtab has a pet cat.|Mahtab has a Pet cat.|Mahtab Has a pet cat.
+Which is correct?|My birthday is in July.|My birthday is in july.|my birthday is in July.|My Birthday is in july.
+Which word needs a capital letter? “we visited south dakota.”|south dakota|visited|we|we visited
+Which word needs a capital letter? “my dog is named max.”|max|dog|named|is
+Which is the correct title?|The Three Little Pigs|the three little pigs|The three little Pigs|the Three Little pigs
+Which is correct?|Dr. Smith and I went home.|dr. smith and i went home.|Dr. Smith and i went home.|dr smith and I went home.
+Which names a holiday correctly?|Thanksgiving|thanksgiving|THANKSgiving|thanksGiving
+Which names a place correctly?|Lake Erie|lake erie|Lake erie|lake Erie
+Which is correct? (the word “I”)|Today I will read.|Today i will read.|today I Will read.|Today i Will read.
+Which is correct?|On Friday, we play outside.|On friday, we play outside.|on Friday, we play outside.|On Friday, We play outside.`),{fill:false});
+const CP_COMMA=bankMC(L(`
+Where does the comma go? “I like red blue and green.”|After red and after blue|After like|After green|No comma
+Which is correct?|I have a cat, a dog, and a fish.|I have a cat a dog, and a fish.|I have, a cat a dog and a fish.|I have a cat, a dog and, a fish.
+Which is correct?|Yes, I can come.|Yes I, can come.|Yes I can, come.|Yes I can come,.
+Which is correct?|Hello, Grandma!|Hello Grandma,!|Hello Grandma!,|Hello, Grandma,!
+Which is correct? (date)|May 5, 2026|May, 5 2026|May 5 2026,|May 5 2,026
+Which is correct? (city and state)|Sioux Falls, South Dakota|Sioux, Falls South Dakota|Sioux Falls South, Dakota|Sioux Falls South Dakota,
+Which is correct?|Dear Aunt Sue,|Dear Aunt Sue.|Dear, Aunt Sue|Dear Aunt, Sue
+Which is the correct closing of a letter?|Your friend, Sam|Your friend Sam,|Your, friend Sam|Your friend. Sam
+Which is correct?|Well, I think it is fun.|Well I, think it is fun.|Well I think, it is fun.|Well I think it, is fun.
+Which is correct?|“I am hungry,” said Tom.|“I am hungry” said, Tom.|“I am hungry.” said Tom.|“I am hungry,” Said Tom.
+Which is correct?|No, thank you.|No thank, you.|No thank you,.|No, thank, you.
+Commas are used to separate items in a…|list|question|title|word`),{fill:false});
+const CP_APOS=bankMC(L(`
+The toy that belongs to Sam is…|Sam's toy|Sams toy|Sams' toy|Sam toy's
+The hat that belongs to the girl is…|the girl's hat|the girls hat|the girl hat's|the girls's hat
+The shoes that belong to the boys are…|the boys' shoes|the boy's' shoes|the boys's shoes|the boy shoes'
+Do + not = …|don't|do'nt|dont'|donot
+Can + not = …|can't|cant'|ca'nt|can'it
+I + am = …|I'm|Im'|I'am|Ia'm
+It + is = …|it's|its|its'|it'is
+They + are = …|they're|their|theyr'e|they'are
+We + will = …|we'll|well|we'l|wel'l
+Is + not = …|isn't|is'nt|isnt'|isn'it
+She + is = …|she's|shes|she'is|shes'
+Which word is a <b>contraction</b>?|can't|cannot|cant|can not
+Which is <b>correct</b>?|Mom's car|Moms car|Mom car's|Moms' car
+What does the apostrophe in <b>don't</b> replace?|the letter o|the letter d|the letter n|the letter t
+Which is correct?|The dog's bone|The dogs bone|The dog bone's|The dogs's bone`),{fill:false});
+const CP_FIX=bankMC(L(`
+Fix: <b>i like to read books</b>|I like to read books.|i like to read books.|I Like To Read Books.|I like to read books
+Fix: <b>where is my coat</b>|Where is my coat?|Where is my coat.|where is my coat?|Where is my coat!
+Fix: <b>we went to the zoo on saturday</b>|We went to the zoo on Saturday.|We went to the zoo on saturday.|we went to the zoo on Saturday.|We went to the Zoo on Saturday
+Fix: <b>wow that was great</b>|Wow, that was great!|Wow that was great.|wow, that was great!|Wow, That was great?
+Fix: <b>mom bought apples oranges and pears</b>|Mom bought apples, oranges, and pears.|Mom bought apples oranges and pears|mom bought apples, oranges, and pears.|Mom bought, apples oranges, and pears.
+Fix: <b>dont run in the hall</b>|Don't run in the hall.|Dont run in the hall.|dont' run in the hall.|Don't run in the hall
+Fix: <b>can you help me</b>|Can you help me?|Can you help me.|can you help me?|Can you, help me?
+Fix: <b>it was sams birthday</b>|It was Sam's birthday.|It was Sams birthday.|it was Sam's birthday.|It was Sams' birthday.`),{fill:false});
+const CP_LETTER=bankMC(L(`
+The <b>greeting</b> of a letter is…|Dear Grandma,|Love, Sam|Today I went to the park.|June 5, 2026
+The <b>closing</b> of a letter is…|Your friend,|Dear Mia,|May 3, 2026|I miss you.
+The <b>date</b> in a letter goes…|At the top|After the body|At the very end|In the middle
+The <b>signature</b> is…|Your name at the end|The first line|The date|The body
+The <b>body</b> of a letter is…|The message in the middle|The date|The closing|The greeting
+Which is <b>informal</b> English (talking with friends)?|Hey! What's up?|Good morning, sir. How may I help you?|Dear Principal Smith,|Thank you for your time.
+Which is <b>formal</b> English (talking with a principal)?|Good morning, Mr. Lee. May I ask a question?|Yo! Gimme that!|Hey, dude!|Whatcha doin'?
+When you talk to a teacher in class, you should use…|formal English|slang|whispering only|no words
+When you text with your best friend, you may use…|informal English|only formal English|no words|a speech
+Which is a good way to end a thank-you note?|Thank you! Your friend, Ali|Bye bye bye|The end of the day|Give me more
+An address on an envelope has…|Name, street, city, state|Only a name|Only a color|Only a number`),{fill:false});
+
+/* ===== 8. WORD POWER ===== */
+const WP_CONTEXT=bankMC(L(`
+The <b>enormous</b> elephant shook the ground. Enormous means…|very big|very small|very fast|very quiet
+Mia was <b>furious</b>, so she stomped away. Furious means…|very angry|very happy|very sleepy|very hungry
+The <b>tiny</b> ant was hard to see. Tiny means…|very small|very big|very loud|very cold
+The soup was <b>scalding</b>, so I blew on it. Scalding means…|very hot|very cold|very sweet|very salty
+We were <b>exhausted</b> after the long hike. Exhausted means…|very tired|very hungry|very loud|very happy
+The room was <b>silent</b>. You could hear a pin drop. Silent means…|very quiet|very loud|very dark|very small
+He was <b>delighted</b> with his gift and smiled wide. Delighted means…|very happy|very sad|very mad|very scared
+The cat <b>pounced</b> on the toy. Pounced means…|jumped quickly|slept|walked slowly|ate
+The ground was <b>damp</b> after the rain. Damp means…|a little wet|very dry|very hot|very hard
+The <b>fragile</b> glass broke when it fell. Fragile means…|easy to break|very heavy|very tall|very warm
+We <b>hurried</b> to catch the bus. Hurried means…|moved fast|moved slowly|sat down|fell asleep
+The path was <b>narrow</b>, only one person could walk. Narrow means…|not wide|very wide|very long|very short
+A <b>habitat</b> is where an animal lives. A fish’s habitat is…|a pond|a tree|a desert|a nest
+The sky was <b>gloomy</b> and gray. Gloomy means…|dark and sad-looking|bright and sunny|very loud|very warm
+Maria <b>gathered</b> shells on the beach. Gathered means…|collected|threw|lost|broke`),{fill:false});
+const WP_ROOT=bankMC(L(`
+What is the root word of <b>jumping</b>?|jump|jumpin|ing|jumpi
+What is the root word of <b>unhappy</b>?|happy|un|hap|unhap
+What is the root word of <b>replay</b>?|play|re|rep|lay
+What is the root word of <b>careful</b>?|care|ful|car|full
+What is the root word of <b>teacher</b>?|teach|tea|teacher|er
+What is the root word of <b>quickly</b>?|quick|ly|quic|quickl
+What is the root word of <b>helpless</b>?|help|less|hel|elp
+What is the root word of <b>unfair</b>?|fair|un|fa|fai
+What is the root word of <b>played</b>?|play|ed|pla|played
+What is the root word of <b>happiness</b>?|happy|ness|hap|happin
+What is the root word of <b>disagree</b>?|agree|dis|disag|gree
+What is the root word of <b>rewrite</b>?|write|re|rew|rite`),{fill:false});
+const WP_COMP=bankMC(L(`
+<b>sun</b> + <b>flower</b> = …|sunflower|sunflour|flowersun|sunflowers
+<b>rain</b> + <b>bow</b> = …|rainbow|rainbo|bowrain|rainbows
+<b>cup</b> + <b>cake</b> = …|cupcake|cupkake|cakecup|cupcakes
+<b>foot</b> + <b>ball</b> = …|football|footbal|ballfoot|footballs
+<b>snow</b> + <b>man</b> = …|snowman|snowmen|mansnow|snowmans
+<b>butter</b> + <b>fly</b> = …|butterfly|butterfli|flybutter|butterflys
+<b>star</b> + <b>fish</b> = …|starfish|starfiss|fishstar|starfishes
+<b>bed</b> + <b>room</b> = …|bedroom|bedrum|roombed|bedrooms
+Which is a compound word?|notebook|book|note|noting
+Which is a compound word?|sidewalk|walking|sides|walked
+Which is a compound word?|backpack|packing|backed|packed
+Which is a compound word?|playground|playing|grounded|played`),{fill:false});
+const WP_MULTI=bankMC(L(`
+“The bat flew out of the cave.” Bat means…|an animal|a baseball tool|to hit|a hat
+“He swung the bat at the ball.” Bat means…|a baseball tool|an animal|to fly|a cave
+“I will <b>duck</b> under the branch.” Duck means…|bend down|a bird|a pond|a swim
+“A duck swam in the pond.” Duck means…|a bird|bend down|a boat|a hat
+“Turn on the <b>light</b>.” Light means…|lamp or brightness|not heavy|a feather|a pillow
+“This box is <b>light</b>.” Light means…|not heavy|bright|a lamp|a color
+“We sat by the river <b>bank</b>.” Bank means…|the side of a river|a place for money|a store|a bridge
+“Dad went to the <b>bank</b> to get money.” Bank means…|a place for money|a river side|a hill|a boat
+“I will <b>play</b> a game.” Play means…|have fun|a stage show only|a rest|a sleep
+“We saw a <b>play</b> at school.” Play means…|a show on a stage|to run|to sleep|a game board
+“Please <b>close</b> the door.” Close means…|shut|near|far|open
+“The park is <b>close</b> to my house.” Close means…|near|shut|far|lock
+“A <b>row</b> of chairs.” Row means…|a line|a fight|to paddle|a river
+“Let’s <b>row</b> the boat.” Row means…|paddle|a line|stand|a fight
+“Hit the <b>nail</b> with a hammer.” Nail means…|a metal pin|a finger part|a tool box|a wall`),{fill:false});
+const WP_SYN=bankMC(L(`
+A synonym for <b>big</b> is…|large|tiny|thin|short
+A synonym for <b>happy</b> is…|glad|sad|mad|tired
+A synonym for <b>fast</b> is…|quick|slow|late|heavy
+A synonym for <b>little</b> is…|small|huge|tall|loud
+A synonym for <b>begin</b> is…|start|end|stop|wait
+A synonym for <b>shout</b> is…|yell|whisper|sleep|sing
+A synonym for <b>pretty</b> is…|lovely|ugly|rough|dull
+An antonym for <b>hot</b> is…|cold|warm|spicy|sunny
+An antonym for <b>up</b> is…|down|over|high|top
+An antonym for <b>day</b> is…|night|noon|morning|sun
+An antonym for <b>open</b> is…|closed|wide|empty|free
+An antonym for <b>full</b> is…|empty|big|heavy|round
+An antonym for <b>smooth</b> is…|rough|soft|flat|shiny
+An antonym for <b>brave</b> is…|scared|bold|strong|kind
+An antonym for <b>early</b> is…|late|soon|first|quick
+A synonym for <b>pick</b> is…|choose|drop|throw|miss`),{fill:false});
+const WP_DICT=bankMC(L(`
+Which word comes <b>first</b> in ABC order?|apple|banana|cherry|date
+Which word comes <b>first</b> in ABC order?|cat|dog|egg|fish
+Which word comes <b>last</b> in ABC order?|zebra|yak|wolf|van
+Which word comes <b>first</b> in ABC order?|bat|bear|bee|bug
+Which word comes <b>first</b> in ABC order?|clap|class|clay|clean
+Which word comes <b>last</b> in ABC order?|plum|plug|plus|plan
+Guide words are at the top of a dictionary page. They tell you the…|first and last word on the page|the author|the page color|the price
+A <b>glossary</b> is found in the back of a book and tells…|word meanings|the story|the pictures|the author
+A <b>dictionary</b> tells you the word's…|meaning|color|weight|size
+An <b>index</b> in a book helps you find…|topics and page numbers|the author|a picture only|a rhyme
+A <b>table of contents</b> is at the…|front of the book|back of the book|middle of a page|end of a word
+Where do you look to find out how to say a word?|dictionary|map|calendar|menu
+Which word would be on a page with guide words <b>cat</b> – <b>cow</b>?|cord|bat|dog|cab
+Which word would be on a page with guide words <b>sun</b> – <b>swim</b>?|sweet|sand|tap|stop`),{fill:false});
+const WP_SORT=bankMatch(L(`
+Apple=Fruit
+Banana=Fruit
+Grape=Fruit
+Carrot=Vegetable
+Broccoli=Vegetable
+Corn=Vegetable
+Dog=Animal
+Cat=Animal
+Horse=Animal
+Red=Color
+Blue=Color
+Green=Color
+Circle=Shape
+Square=Shape
+Triangle=Shape
+Robin=Bird
+Eagle=Bird
+Salmon=Fish
+Shark=Fish
+Rose=Flower
+Tulip=Flower
+Oak=Tree
+Pine=Tree
+Hammer=Tool
+Saw=Tool
+Monday=Day
+Friday=Day
+June=Month
+March=Month
+Spoon=Eating tool
+Fork=Eating tool`),'Match each word to its group!');
+const WP_ANTMATCH=bankMatch(L(`
+hot=cold
+up=down
+big=small
+fast=slow
+happy=sad
+open=close
+in=out
+day=night
+wet=dry
+hard=soft
+tall=short
+old=new
+full=empty
+light=dark
+early=late
+loud=quiet
+smooth=rough
+brave=scared`),'Match each word to its opposite!');
+const WP_SYNMATCH=bankMatch(L(`
+big=large
+small=tiny
+happy=glad
+quick=fast
+begin=start
+shout=yell
+pretty=lovely
+tired=sleepy
+smart=clever
+close=near
+rock=stone
+choose=pick
+mad=angry
+speak=talk
+jump=leap
+unhappy=sad`),'Match each word to a word that means the same!');
+/* ===== 9. WRITING WORKSHOP ===== */
+const WR_KIND=bankMC(L(`
+Writing that tells what you <b>think</b> and why is…|opinion writing|narrative writing|informative writing|a poem
+Writing that <b>teaches</b> facts about a topic is…|informative writing|opinion writing|narrative writing|a letter only
+Writing that tells a <b>story</b> about what happened is…|narrative writing|opinion writing|informative writing|a list
+“I think dogs make the best pets because…” is…|opinion writing|narrative writing|informative writing|a poem
+“Octopuses have eight arms and live in the sea.” is…|informative writing|opinion writing|narrative writing|a poem
+“Last summer, I caught my first fish.” is…|narrative writing|opinion writing|informative writing|a list
+A good opinion starts by telling…|what you think|a random fact|the ending|your address
+In opinion writing, <b>because</b> helps you give a…|reason|title|date|greeting
+A good informative piece uses…|facts and details|only feelings|only questions|no words
+A good story has a beginning, a middle, and…|an end|a list|a title only|a map
+Time-order words in a story are…|first, next, then, finally|dog, cat, pig, cow|big, small, tall|red, blue, green
+Which sentence is a good <b>opinion</b>?|I think recess is the best part of school.|Recess is at noon.|There are 5 days in a school week.|School has a gym.
+Which is a <b>fact</b>?|A spider has eight legs.|Spiders are scary.|Spiders are the best.|Spiders are ugly.
+Which is an <b>opinion</b>?|Pizza is the yummiest food.|Pizza has cheese.|Pizza is round.|Pizza is baked in an oven.
+Which linking word adds a reason? “I like summer ___ it is warm.”|because|but|or|then`),{fill:false});
+const WR_PLAN=bankMC(L(`
+Before you write, you should…|plan your ideas|stop|erase|run
+A <b>web</b> or <b>graphic organizer</b> helps you…|plan and organize ideas|erase|spell|draw a map
+The <b>topic sentence</b> tells…|what the paragraph is about|the ending|your name|the date
+The <b>closing sentence</b> of a paragraph…|wraps up the ideas|starts a new topic|is a title|is a list
+<b>Details</b> in writing…|tell more about the main idea|are not needed|change the topic|are the title
+Which is a good <b>topic sentence</b>?|My dog Max is a great pet.|Max.|Because he runs.|Pet dog big.
+Which detail fits “My dog Max is a great pet”?|He wags his tail when I come home.|I like pizza.|It is Tuesday.|The sky is blue.
+Which sentence does <b>not</b> belong in a paragraph about bees?|Pizza is my favorite food.|Bees make honey.|Bees live in a hive.|Bees visit flowers.
+Which is the best <b>title</b> for a story about a lost puppy?|The Lost Puppy|dog|The End|Stuff
+Where does a <b>title</b> go?|At the top|At the bottom|In the middle|Nowhere
+To start a new idea you should begin a new…|paragraph|word|letter|page number
+Which is a good <b>ending</b> for a story?|And that is how I found my puppy.|Then.|Because of|Pizza.
+Good writers use <b>strong, exact words</b>. Which is stronger?|sprinted|went|moved|did
+Good writers use <b>strong, exact words</b>. Which is stronger?|whispered|said|told|spoke to
+Which sentence has more <b>describing</b> detail?|The fluffy white rabbit hopped quickly.|The rabbit hopped.|A rabbit.|Rabbit hopped.`),{fill:false});
+const WR_EDIT=bankMC(L(`
+<b>Revising</b> means…|making your writing better|only checking spelling|throwing it away|copying it
+<b>Editing</b> means checking…|spelling, capitals, and punctuation|only the title|only the pictures|only the topic
+<b>Publishing</b> means…|sharing your final writing|starting to plan|erasing|never showing
+The <b>first step</b> in the writing process is…|plan (prewrite)|publish|edit|revise
+Which comes <b>after</b> drafting?|revising|planning|publishing first|nothing
+Which tool helps you check your spelling?|dictionary|ruler|calculator|map
+You find a mistake in your story. You should…|fix it|ignore it|erase all|hide it
+Which sentence needs <b>editing</b>? |i like my dog|I like my dog.|My dog is big.|We play.
+Which sentence is <b>better</b> after revising?|The huge dog barked loudly at the mail carrier.|The dog barked.|Dog.|A dog.
+A <b>peer conference</b> means…|sharing writing with a partner for ideas|playing a game|a test|a nap
+When a partner gives feedback, a kind way to say it is…|I like the part where… Maybe add more about…|This is bad.|You are wrong.|Boring!
+Which order is correct for the writing process?|plan, draft, revise, edit, publish|publish, plan, edit, draft|edit, plan, publish|draft, publish, plan
+Which one is a <b>run-on</b> to fix?|I went home I ate lunch I played.|I went home.|I ate lunch.|I played.
+Adding <b>more describing words</b> is part of…|revising|publishing|planning only|erasing
+Checking that every sentence starts with a capital is part of…|editing|planning|publishing|drafting`),{fill:false});
+const WR_POEM=bankMC(L(`
+A poem often has…|rhyming words or a beat|only numbers|no words|maps
+Which two words <b>rhyme</b>?|moon and spoon|cat and dog|sun and star|tree and bush
+A <b>line</b> in a poem is…|one row of words|a page|a book|a paragraph
+A group of lines in a poem is a…|stanza|chapter|title|index
+<b>Alliteration</b> repeats the same beginning sound. Which has it?|Silly snakes slither slowly.|The cat is big.|I like pie.|We run fast.
+“The wind whispered” gives the wind human actions. This is…|personification|rhyme|fact|a list
+“Her smile was as bright as the sun” is a…|simile|fact|list|title
+Which word imitates a sound?|buzz|chair|green|table
+A <b>haiku</b> is a short poem with…|3 lines|10 lines|1 word|5 pages
+Which line <b>rhymes</b> with “I see a bug on the rug”?|And it gives me a hug.|It is blue.|I run fast.|Then I eat.
+Which poem line has a <b>beat</b>?|Twinkle, twinkle, little star|Pizza is good today now|Table chair|Run
+Poems often use…|strong feeling words|only facts|long paragraphs|numbers only`),{fill:false});
+const WR_LINK=bankMC(L(`
+Which word shows <b>order</b>?|first|purple|dog|run
+Which word shows <b>order</b>?|finally|banana|tall|jump
+Use a word that adds: “I like cats. ___, I like dogs.”|Also|Never|First|Because
+Use a word to give an example: “Fruits are healthy, ___ apples.”|like|but|so|or
+Which phrase shows <b>time</b>?|after lunch|big dog|very red|blue sky
+“___ the rain stopped, we went outside.”|After|Because of|But|Or
+“I stayed in ___ it was cold.”|because|but|or|first
+“I wanted to go, ___ it was late.”|but|because|also|first
+“It was snowing, ___ we built a snowman.”|so|but|or|because
+Which sentence uses a linking word <b>correctly</b>?|I like soup because it is warm.|I like soup because.|Because I like soup.|I because like soup.
+Another word for “and also” is…|too|but|never|first
+To end a piece of writing you can say…|In the end|First|Next|Because`),{fill:false});
+
+/* ===== 10. SPEAKING & LISTENING ===== */
+const SL_NORM=bankMC(L(`
+When someone is speaking, I should…|listen quietly|talk loudly|look away|walk around
+When I speak in class, I should use a…|clear voice|whisper|shout|silly voice
+When talking with a partner, I should…|take turns|talk the whole time|ignore them|interrupt
+Good listeners look at…|the speaker|the floor|the ceiling|their shoes
+Before I add to a talk, I should…|wait for my turn|jump in|leave|giggle
+In a group, I can <b>build on</b> an idea by saying…|I agree with ___ and I want to add…|You are wrong.|Be quiet.|Whatever.
+I did not understand. I can say…|Can you say that again?|Be quiet.|That is dumb.|Nothing
+I disagree nicely by saying…|I see it a different way because…|That is silly.|No way.|You are wrong.
+When the teacher says “Turn to your partner,” I…|turn and share with my partner|stay silent|run|put my head down
+In “Think, Pair, Share” the first step is…|Think on my own|Share with the class|Pair up|Pack up
+In “Think, Pair, Share” the second step is…|Pair and talk with a partner|Think alone|Leave|Sleep
+In “Think, Pair, Share” the third step is…|Share with the class|Think alone|Pair up|Clap
+Which is a good <b>speaking</b> tip?|Speak in complete sentences|Mumble|Use one word|Look at the floor
+Which is good <b>manners</b> in a talk?|Say please and thank you|Interrupt|Roll your eyes|Laugh at others
+Which shows I'm <b>listening</b>?|I nod and ask a question.|I play with a pencil.|I look away.|I talk about me.`),{fill:false});
+const SL_SENT=bankMC(L(`
+After a talk, I can start with “I found out…” to share…|something I learned|a mistake|a joke|nothing
+“I like your story because…” gives…|a kind reason|a rude comment|no reason|a question
+“I wonder why…” shows I am…|curious|bored|sleepy|angry
+“I noticed that…” means I…|saw something|forgot|fell|slept
+“I agree with ___ because…” gives a…|reason|title|rule|date
+“Can you tell me more about…?” is a…|question|statement|command|poem
+Which question starts with <b>who</b>?|Who made the nest?|Why is it hot?|How big is it?|When did it rain?
+Which question asks <b>why</b>?|Why did the bird fly away?|Who flew?|Where is it?|When did it go?
+Which question asks <b>how</b>?|How do bees make honey?|Who is the bee?|Where is the hive?|When is it?
+Which is a <b>full-sentence</b> answer? “What is your favorite color?”|My favorite color is blue.|Blue.|Color.|Like it.
+Which is a <b>full-sentence</b> answer? “Where do you live?”|I live in Sioux Falls.|Sioux Falls.|Live.|Home.
+To <b>retell</b> a story, you say…|what happened in order|only the ending|only the title|nothing
+When you give a <b>report</b> you should…|speak clearly and look at the audience|whisper|read only to yourself|turn your back
+Which helps a listener understand a story?|Use details and speak slowly|Talk very fast|Use no words|Mumble
+When you show a picture while speaking you should…|point to the important part|hide it|turn it upside down|drop it`),{fill:false});
+
+/* ===== 11. READING STRATEGIES ===== */
+const RS_STRAT=bankMC(L(`
+When you picture the story in your mind, you are…|visualizing|forgetting|skipping|sleeping
+Using clues plus what you know to figure something out is…|inferring|guessing wildly|skipping|copying
+Asking “I wonder…” while you read is…|asking questions|stopping|sleeping|cheating
+Saying “This reminds me of…” is…|making a connection|a mistake|a title|an ending
+If a sentence does not make sense, a good reader…|rereads|keeps going fast|stops reading|throws the book
+You can figure out a new word by…|looking at clues in the sentence|giving up|skipping every word|guessing wildly
+A <b>just-right</b> book is…|not too hard and not too easy|the hardest book|a book with no words|a book you never read
+Before reading, you can look at the title and pictures to…|predict|forget|erase|sleep
+A <b>prediction</b> is…|a smart guess about what will happen|a fact|an ending|a title
+Reading with <b>expression</b> means…|using your voice to show feelings|reading very fast|whispering|skipping
+Reading with a good <b>pace</b> means…|not too fast and not too slow|super fast|super slow|backward
+Fluent readers…|read smoothly|read one letter at a time|never read|stop every word
+When you read a <b>question mark</b>, your voice goes…|up|down|nowhere|silent
+When you see <b>!</b> in a story, you read with…|excitement|sleepiness|a whisper|nothing
+After reading, to <b>summarize</b> you tell…|the most important parts in a few sentences|every word|only the title|only one detail`),{fill:false});
+const RS_INFER=bankMC(L(`
+Tom put on his coat, scarf, and gloves. It is probably…|cold outside|hot outside|nighttime only|summer
+Lily’s eyes filled with tears as her balloon floated away. She feels…|sad|happy|sleepy|silly
+Ben grinned and jumped up and down after he got the prize. He feels…|excited|bored|scared|sleepy
+The sky grew dark and thunder boomed. A storm is…|coming|over|a joke|a song
+Sara’s mouth watered when she smelled the pizza. She is…|hungry|full|sleepy|sad
+Max yawned and rubbed his eyes. He is…|tired|hungry|angry|cold
+The kids ran inside holding umbrellas. It was…|raining|sunny|snowy only|windy only
+Dad checked his watch and rushed to the door. He is…|late|bored|sleepy|full
+Nina looked at her test and smiled. She probably…|did well|cried|got lost|slept
+The leaves are red and orange and are falling. The season is…|fall|spring|summer|winter
+Sam’s face turned red, and he stomped his foot. He is…|angry|calm|cold|sleepy
+The ice cream began to drip down the cone. It is…|hot|cold|snowy|dark
+Which clue shows the girl is <b>shy</b>?|She hid behind her mom.|She sang loudly.|She ran to the stage.|She waved at everyone.
+Which clue shows the boy is <b>brave</b>?|He stood up to the big dog.|He ran away.|He hid.|He cried.
+Which clue shows the dog is <b>happy</b>?|His tail wagged fast.|He hid under the bed.|He growled.|He yawned and slept.`),{fill:false});
+const RS_BOOK=bankMC(L(`
+In <b>Alexander and the Terrible Horrible No Good Very Bad Day</b>, Alexander has…|a really bad day|a day at the beach|a birthday party|a trip to space
+In <b>Click, Clack, Moo</b>, the cows want…|electric blankets|a swimming pool|more hay|a farm bus
+In <b>Sheila Rae, the Brave</b>, Sheila Rae…|is brave until she gets lost|is afraid of everything|never leaves home|is a mouse who hides
+<b>Chester’s Way</b> is about friends who…|like to do things their own way|never meet|race to school|build a house
+<b>The Three Little Pigs</b> are chased by…|a wolf|a fox|a bear|a lion
+<b>The Three Little Wolves and the Big Bad Pig</b> is a…|twist on the classic tale|a poem|a recipe|a map
+<b>Galimoto</b> is a story about a boy who…|makes a toy car from wire|bakes a cake|plants seeds|flies a kite
+<b>Erandi’s Braids</b> shows a girl who…|helps her mother in a kind way|loses her shoe|gets a pet|goes to space
+<b>Peter Rabbit</b> sneaks into…|Mr. McGregor’s garden|a school|a boat|a cave
+<b>I Wanna Iguana</b> is about a boy who wants…|a pet iguana|a new bike|a snow day|a trip
+<b>Little Blue and Little Yellow</b> are…|friends who mix into green|enemies|twin pigs|cars
+<b>Insect Detective</b> is a book about…|insects|dinosaurs|planets|cars
+<b>Polar Lands</b> is a book about…|cold places|deserts|jungles|oceans only
+<b>Spinning Spiders</b> is a nonfiction book about…|spiders|snakes|fish|birds
+<b>The Art Lesson</b> is about a boy who loves to…|draw|swim|sing|run`),{fill:false});
+
+/* ===== 12. SPELLING LAB extras ===== */
+const SL_WORDS=['because','friend','people','where','their','would','could','should','again','around','together','without','through','another','animal','family','different','favorite','important','school','change','mother','father','brother','sister','answer','laugh','enough','know','write','right','night','light','bright','thought','though','caught','taught','sound','ground','round','found','pound','house','mouse','cloud','loud','proud','shout','point','voice','enjoy','toy','boy','boil','soil','coin','brown','clown','crown','flower','power','tower','shower','bread','head','ready','heavy','weather','feather','great','break','steak','first','girl','bird','third','shirt','dirt','turn','burn','hurt','purple','nurse','curl','word','world','work','worm','worst','year','near','hear','clear','dear','beard','gold','cold','told','hold','sold','roll','toll','troll','climb','thumb','knee','knife','knock','wrap','wrong','wrist','gnat','sign','island','castle','listen','whistle','science','scene','circle','center','face','nice','dance','giant','gentle','magic','change','page','cage','badge','fudge','bridge','edge','judge','laugh','phone','photo','graph','elephant','dolphin','ocean','special','nation','action','vacation','question','picture','nature','future','adventure','capture','treasure','measure','pleasure','minute','second','hour','today','tomorrow','yesterday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','January','February','March','April','June','July','August','September','October','November','December'].filter((w,i,a)=>a.indexOf(w)===i&&w!=='Monday'&&/^[a-z]+$/.test(w));
+
+/* ===== SUBJECT TABLE ===== */
+const T=(id,name,icon,make,time)=>({id,name,icon,make,time});
+const SUBJECTS={
+ read:{name:'Reading Stories',icon:'📖',color:'#ef476f',topics:[
+  T(0,'Who? What? Where? Why?','❓',()=>bankMC(RL_WH,{fill:false}),45),T(1,'Message & lesson','💡',()=>bankMC(RL_MSG,{fill:false}),45),
+  T(2,'Feelings & points of view','😊',()=>bankMC(RL_FEEL,{fill:false}),45),T(3,'Setting, characters, plot','🏞️',()=>bankMC(RL_SET,{fill:false}),40),
+  T(4,'Beginning, middle, end','🔚',()=>bankMC(RL_STRUCT,{fill:false}),40),T(5,'Fun with words','🎭',()=>bankMC(RL_FIG,{fill:false}),40),
+  T(6,'Compare stories','⚖️',()=>bankMC(RL_CMP,{fill:false}),40),T(7,'Book friends','📚',()=>RS_BOOK,40)]},
+ info:{name:'Nonfiction',icon:'🔎',color:'#118ab2',topics:[
+  T(0,'Main idea & details','🎯',()=>bankMC(RI_MAIN,{fill:false}),45),T(1,'Text features','🗂️',()=>bankMC(RI_FEAT,{fill:false}),40),
+  T(2,'Author’s purpose, fact or opinion','✒️',()=>bankMC(RI_PURP,{fill:false}),40),T(3,'Steps, cause & life cycles','🔄',()=>bankMC(RI_STEPS,{fill:false}),40),
+  T(4,'Fiction or nonfiction?','🧪',()=>bankMC(RI_FNF,{fill:false}),40),T(5,'Science words','🐝',()=>bankMC(RI_DOM,{fill:false}),40),
+  T(6,'Compare two texts','⚖️',()=>bankMC(RI_CMP,{fill:false}),40)]},
+ sounds:{name:'Sounds',icon:'👂',color:'#06d6a0',topics:[
+  T(0,'Blend the sounds','🧲',()=>SD_BLEND,60),T(1,'Count the sounds','🔢',()=>SD_SEG,40),T(2,'Add a sound','➕',()=>SD_ADD,60),
+  T(3,'Take a sound away','➖',()=>SD_DEL,60),T(4,'Change a sound','🔁',()=>SD_SUB,60),T(5,'Rhymes','🎵',()=>SD_RHYME,40),
+  T(6,'Syllables','👏',()=>SD_SYL,40),T(7,'First, middle, last sound','🔍',()=>SD_POS,40)]},
+ phonics:{name:'Phonics',icon:'🔡',color:'#f77f00',topics:[
+  T(0,'Long & short vowels','🅰️',()=>PH_VOW,40),T(1,'Silent e magic','✨',()=>PH_SILE,60),T(2,'Vowel teams','🤝',()=>PH_TEAM,40),
+  T(3,'ou, oi, oo, aw','🔊',()=>PH_DIPH,40),T(4,'ar, or, ir, er, ur','🅱️',()=>PH_VR,40),T(5,'Silent letters','🤫',()=>PH_SIL,40),
+  T(6,'Prefixes & suffixes','🧱',()=>PH_AFFIX,40),T(7,'Add endings','➕',()=>PH_ADD,60),T(8,'Split syllables','✂️',()=>PH_SYLSPLIT,40),
+  T(9,'Syllable types','🏷️',()=>PH_SYLTYPE,40),T(10,'Put syllables together','🧩',()=>PH_JOIN,60)]},
+ spelling:{name:'Spelling Lab',icon:'✏️',color:'#9b5de5',topics:[
+  T(0,'Right spelling','👀',()=>spellRight(SL_WORDS)),T(1,'Listen & spell','👂',()=>spellListen(SL_WORDS)),
+  T(2,'Unscramble','🔀',()=>spellScramble(SL_WORDS)),T(3,'Missing letters','🕳️',()=>spellMissing(SL_WORDS)),
+  T(4,'Spelling rules','📏',()=>SP_RULES,40)]},
+ grammar:{name:'Grammar',icon:'🧩',color:'#3a86ff',topics:[
+  T(0,'Nouns, verbs, adjectives','🏷️',()=>GR_NOUN),T(1,'Irregular plurals','👯',()=>GR_PLURAL),T(2,'Verbs that agree','🤝',()=>GR_SV),
+  T(3,'Past tense verbs','⏪',()=>GR_PAST),T(4,'Pronouns','🙋',()=>GR_PRON),T(5,'Place words','📍',()=>GR_PREP),
+  T(6,'Joining words','🔗',()=>GR_CONJ),T(7,'Kinds of sentences','❓',()=>GR_SENT),T(8,'Build the sentence','🧱',()=>GR_BUILD,60),
+  T(9,'Tricky word pairs','🪄',()=>GR_CONFUSE)]},
+ conv:{name:'Capitals & Commas',icon:'❗',color:'#ff6b6b',topics:[
+  T(0,'Capital letters','🔠',()=>CP_CAP),T(1,'Commas','✋',()=>CP_COMMA),T(2,'Apostrophes','✂️',()=>CP_APOS),
+  T(3,'Fix the sentence','🛠️',()=>CP_FIX),T(4,'Letters & manners','✉️',()=>CP_LETTER)]},
+ words:{name:'Word Power',icon:'💡',color:'#8338ec',topics:[
+  T(0,'Clue words','🕵️',()=>WP_CONTEXT,40),T(1,'Root words','🌱',()=>WP_ROOT),T(2,'Compound words','🔗',()=>WP_COMP),
+  T(3,'Words with 2 meanings','🎭',()=>WP_MULTI,40),T(4,'Synonyms & antonyms','🟰',()=>WP_SYN),T(5,'Dictionary skills','📕',()=>WP_DICT),
+  T(6,'Sort the words','🧺',()=>WP_SORT,60),T(7,'Match opposites','↔️',()=>WP_ANTMATCH,60),T(8,'Match same meaning','🟰',()=>WP_SYNMATCH,60)]},
+ write:{name:'Writing Workshop',icon:'✍️',color:'#fb5607',topics:[
+  T(0,'Kinds of writing','📝',()=>WR_KIND,40),T(1,'Plan & organize','🗺️',()=>WR_PLAN,40),T(2,'Revise & edit','🖍️',()=>WR_EDIT,40),
+  T(3,'Poems','🎶',()=>WR_POEM),T(4,'Linking words','🔗',()=>WR_LINK)]},
+ speak:{name:'Speak & Listen',icon:'🗣️',color:'#2a9d8f',topics:[
+  T(0,'Talking rules','🤝',()=>SL_NORM),T(1,'Sentence starters & questions','💬',()=>SL_SENT,40)]},
+ strat:{name:'Reading Tricks',icon:'🧠',color:'#e63946',topics:[
+  T(0,'Good reader moves','🧠',()=>RS_STRAT,40),T(1,'Be a clue detective','🔦',()=>RS_INFER,40)]}
+};
+const MEGA_KEYS=['read','info','sounds','phonics','grammar','conv','words','write','speak','strat'];
+SUBJECTS.mega={name:'Mega Challenge',icon:'🏆',color:'#ffb703',topics:[
+ T(0,'Mixed questions','🎲',()=>{const gens=[];MEGA_KEYS.forEach(k=>SUBJECTS[k].topics.forEach(t=>{if(!/match|Match|sort|Sort|Build/.test(t.name))gens.push(t.make())}));return()=>{let q;for(let i=0;i<8;i++){q=pick(gens)();if(q.t==='mc')return q}return q}},45)]};
+/* ---------- screens + flow ---------- */
+let curSub='spelling',curTopic=0,gen=null,qn=0,score=0,cur=null,timer=null,left=0,LIMIT=30,locked=false,lastTick=-1;
+function show(id){
+  clearInterval(timer);if(window.speechSynthesis)speechSynthesis.cancel();
+  ['home','topics','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+}
+$('subjects').innerHTML=Object.entries(SUBJECTS).map(([k,s])=>`<button class="tile" style="background:${s.color}" onclick="openSubject('${k}')"><span>${s.icon}</span>${s.name}</button>`).join('');
+function openSubject(k){
+  curSub=k;const S=SUBJECTS[k];
+  $('subTitle').textContent=S.icon+' '+S.name;
+  $('topicGrid').innerHTML=S.topics.map((t,i)=>`<button class="tile" style="background:${['#ef476f','#118ab2','#9b5de5','#f77f00','#06d6a0','#3a86ff'][i%6]}" onclick="startTopic(${i})"><span>${t.icon}</span>${t.name}</button>`).join('');
+  show('topics');
+}
+function startTopic(i){
+  curTopic=i;const t=SUBJECTS[curSub].topics[i];
+  gen=t.make();$('tname').textContent=t.icon+' '+t.name;
+  qn=0;score=0;$('score').textContent=0;show('game');nextQ();
+}
+function nextQ(){
+  if(qn>=TOTAL)return finish();
+  qn++;locked=false;$('qn').textContent=qn;$('msg').textContent='';
+  cur=gen();
+  LIMIT=SUBJECTS[curSub].topics[curTopic].time||(cur.t==='mc'?30:cur.t==='type'?45:60);
+  const A=$('qarea');
+  const qHtml=`<div class="qbox">${cur.q} <button class="read" title="Read to me" onclick="readQ()">🔊</button></div>`;
+  if(cur.t==='mc'){
+    A.innerHTML=qHtml+'<div class="opts" id="opts"></div>';
+    cur.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>chooseMC(b,o);$('opts').appendChild(b)});
+  }else if(cur.t==='match'){
+    A.innerHTML=qHtml+'<div class="mt" id="mt"></div>';cur.miss=0;cur.sel=null;cur.left=cur.pairs.length;LIMIT=60;selBtn=null;
+    const L1=cur.pairs.map((p,i)=>({t:p[0],i}));const R1=shuf(cur.pairs.map((p,i)=>({t:p[1],i})));
+    const col1=document.createElement('div'),col2=document.createElement('div');
+    [col1,col2].forEach(x=>{x.style.cssText='display:flex;flex-direction:column;gap:10px'});
+    L1.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>matchSel(b,o);col1.appendChild(b)});
+    R1.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>matchPick(b,o);col2.appendChild(b)});
+    $('mt').append(col1,col2);
+  }else if(cur.t==='type'){
+    A.innerHTML=qHtml+'<input class="ans" id="ans" autocomplete="off" autocapitalize="none" spellcheck="false"><br><button class="btn" onclick="checkType()">✔ Check</button>';
+    $('ans').addEventListener('keydown',e=>{if(e.key==='Enter')checkType()});
+    if(!/Mobi|Android/i.test(navigator.userAgent))$('ans').focus();
+  }else{
+    A.innerHTML=qHtml+'<div class="slotrow" id="slot"></div><div class="chips" id="chips"></div><button class="btn home" onclick="clearBuild()">↺ Clear</button><button class="btn" onclick="checkBuild()">✔ Check</button>';
+    cur.picked=[];
+    cur.words.forEach((w,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=w;b.onclick=()=>pickWord(i,b);b.id='w'+i;$('chips').appendChild(b)});
+  }
+  startTimer();
+  setTimeout(readQ,250);
+}
+function readQ(){
+  if(!cur)return;
+  if(cur.speakWord){say(cur.speakWord);return}
+  say(cur.say||plain(cur.q)+(cur.t==='mc'&&!cur.say?'. '+cur.opts.join('. '):''));
+}
+function startTimer(){
+  clearInterval(timer);left=LIMIT;lastTick=-1;upd();
+  timer=setInterval(()=>{left-=.1;upd();if(left<=0){clearInterval(timer);timeout()}},100);
+}
+function upd(){
+  const t=Math.max(0,left);$('time').textContent=Math.ceil(t);
+  const bar=$('bar');bar.style.width=(t/LIMIT*100)+'%';
+  const f=t/LIMIT;bar.style.background=f>.5?'#06d6a0':f>.25?'#ffb703':'#ef476f';
+  if(t<=5&&Math.ceil(t)!==lastTick){lastTick=Math.ceil(t);if(t>0)sfx.tick()}
+}
+function result(ok,shown){
+  locked=true;clearInterval(timer);
+  if(ok){score++;$('score').textContent=score;$('msg').textContent='🎉 Great job!';$('msg').style.color='#06a077';sfx.good()}
+  else{$('msg').textContent='😢 Oops! Answer: '+shown;$('msg').style.color='#d62839';sfx.bad()}
+  setTimeout(nextQ,ok?1300:2400);
+}
+function chooseMC(btn,o){
+  if(locked)return;
+  const ok=o===cur.a;btn.classList.add(ok?'right':'wrong');
+  if(!ok)[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  result(ok,cur.a);
+}
+function checkType(){
+  if(locked)return;const v=$('ans').value.trim().toLowerCase();if(!v)return;
+  result(v===cur.a,cur.a);
+}
+function pickWord(i,b){
+  if(locked)return;cur.picked.push(i);b.classList.add('used');
+  const s=document.createElement('button');s.className='chip';s.style.background='#9b5de5';s.textContent=cur.words[i];s.dataset.i=i;
+  s.onclick=()=>{if(locked)return;cur.picked=cur.picked.filter(x=>x!==i);s.remove();$('w'+i).classList.remove('used')};
+  $('slot').appendChild(s);
+}
+function clearBuild(){if(locked)return;cur.picked=[];$('slot').innerHTML='';[...$('chips').children].forEach(c=>c.classList.remove('used'))}
+function checkBuild(){
+  if(locked)return;if(cur.picked.length!==cur.words.length)return;
+  result(cur.picked.map(i=>cur.words[i]).join(' ')===cur.a,cur.a);
+}
+let selBtn=null;
+function matchSel(b,o){if(locked||b.classList.contains('done'))return;if(selBtn)selBtn.classList.remove('sel');selBtn=b;b.classList.add('sel');cur.sel=o;say(o.t)}
+function matchPick(b,o){
+  if(locked||!cur.sel||b.classList.contains('done'))return;
+  if(cur.pairs[cur.sel.i][1]===o.t){b.classList.add('done');selBtn.classList.remove('sel');selBtn.classList.add('done');selBtn=null;cur.sel=null;sfx.good();if(--cur.left===0)result(cur.miss<=1,cur.a)}
+  else{cur.miss++;b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),350);sfx.bad()}
+}
+function timeout(){
+  if(locked)return;locked=true;sfx.bad();
+  $('msg').textContent="⏰ Time's up! Answer: "+cur.a;$('msg').style.color='#d62839';
+  if(cur.t==='mc')[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  setTimeout(nextQ,2600);
+}
+function finish(){
+  show('end');
+  const S=SUBJECTS[curSub],t=S.topics[curTopic];
+  $('endt').textContent=S.icon+' '+S.name+' · '+t.name;$('final').textContent=score;
+  const s=score>=9?3:score>=6?2:score>=3?1:0;sfx.end(s);
+  $('stars').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+  $('trophy').textContent=s===3?'🏆':s===2?'🥈':s===1?'🥉':'🌱';
+  $('comment').textContent=['Keep practicing, you can do it! 💪','Good try! 🙂','Great work! 👏','Amazing! You are a star! 🌟'][s];
+}
+if(location.hash&&SUBJECTS[location.hash.slice(1)])openSubject(location.hash.slice(1));
+</script>
+<a href="index.html" id="whoBtn" style="position:fixed;top:8px;left:8px;z-index:9999;background:#fff;color:#333;text-decoration:none;font:bold 14px/1 Arial,sans-serif;padding:9px 13px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.3)">👥 Who is playing?</a>
+</body>
+</html>

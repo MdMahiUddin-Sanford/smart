@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Learn Arabic &amp; Quran</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400;700&family=Noto+Nastaliq+Urdu&family=Amiri+Quran&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400;700&family=Amiri+Quran&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root{--arfont:"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif;--bg:#10243a;--card:#1b3a5c;--acc:#f5b942;--ok:#3ecf8e;--bad:#ef5b5b;--txt:#f2f6fa;--in:#12304f}
   *{box-sizing:border-box}
@@ -67,7 +67,7 @@
 <body>
 <div id="app">
   <h1>🕌 Learn Arabic &amp; Quran</h1>
-  <div class="fontsel">Arabic font: <select id="fontSel"><option value="sa">South Asian Quranic (Lateef)</option><option value="nq">Nastaliq (Noto Nastaliq Urdu)</option><option value="am">Uthmani / Madani (Amiri Quran)</option></select></div>
+  <div class="fontsel">Arabic font: <select id="fontSel"><option value="sa">South Asian Quranic (Lateef)</option><option value="am">Uthmani / Madani (Amiri Quran)</option></select></div>
   <div class="tabs top"><button data-s="letters" class="on">🔤 Arabic Letters</button><button data-s="quran">📖 Learning Quran</button><button data-s="duas">🤲 Duas &amp; Salah</button></div>
 
   <div id="letters">
@@ -104,6 +104,7 @@ document.querySelectorAll('.top button').forEach(b=>b.onclick=()=>{
   document.getElementById('bangla').style.display=b.dataset.s==='bangla'?'':'none';
   if(b.dataset.s==='bangla')bRender();
   if(b.dataset.s==='quran')qRender(); else stopAudio();
+  if(b.dataset.s!=='duas')dStop();
   if(b.dataset.s==='duas')dRender(); else if(b.dataset.s!=='bangla'&&'speechSynthesis' in window)speechSynthesis.cancel();
 });
 
@@ -536,15 +537,35 @@ const dEl=document.getElementById('duas');
 const dList=()=>DUAS.filter(d=>D.cat==='all'||d.c===D.cat);
 const dCur=()=>DUAS.find(x=>x.t===D.open);
 const later=(f,ms)=>{const k=D.tk;setTimeout(()=>{if(k===D.tk)f()},ms)};
-function speak(txt){
+/* Quran-verse duas use Alafasy recitation (same as the Quran tab); others use online Arabic voice, then device voice */
+const DQ={'Bismillah':[[1,1]],'Surah Al-Fatiha':[[1,1],[1,2],[1,3],[1,4],[1,5],[1,6],[1,7]],'Dua before Salam (1)':[[2,201]],'Dua before Salam (2)':[[14,40],[14,41]],'Dua of Adam (repentance)':[[7,23]],'Steadfast hearts':[[3,8]],'Righteous family':[[25,74]],'Ease and open the heart':[[20,25],[20,26]]};
+let dAud=null,dTok=0;
+function dStop(){dTok++;if(dAud){dAud.pause();dAud=null}if('speechSynthesis'in window)speechSynthesis.cancel()}
+function dDevice(txt){
   if(!('speechSynthesis'in window))return;
-  speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(txt.replace(/[\u0640]/g,''));u.lang='ar-SA';u.rate=.7;
   speechSynthesis.speak(u);
 }
+function dPlayList(urls,i,tok,fallback){
+  if(tok!==dTok)return;
+  if(i>=urls.length)return;
+  dAud=new Audio(urls[i]);
+  dAud.onended=()=>dPlayList(urls,i+1,tok,fallback);
+  dAud.onerror=()=>{if(tok===dTok&&i===0)fallback()};
+  dAud.play().catch(()=>{if(tok===dTok&&i===0)fallback()});
+}
+function speak(d){
+  dStop();const tok=dTok;
+  const txt=d.ar.replace(/[\u0640]/g,'');
+  const refs=DQ[d.t];
+  const tts='https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ar&q='+encodeURIComponent(txt.replace(/[\u064B-\u065F\u0670]/g,'').slice(0,190));
+  const fb=()=>{if(tok===dTok)dDevice(txt)};
+  if(refs)dPlayList(refs.map(r=>'https://everyayah.com/data/Alafasy_128kbps/'+String(r[0]).padStart(3,'0')+String(r[1]).padStart(3,'0')+'.mp3'),0,tok,()=>dPlayList([tts],0,tok,fb));
+  else dPlayList([tts],0,tok,fb);
+}
 const dExtra=d=>(D.tr?`<div class="tr" style="color:#9fd4ff;font-style:italic;margin-top:6px">${d.tr}</div>`:'')+(D.en?`<div class="en" style="margin-top:4px">${d.en}</div>`:'');
-const dSpeakBtn=()=>('speechSynthesis'in window)?'<button data-speak>🔊 Hear (device voice)</button>':'';
-function dBindSpeak(d){dEl.querySelectorAll('[data-speak]').forEach(b=>b.onclick=()=>speak(d.ar))}
+const dSpeakBtn=()=>'<button data-speak>🔊 Listen</button><button data-stop>⏹ Stop</button>';
+function dBindSpeak(d){dEl.querySelectorAll('[data-speak]').forEach(b=>b.onclick=()=>speak(d));dEl.querySelectorAll('[data-stop]').forEach(b=>b.onclick=dStop)}
 const dBody=h=>{document.getElementById('dbody').innerHTML=h};
 const dMarkDone=d=>{D.done[d.t]=1;localStorage.dDone=JSON.stringify(D.done)};
 const dOtherWords=d=>{const mine=new Set(d.ar.split(' ').map(norm));return [...new Set(DUAS.flatMap(x=>x.ar.split(' ')))].filter(w=>!mine.has(norm(w)))};
@@ -567,8 +588,8 @@ function dRender(){
     <label><input type="checkbox" id="dEn" ${D.en?'checked':''}> English meaning</label></div>
     <div class="tabs" style="margin:6px 0 0">${dModes.map(m=>`<button data-m="${m[0]}" class="${D.m===m[0]?'on':''}">${m[1]}</button>`).join('')}</div></div>
   <div id="dbody"></div>
-  <div class="note" style="text-align:center">Arabic is written with harakat. "Hear" uses your device's Arabic voice (if installed); there is no recorded audio for duas.</div>`;
-  document.getElementById('back').onclick=()=>{D.open=null;dRender()};
+  <div class="note" style="text-align:center">Arabic is written with harakat. Duas from the Quran play Mishary Alafasy's recitation (same as the Quran tab); other duas use an online Arabic voice, or your device voice if offline. Needs internet.</div>`;
+  document.getElementById('back').onclick=()=>{dStop();D.open=null;dRender()};
   dEl.querySelectorAll('.tabs [data-m]').forEach(b=>b.onclick=()=>{D.m=b.dataset.m;D.sc=D.tot=0;D.stage=0;D.hidden=new Set();dRender()});
   document.getElementById('dTr').onchange=e=>{D.tr=e.target.checked;dRender()};
   document.getElementById('dEn').onchange=e=>{D.en=e.target.checked;dRender()};
@@ -1050,7 +1071,6 @@ function wScore(g,strokes){
 
 /* ===== Arabic font choice ===== */
 const FONTS={sa:['Lateef','"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif'],
-  nq:['Noto Nastaliq Urdu','"Noto Nastaliq Urdu","Lateef","Noto Naskh Arabic","Segoe UI",serif'],
   am:['Amiri Quran','"Amiri Quran","Amiri","Scheherazade New","Traditional Arabic","Segoe UI",serif']};
 function applyFont(k){
   const f=FONTS[k]||FONTS.sa;localStorage.arFont=k;

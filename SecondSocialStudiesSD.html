@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second Social Studies SD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Comic Sans MS","Chalkboard SE",sans-serif;background:linear-gradient(#7fd8ff,#c9f0ff 60%,#b8f08a 60%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cloud{position:fixed;font-size:70px;animation:drift 30s linear infinite;opacity:.9}
+@keyframes drift{from{transform:translateX(-150px)}to{transform:translateX(110vw)}}
+.card{position:relative;z-index:2;background:#fff;border:6px solid #ffb703;border-radius:32px;padding:20px;width:min(660px,94vw);max-height:98vh;overflow:auto;text-align:center;box-shadow:0 12px 0 #fb8500,0 20px 40px rgba(0,0,0,.25)}
+h1{margin:0 0 6px;color:#e63946;font-size:2.2rem}
+.btn{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#06d6a0;border:none;border-radius:20px;padding:10px 26px;cursor:pointer;box-shadow:0 6px 0 #049a75;margin:8px}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #049a75}
+.home{background:#8d99ae;box-shadow:0 6px 0 #5c677d}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.tile{font:inherit;font-weight:bold;font-size:1.1rem;color:#fff;border:none;border-radius:18px;padding:12px 8px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);line-height:1.25;text-decoration:none;display:block}
+.tile span{font-size:2.2rem;display:block}
+.tile small{display:block;font-size:.78rem;font-weight:normal;opacity:.95}
+.tile:hover{transform:scale(1.04)}
+.tile:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tile:last-child:nth-child(odd){grid-column:span 2}
+.hud{display:flex;justify-content:space-between;font-size:1.05rem;font-weight:bold;color:#444;margin-bottom:8px;gap:6px}
+.bar{height:18px;background:#eee;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.bar div{height:100%;width:100%;background:#06d6a0;transition:width .1s linear,background .3s}
+.qbox{font-size:1.5rem;font-weight:bold;color:#222;margin:8px 0;line-height:1.35}
+.qbox svg{max-width:100%;height:auto}
+.read{font-size:1.4rem;background:#fff;border:3px solid #ffb703;border-radius:50%;width:46px;height:46px;cursor:pointer;vertical-align:middle;margin-left:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.opt{font:inherit;font-size:1.35rem;font-weight:bold;color:#fff;border:none;border-radius:20px;padding:14px 8px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);word-break:break-word}
+.opt:nth-child(1){background:#ef476f}.opt:nth-child(2){background:#118ab2}.opt:nth-child(3){background:#9b5de5}.opt:nth-child(4){background:#f77f00}
+.opt.right,.chip.right{background:#06d6a0!important;animation:pop .4s}
+.opt.wrong{background:#555!important;animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.15)}}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.msg{min-height:2.2rem;font-size:1.2rem;font-weight:bold;margin-top:10px}
+input.ans{font:inherit;font-size:1.8rem;text-align:center;width:90%;max-width:360px;padding:10px;border:4px solid #118ab2;border-radius:18px;outline:none}
+.slotrow,.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;min-height:56px}
+.slotrow{background:#eef7ff;border:3px dashed #118ab2;border-radius:16px;padding:8px}
+.chip{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#118ab2;border:none;border-radius:14px;padding:9px 14px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.chip.used{opacity:.25;pointer-events:none}
+.letters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.letters b{background:#ffd6e0;color:#d00060;border-radius:10px;padding:6px 12px;font-size:1.8rem}
+.bigico{font-size:5rem}
+.snd{position:fixed;top:12px;right:12px;z-index:5}
+.snd button{font-size:1.5rem;width:50px;height:50px;border-radius:50%;border:4px solid #ffb703;background:#fff;cursor:pointer;box-shadow:0 4px 0 #fb8500}
+.snd button.off{opacity:.45;filter:grayscale(1)}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.mt button{font:bold 1.05rem Arial,sans-serif;padding:12px 6px;border:3px solid #cbb8ff;border-radius:14px;background:#fff;color:#333;cursor:pointer}.mt button.sel{background:#ffe08a;border-color:#ffb703}.mt button.done{background:#c8f7dc;border-color:#06d6a0;opacity:.7}.mt button.bad{animation:shk .3s}@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div class="cloud" style="top:5%">☁️</div>
+<div class="cloud" style="top:20%;animation-delay:-12s">☁️</div>
+<div class="cloud" style="top:35%;animation-delay:-22s">☁️</div>
+<div class="snd"><button id="sndBtn" title="Sound and voice" onclick="toggleSnd()">🔊</button></div>
+
+<div class="card">
+  <div id="home">
+    <div class="bigico">📚🦉</div>
+    <h1>Second Social Studies SD 🌎</h1>
+    <p style="margin:4px;font-size:1.1rem"><b>Practice time. Pick a subject!</b></p>
+    <div class="grid" id="subjects"></div>
+    <a class="btn home" href="Mahtab.html" style="text-decoration:none;display:inline-block">⬅ Mahtab</a>
+  </div>
+
+  <div id="topics" class="hidden">
+    <h1 id="subTitle"></h1>
+    <p style="margin:4px;font-size:1.1rem">10 questions each. <b>Choose a topic:</b></p>
+    <div class="grid" id="topicGrid"></div>
+    <button class="btn home" onclick="show('home')">⬅ Back</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="hud"><span>Q <span id="qn">1</span>/10</span><span id="tname"></span><span>⏱ <span id="time">30</span>s</span><span>⭐ <span id="score">0</span></span></div>
+    <div class="bar"><div id="bar"></div></div>
+    <div id="qarea"></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="end" class="hidden">
+    <div class="bigico" id="trophy">🏆</div>
+    <h1>Well done!</h1><div id="endt" style="font-size:1.1rem;font-weight:bold"></div>
+    <div style="font-size:2.6rem" id="stars"></div>
+    <p style="font-size:1.8rem;margin:6px">You scored <b id="final"></b> / 10</p>
+    <p style="font-size:1.2rem" id="comment"></p>
+    <button class="btn" onclick="startTopic(curTopic)">🔄 Play Again</button>
+    <button class="btn home" onclick="openSubject(curSub)">📋 Topics</button>
+    <button class="btn home" onclick="show('home')">🏠 Home</button>
+  </div>
+</div>
+
+<script>
+const TOTAL=10;
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[rnd(0,a.length-1)];
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const L=s=>s.trim().split('\n').map(x=>x.trim()).filter(Boolean);
+
+/* ---------- sound + voice ---------- */
+const AC=window.AudioContext||window.webkitAudioContext;
+let ac,sndOn=true,unlocked=false;
+function ctx(){try{ac=ac||new AC();if(ac.state!=='running')ac.resume();return ac}catch(e){return null}}
+function silentUrl(){
+  const n=4410,b=new ArrayBuffer(44+n*2),v=new DataView(b);
+  const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,22050,true);v.setUint32(28,44100,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+function unlock(){
+  const a=ctx();if(!a)return;
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(unlocked)return;
+  try{const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0)}catch(e){}
+  try{const el=new Audio(silentUrl());el.loop=true;el.volume=.01;const p=el.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+  if(a.state==='running')unlocked=true;
+}
+['pointerdown','touchstart','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+function tone(f,d,type='sine',vol=.15,delay=0){
+  const a=ctx();if(!a)return;
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+const sfx={
+  click(){if(sndOn)tone(700,.08,'triangle',.12)},
+  good(){if(sndOn)[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.18,i*.09))},
+  bad(){if(sndOn){tone(300,.25,'sawtooth',.1);tone(200,.4,'sawtooth',.1,.18)}},
+  tick(){if(sndOn)tone(1000,.06,'square',.06)},
+  end(s){if(sndOn)(s>=2?[523,659,784,1047,784,1047,1319]:s===1?[523,659,784,659,784]:[784,659,523]).forEach((f,i)=>tone(f,.3,'triangle',.18,i*.13))}
+};
+function say(t){
+  if(!sndOn||!window.speechSynthesis)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;u.lang='en-US';speechSynthesis.speak(u)}catch(e){}
+}
+const plain=h=>h.replace(/<svg[\s\S]*?<\/svg>/g,' ').replace(/<br>/g,'. ').replace(/<[^>]+>/g,'').replace(/___/g,'blank').replace(/\s+/g,' ').trim();
+function toggleSnd(){ctx();sndOn=!sndOn;$('sndBtn').textContent=sndOn?'🔊':'🔇';$('sndBtn').classList.toggle('off',!sndOn);if(!sndOn&&window.speechSynthesis)speechSynthesis.cancel();else sfx.click()}
+document.addEventListener('click',e=>{if(e.target.closest('.tile,.btn'))sfx.click()});
+
+/* ---------- generic builders ---------- */
+function bankMC(lines,o={}){
+  let deck=[];
+  return()=>{
+    if(!deck.length)deck=shuf(lines);
+    const [q,a,...w]=deck.pop().split('|');
+    const set=new Set([a]);
+    shuf(w).forEach(x=>{if(set.size<4)set.add(x)});
+    if(o.fill!==false)for(const l of shuf(lines)){if(set.size>=4)break;const x=l.split('|')[1];if(x!==a)set.add(x)}
+    return{t:'mc',q,a,opts:shuf([...set])};
+  };
+}
+function fixedMC(pairs,opts,qf){
+  let deck=[];
+  return()=>{if(!deck.length)deck=shuf(pairs);const [x,a]=deck.pop();return{t:'mc',q:qf(x),a,opts:[...opts],say:null}};
+}
+
+/* ---------- SPELLING ---------- */
+const W2=`about after again all always animal any around ask away back because been before best big black blue boy bring brown call came carry clean cold color come could day dear does done door down draw drink each early eat every fall far fast find first five fly food four friend from funny gave girl give going good great green grow happy have help here home house jump keep kind know last left light little long look made make many more much must name never night now off old once only open over own pick play please pretty pull put read right round said saw see seven should sing sit sleep small some soon stop take tell thank that their them then these they think this today together tree under upon use very walk want warm wash water week were what when where which white who why will wish with work would write year yellow your`.split(/\s+/);
+const W3=`able across against also answer area asked balloon basket beautiful believe beside between bicycle birthday body bottom bought breakfast bright brother build busy button candy captain careful castle cause center certain change chicken children circle city class climb clothes cloud country cousin crowd daughter decide different dinner discover doctor dollar double during earth enough evening everyone exercise explain family favorite finally flower follow forest forget forward garden gentle giant glass ground group guess guide half happen heavy history hospital hundred hungry idea important island jewel journey kitchen knew knife knock ladder laugh learn leave library listen machine marble measure medicine middle minute mirror money monkey morning mountain mouth moving music nature neighbor nothing notice number ocean office orange paper parent party people picture piece planet pocket police potato probably problem promise purple question quick quiet quite rabbit reason remember return river rocket school science second secret shadow shoulder simple sister smooth snowman someone special spring square station stomach straight strange street strong summer surprise sweater table teacher terrible thousand through thunder tomorrow touch toward travel trouble truck turtle uncle unhappy until usual vacation valley village visit voice weather weight whale whisper window winter wonder world wrong young`.split(/\s+/);
+const ALLW=new Set([...W2,...W3]);
+const WALL=[...ALLW];
+function misspell(w){
+  const out=new Set();let t=0;
+  while(out.size<3&&t++<80){
+    const s=w.split(''),r=rnd(0,4),i=rnd(1,s.length-1);
+    if(r===0&&s.length>3)[s[i-1],s[i]]=[s[i],s[i-1]];
+    else if(r===1&&s.length>3)s.splice(i,1);
+    else if(r===2)s.splice(i,0,s[i-1]);
+    else if(r===3){const idx=s.map((c,k)=>'aeiou'.includes(c)?k:-1).filter(k=>k>=0);if(idx.length){const k=pick(idx);s[k]=pick('aeiou'.split('').filter(x=>x!==s[k]))}}
+    else s.splice(i,0,pick('aeiou'.split('')));
+    const m=s.join('');if(m!==w&&!ALLW.has(m))out.add(m);
+  }
+  let k=0;while(out.size<3)out.add(w+'e'.repeat(++k));
+  return[...out];
+}
+function wordDeck(list){let d=[];return()=>{if(!d.length)d=shuf(list);return d.pop()}}
+const spellRight=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'mc',q:'Which is spelled <b>correctly</b>?',a:w,opts:shuf([w,...misspell(w)]),say:'Which is spelled correctly?'}}};
+const spellListen=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'type',q:'👂 Listen and <b>type the word</b>',a:w,speakWord:w,say:w}}};
+const spellScramble=list=>{const nx=wordDeck(list.filter(w=>w.length>=4));return()=>{const w=nx();let s=w;for(let i=0;i<20&&s===w;i++)s=shuf(w.split('')).join('');return{t:'type',q:'Unscramble the letters:<div class="letters">'+s.split('').map(c=>`<b>${c.toUpperCase()}</b>`).join('')+'</div>',a:w,say:'Unscramble the letters. '+s.split('').join(', ')}}};
+
+/* ---------- SECOND ENGLISH (SFSD 2nd grade ELA) ---------- */
+const bankType=lines=>{let d=[];return()=>{if(!d.length)d=shuf(lines);const [q,a]=d.pop().split('|');return{t:'type',q,a:a.toLowerCase()}}};
+const bankBuild=(list,prompt)=>{let d=[];return()=>{if(!d.length)d=shuf(list);const s=d.pop(),w=s.split(' ');let t=shuf(w);for(let i=0;i<10&&t.join(' ')===s;i++)t=shuf(w);return{t:'build',q:prompt||'Tap the words in the right order 🧩',words:t,a:s,say:prompt||'Put the words in the right order.'}}};
+const bankMatch=(lines,title)=>{let d=[];return()=>{if(d.length<4)d=shuf(lines);const ps=d.splice(0,4).map(x=>x.split('='));return{t:'match',q:title,pairs:ps,a:ps.map(p=>p[0]+' = '+p[1]).join(', '),say:title}}};
+const PS=(passage,qas)=>qas.map(x=>`<i>${passage}</i><br>${x}`);
+const ALLQ=(...arrs)=>arrs.flat();
+
+/* ===== 1. READING STORIES ===== */
+/* ===== SOCIAL STUDIES CONTENT (A) ===== */
+const mc=s=>bankMC(L(s),{fill:false});
+const SS_DIR=mc(`
+The four main directions are north, south, east, and…|west|up|left|down
+The short name for these directions is…|cardinal directions|color directions|animal directions|math directions
+On most maps, which way is north?|toward the top|toward the bottom|toward the left|toward the right
+Which direction is opposite of north?|south|east|west|up
+Which direction is opposite of east?|west|north|south|down
+Which direction is opposite of west?|east|north|south|up
+Which direction is opposite of south?|north|east|west|down
+A tool that shows directions on a map is a…|compass rose|key|title|scale of shoes
+You face north. You turn right. You now face…|east|west|south|north
+You face north. You turn around. You now face…|south|east|west|north
+You face south. You turn left. You now face…|east|west|north|south
+You face east. You turn right. You now face…|south|north|west|east
+Minnesota is east of South Dakota. So South Dakota is ___ of Minnesota.|west|east|north|south
+Nebraska is south of South Dakota. So South Dakota is ___ of Nebraska.|north|south|east|west
+The sun rises in the…|east|west|north|south
+The sun sets in the…|west|east|north|south
+A map shows a place from…|above, like a bird|the side only|underneath|inside a house
+A globe is a model of…|Earth|the sun|the moon|a school
+A globe is shaped like a…|ball|square|cone|cube
+Which can show the whole Earth without being flat?|globe|page|ticket|sign`);
+const SS_KEY=mc(`
+A map key tells what the ___ on a map mean.|symbols|colors of the paper|words in the title only|page numbers
+Another name for a map key is a…|legend|zipper|ticket|puzzle
+A small picture on a map that stands for something real is a…|symbol|signature|sound|scale
+On a map, a blue area often shows…|water|desert|a school|a road
+On a map, a star often shows a…|capital city|lake|forest|mountain
+The title of a map tells…|what the map is about|who drew it|how old it is|what it weighs
+A map of your school is a…|small map of a small place|map of Earth|map of space|map of the ocean
+A map that shows roads and cities is a…|road map|weather report|clock|recipe
+To find out what a symbol means, look at the…|map key|back of your hand|sky|floor
+Which symbol is usually used for a school on a map?|a small building picture|a wave|a star only|a number
+A line on a map that shows a path is often a…|road or trail|lake|forest|island
+A mountain on a map is often shown by a…|small triangle|blue circle|red square|green wave
+A compass rose on a map helps you find…|directions|prices|time|weight
+Which map would help you find a lake in a park?|a park map|a space map|a food menu|a clock
+A place that is north of the school is…|up from the school on the map|down from the school|left of the school|inside the school`);
+const SS_HEMI=mc(`
+The Equator is an imaginary line around the middle of Earth. It splits Earth into…|Northern and Southern Hemispheres|Eastern and Western Hemispheres|hot and cold parts|day and night parts
+The Northern Hemisphere is…|north of the Equator|south of the Equator|east of the Prime Meridian|west of the Prime Meridian
+The Southern Hemisphere is…|south of the Equator|north of the Equator|east of the Prime Meridian|west of the Prime Meridian
+The Prime Meridian runs from the North Pole to the…|South Pole|Equator|Arctic Circle|Tropic of Cancer
+The Prime Meridian splits Earth into…|Eastern and Western Hemispheres|Northern and Southern Hemispheres|hot and cold|top and bottom
+Half of a sphere (a ball) is called a…|hemisphere|continent|island|peninsula
+The Tropic of Cancer is…|north of the Equator|south of the Equator|at the South Pole|the Prime Meridian
+The Tropic of Capricorn is…|south of the Equator|north of the Equator|at the North Pole|the Prime Meridian
+The Arctic Circle is near the…|North Pole|South Pole|Equator|Tropic of Capricorn
+Which line is at 0 degrees latitude, the middle of Earth?|Equator|Prime Meridian|Arctic Circle|Tropic of Cancer
+The area between the two tropic lines is called the…|tropics|tundra|plateau|isthmus
+Is the United States in the Northern or Southern Hemisphere?|Northern|Southern|Neither|Both of them fully
+Is the United States mostly in the Eastern or Western Hemisphere?|Western|Eastern|Southern|Polar
+Where is it very cold and the ground stays frozen all year?|near the poles|at the Equator|in the tropics|in the rainforest
+The Equator, Prime Meridian and tropics are all…|imaginary lines on maps|real ropes|real fences|real roads
+The Equator is the line that is the…|hottest part of Earth overall|coldest part of Earth|highest mountain|longest river
+Which is the farthest north place on Earth?|North Pole|Equator|Prime Meridian|Tropic of Cancer
+Which line is the farthest from the Equator?|North Pole|Tropic of Cancer|Tropic of Capricorn|Prime Meridian`);
+const SS_GEO=mc(`
+A plateau is a…|high, flat area of land|deep hole|tiny pond|wet jungle
+An isthmus is a narrow strip of land that…|connects two bigger pieces of land|is an island in a lake|is a frozen desert|is a river
+The Isthmus of Panama connects North America and…|South America|Africa|Europe|Asia
+The tropics are the warm areas…|near the Equator|near the poles|only on mountains|under the sea
+Tundra is a land that is…|cold, treeless, and frozen much of the year|hot and wet|full of tall trees|sandy and hot
+A rainforest is a forest that gets…|a lot of rain|almost no rain|only snow|no sunlight at all
+Rainforests are usually…|warm and wet|cold and dry|icy|dusty
+An ocean current is…|moving water in the ocean|a lightning bolt|a type of boat|a kind of fish
+A wind current is…|air moving in a steady path|water in a river|snow on a hill|a trail in a forest
+Ocean currents can carry warm or cold…|water|trees|mountains|cars
+Which place is a tundra?|Alaska’s far north|the Amazon|the Sahara|a beach in Florida
+Which place is a rainforest?|the Amazon|Antarctica|the Arctic|a desert in Arizona
+Which landform is tall and flat on top?|plateau|valley|river|lake
+Which landform connects two lands, with water on both sides?|isthmus|island|bay|plateau
+Plants and animals in a tundra must handle…|very cold weather|constant heat|tons of rain|no wind
+Why does the tropics area stay warm?|it gets direct sunlight|it is under the sea|it is on a mountain|it has no sun
+Wind currents help…|sailing ships move|trees to sleep|rivers to freeze|rocks to float
+Warm ocean currents can make nearby land…|warmer|colder|disappear|taller`);
+const SS_MATCHGEO=bankMatch(L(`
+Plateau=High flat land
+Isthmus=Narrow land bridge
+Tundra=Cold and treeless
+Rainforest=Warm, wet, many trees
+Ocean current=Moving ocean water
+Wind current=Moving air
+Equator=Middle line of Earth
+Prime Meridian=Splits east and west
+Tropics=Warm area near the Equator
+Arctic Circle=Cold area near North Pole
+Hemisphere=Half of Earth
+Globe=Model of Earth`));
+const SS_TIME=mc(`
+A timeline puts events in…|the order they happened|alphabetical order|random order|size order
+Yesterday, today, and tomorrow are time words for…|past, present, and future|big, medium, small|up, down, side|red, blue, green
+Which comes first on a timeline?|the oldest event|the newest event|the biggest event|the loudest event
+The word “before” means…|earlier in time|later in time|at the same time always|never
+The word “after” means…|later in time|earlier in time|never|a long time ago only
+A baby is born, then learns to walk, then goes to school. Which is last?|goes to school|born|learns to walk|nothing is last
+An event that already happened is in the…|past|future|present only|dream
+An event that will happen next year is in the…|future|past|history only|yesterday
+Right now is the…|present|past|future|history
+A personal timeline shows events in…|your own life|a stranger’s life|the weather|a store
+One year has…|12 months|10 months|7 months|52 months
+How many years are in a decade?|10|5|20|100
+How many years are in a century?|100|10|50|1,000
+Events that happened a very long time ago are called…|history|news|tomorrow|today
+A calendar shows the…|days, weeks, and months|stars only|weather only|prices
+Which word means “a long time ago”?|ancient|modern|tomorrow|soon
+Place these in order: wake up, brush teeth, go to school. What is the middle one?|brush teeth|wake up|go to school|nothing
+Ordering events helps us see how one event led to another. This is called…|cause and effect|timelines of food|map reading|counting
+If a cause is “It rained,” a likely effect is…|the ground got wet|the sun fell|the snow turned green|the moon grew`);
+const SS_HOL=mc(`
+Independence Day is on…|July 4|December 25|January 1|October 31
+On Independence Day we celebrate the birth of our…|country|school|city|family pet
+Martin Luther King Jr. Day honors a man who worked for…|fairness and equal rights|racing cars|building bridges|making candy
+Presidents’ Day honors…|American presidents like Washington and Lincoln|only pilots|only teachers|animals
+Memorial Day honors…|soldiers who died serving our country|all teachers|new babies|farmers only
+Veterans Day thanks people who…|served in the military|work at stores|play sports|sing songs
+Labor Day honors…|workers|kings|artists only|students only
+Thanksgiving is a day to…|give thanks|go trick-or-treating|watch fireworks|hunt eggs
+Columbus Day / Indigenous Peoples’ Day is in…|October|April|June|February
+New Year’s Day is on…|January 1|July 4|November 11|May 1
+In which month is Veterans Day?|November|July|March|May
+In which month is Memorial Day?|May|September|January|December
+Which holiday is on the fourth Thursday of November?|Thanksgiving|Labor Day|Memorial Day|Flag Day
+Flag Day honors our…|American flag|state bird|president only|bell
+Flag Day is in…|June|January|October|December
+Labor Day is in…|September|June|February|December
+Which holiday is celebrated with fireworks and parades in summer?|Independence Day|Thanksgiving|Labor Day|Veterans Day
+Martin Luther King Jr. Day is in…|January|July|April|November
+Presidents’ Day is in…|February|August|October|June
+What do national holidays help us do?|remember important people and events|forget history|skip school forever|stop working forever
+Citizenship Day (Constitution Day) remembers the…|Constitution|moon landing|first train|first flag only`);
+const SS_MATCHHOL=bankMatch(L(`
+Independence Day=July 4
+Thanksgiving=Give thanks in November
+Memorial Day=Remember soldiers who died
+Veterans Day=Thank those who served
+Labor Day=Honor workers
+Presidents’ Day=Honor our presidents
+Martin Luther King Jr. Day=Equal rights leader
+New Year’s Day=January 1
+Flag Day=Honor the flag
+Constitution Day=Remember the Constitution`));
+const SS_VIRT=mc(`
+The rule of law means…|everyone follows the same fair rules|only kings make rules|nobody follows rules|rules are for kids only
+Courage means doing the right thing even when it is…|hard or scary|easy|boring|funny
+Honesty means…|telling the truth|hiding things|guessing|taking things
+Respect means…|treating others kindly|ignoring everyone|shouting|bossing others
+Responsibility means…|doing your job and keeping promises|blaming others|giving up|breaking rules
+A friend dropped money. You return it. That shows…|honesty|greed|laziness|trickery
+Someone is being teased and you stand up for them. That shows…|courage|fear|meanness|boredom
+Why do we have laws?|to keep people safe and treat people fairly|to make life harder|to stop all fun|to help only a few people
+If you break a school rule, a fair result is…|a consequence|a prize|a party|nothing ever
+Why should everyone follow the same rules?|it is fair|it is boring|it is silly|it is secret
+Fairness means…|treating people equally|giving all to one|cheating|bullying
+Doing what is morally right means…|doing what is good and fair|doing what is easy|doing what is popular|doing nothing
+A good citizen follows…|rules and laws|only their own wishes|nothing|only candy rules
+When you see trash at the park and pick it up, you show…|responsibility|laziness|anger|greed
+Telling a teacher the truth about a mistake shows…|honesty and courage|laziness|trickery|boredom
+Taking turns on the slide is following…|a fair rule|a game rule only|no rule|a silly rule`);
+const SS_LAND=mc(`
+Statue of Liberty is in…|New York Harbor|Texas|South Dakota|California
+The Statue of Liberty was a gift from…|France|Spain|Japan|Mexico
+The Statue of Liberty holds a…|torch|sword|hammer|guitar
+The Alamo is in…|Texas|New York|Maine|Alaska
+The Alamo was an old…|mission and fort|bridge|train|dam
+The Brooklyn Bridge is in…|New York City|Chicago|Seattle|Miami
+The Golden Gate Bridge is in…|San Francisco, California|New York City|Florida|Texas
+The Golden Gate Bridge is famous for its…|orange-red color|green stripes|blue stars|pink color
+Mount Rushmore is in…|South Dakota|Nebraska|Montana|Iowa
+Mount Rushmore shows the faces of…|four U.S. presidents|four kings|four soldiers|four tigers
+Which four presidents are on Mount Rushmore?|Washington, Jefferson, Lincoln, T. Roosevelt|Adams, Grant, Jackson, Polk|Obama, Clinton, Reagan, Bush|Madison, Monroe, Taft, Ford
+The Crazy Horse Memorial is in…|South Dakota|Florida|Ohio|Oregon
+The Crazy Horse Memorial honors a famous…|Lakota leader|president|pilot|farmer
+Hoover Dam is on the…|Colorado River|Mississippi River|Missouri River|Hudson River
+Hoover Dam holds back water and makes…|electricity|snow|bread|paper
+The Gateway Arch is in…|St. Louis, Missouri|Boston|Dallas|Denver
+The Gateway Arch is the symbol of going…|west|east|north only|under water
+The Mackinac Bridge is in…|Michigan|Utah|Georgia|Nevada
+The Mackinac Bridge connects Michigan’s two…|peninsulas|oceans|states|countries
+One World Trade Center is in…|New York City|Washington, D.C.|Chicago|Las Vegas
+One World Trade Center is a very tall…|skyscraper|barn|bridge|dam
+Route 66 is a famous…|road|river|lake|mountain
+Route 66 runs from Chicago toward…|Los Angeles|Boston|Miami|Alaska
+The Transcontinental Railroad joined the East and West by…|train tracks|a canal|an airport|a tunnel only
+Statue of Liberty means…|freedom|silence|trains|lunch
+A landmark is…|a famous place or building|a type of weather|a food|a toy`);
+const SS_MATCHLAND=bankMatch(L(`
+Statue of Liberty=New York Harbor
+Alamo=Texas
+Brooklyn Bridge=New York City
+Golden Gate Bridge=San Francisco
+Mount Rushmore=South Dakota
+Crazy Horse Memorial=South Dakota
+Hoover Dam=Nevada and Arizona
+Gateway Arch=St. Louis
+Mackinac Bridge=Michigan
+One World Trade Center=New York City
+Route 66=Famous highway
+Transcontinental Railroad=Train across the country`));
+const SS_ROME=mc(`
+The early Christians followed the teachings of…|Jesus|Caesar|Constantine only|Alexander
+The Christian holy book is the…|Bible|Qur’an|Torah only|Vedas
+The Romans ruled a huge empire around the…|Mediterranean Sea|Pacific Ocean|Arctic Ocean|Great Lakes
+Early Christians were often treated…|harshly by Roman rulers|as kings|as gods|with big parties
+Constantine was a…|Roman emperor|Viking king|samurai|pharaoh
+Constantine made Christianity…|legal|illegal|a game|a secret
+Constantine moved the capital of Rome to…|Constantinople|Paris|London|Athens
+Constantinople is now called…|Istanbul|Rome|Cairo|Tokyo
+When Christians no longer had to hide, they could…|worship openly|fight Romans|move to space|sail to America
+Groups called barbarians invaded…|the Roman Empire|South Dakota|Japan|Egypt
+The Western Roman Empire fell in about…|476|1066|1776|1492
+After Rome fell, cities became…|smaller and less safe|bigger and richer|full of cars|full of computers
+After Rome fell, travel and trade became…|harder|easier|faster|free
+After Rome fell, many people moved to…|the countryside|the moon|the sea only|big cities
+A monastery is a place where…|monks live and pray|kings live|soldiers train|ships sail
+Monks in monasteries copied…|books by hand|cars|newspapers|computer code
+Monasteries kept learning alive by…|saving books and teaching|burning books|hiding learning|stopping school
+The Middle Ages are also called the…|medieval times|space age|modern times|Ice Age
+The Eastern Roman Empire was also called the…|Byzantine Empire|Viking Empire|Inca Empire|Maya Empire
+Which empire ended in 476 in the West?|Roman Empire|Chinese Empire|Aztec Empire|British Empire`);
+const SS_MID=mc(`
+Muhammad is the prophet of…|Islam|Christianity|Buddhism|Hinduism
+Followers of Islam are called…|Muslims|Vikings|Romans|Knights
+The Muslim holy book is the…|Qur’an|Bible|Torah|Vedas
+The holy city where Muslims pray toward is…|Mecca|Rome|Athens|Paris
+Muslims pray in a…|mosque|castle|monastery|stadium
+Early Muslims spread their culture across…|Arabia, Africa, and Asia|only America|only Antarctica|only Europe
+Charlemagne was a king of the…|Franks (Carolingian dynasty)|Vikings|Romans|Aztecs
+Charlemagne was crowned emperor in the year…|800|1492|1776|1066
+Charlemagne helped schools and…|learning|pirates|plague|dragons
+The Vikings were warriors from…|Scandinavia|Asia|Australia|Africa
+The Vikings sailed in long…|ships|trains|cars|balloons
+Viking raids frightened people in…|Europe|Antarctica|Hawaii|Brazil
+Feudalism was a system where…|nobles held land in exchange for service|everyone owned land equally|there was no ruler|robots worked
+In feudalism, the king gave land to…|nobles|peasants only|merchants only|pirates
+A lord who served a king was called a…|vassal|serf|squire|monk
+A knight’s job was to…|protect his lord and land|plant crops only|write books only|trade silk
+Peasants (serfs) worked on the lord’s…|land|ship|castle roof only|sword
+A castle was built to…|protect people and land|grow food only|sell goods only|hold school
+The Norman Conquest happened in…|1066|1492|1776|800
+William the Conqueror was the Duke of…|Normandy|Rome|Japan|Egypt
+William the Conqueror became king of…|England|Spain|France|Italy
+King John of England was…|a ruler who the nobles forced to sign a charter|a Viking|a Roman emperor|an American president
+The Magna Carta was signed in…|1215|1066|1492|1776
+The Magna Carta said…|even the king must obey the law|the king can do anything|nobles are slaves|no one has rights
+Magna Carta means…|Great Charter|Big King|Small Law|Lost Map`);
+const SS_MATCHROME=bankMatch(L(`
+Constantine=Made Christianity legal
+Constantinople=New Roman capital
+Barbarians=Invaded Rome
+Monks=Lived in monasteries
+Muhammad=Prophet of Islam
+Charlemagne=Carolingian emperor
+Vikings=Raiders in long ships
+Feudalism=Land for service system
+Knight=Protected his lord
+William the Conqueror=Won England in 1066
+Magna Carta=Limited the king
+King John=Signed Magna Carta`));
+const SS_REN=mc(`
+The Crusades were wars over…|the Holy Land|America|the moon|the Pacific
+The Holy Land includes the city of…|Jerusalem|Paris|Cairo only|Rome only
+The Crusades were fought between…|Christians and Muslims|Vikings and Romans|Greeks and Chinese|Aztecs and Incas
+Muslims and Christians had different…|views and perspectives|languages only|animals|moons
+The Pope is the leader of the…|Catholic Church|Muslim faith|Viking army|English court
+A pope’s power in the High Middle Ages was…|very strong|very weak|none|only for kids
+Friars like St. Francis belonged to…|mendicant orders|Viking clans|armies|castles
+Mendicant friars lived by…|helping the poor and begging|fighting|trading|hunting
+Mali, Ghana, and Songhay were great kingdoms in…|Africa|South America|Europe|Antarctica
+Ghana grew rich by trading…|gold and salt|silk and tea|cars and trucks|paper only
+Mansa Musa was a famous king of…|Mali|Japan|England|Mexico
+Mansa Musa made a famous trip to…|Mecca|London|Paris|America
+Timbuktu was a famous city of…|learning in Africa|trade in China|castles in Europe|temples in Japan
+Hinduism is a major religion that began in…|India|England|Mexico|Italy
+Mongols and Muslims both ruled parts of…|India|Iceland|Brazil|Australia
+Confucius taught people to be…|respectful and wise|angry|sleepy|greedy
+Confucianism started in…|China|Egypt|France|Peru
+Dynasties are…|families that rule for many years|kinds of food|types of boats|musical bands
+The Great Wall of China protected China from…|invaders|rain|snow|fish
+Japan’s military leaders were called…|shoguns|vikings|popes|pharaohs
+Samurai were…|Japanese warriors|Greek poets|Roman senators|English knights
+Buddhism came to Japan and became…|an important religion there|forbidden forever|a game|a type of sword
+The Black Death was a…|deadly disease that spread across Europe|great war|big flood|volcano
+The Black Death spread by…|fleas and rats|cars|boats of Vikings only|computers
+The Hundred Years’ War was between…|England and France|Japan and China|Rome and Greece|Spain and Mexico
+The Great Schism of 1378 was a split in the…|Catholic Church|Viking army|Chinese Empire|Mali kingdom
+Renaissance means…|rebirth|war|plague|empire
+The Renaissance began in…|Italy|Mexico|Egypt|Australia
+Renaissance thinkers revived the ideas of…|ancient Greece and Rome|Vikings|barbarians|dinosaurs
+Leonardo da Vinci was a famous…|painter and inventor|knight|pharaoh|monk only
+Michelangelo painted the ceiling of the…|Sistine Chapel|Eiffel Tower|Alamo|Gateway Arch
+Michelangelo also carved the statue…|David|Lady Liberty|Mount Rushmore|Sphinx
+The Mona Lisa was painted by…|Leonardo da Vinci|Michelangelo|Raphael|Columbus
+Renaissance art tried to look…|real and lifelike|flat and plain|only gold|only black and white
+Renaissance builders made beautiful…|domes and churches|skyscrapers|trains|dams
+The printing press, invented by Gutenberg, helped…|spread books and ideas|build ships|dig tunnels|farm crops
+A sculpture is…|art carved or shaped in 3D|a flat painting|a song|a dance
+Northern Europe artists of the Renaissance included…|Albrecht Dürer and Jan van Eyck|Leonardo only|Mansa Musa|William Wallace
+Which came first: the Roman Empire or the Renaissance?|Roman Empire|Renaissance|They were at the same time|Neither happened`);
+const SS_MATCHREN=bankMatch(L(`
+Mali=African kingdom
+Ghana=Gold-trading kingdom
+Songhay=African kingdom with Timbuktu
+Confucius=Chinese teacher
+Dynasty=Ruling family
+Shogun=Japanese military leader
+Samurai=Japanese warrior
+Hinduism=Major religion of India
+Black Death=Deadly disease in Europe
+Hundred Years’ War=England versus France
+Renaissance=Rebirth in Italy
+Leonardo da Vinci=Painted the Mona Lisa
+Michelangelo=Sistine Chapel painter
+Gutenberg=Printing press`));
+
+/* ===== SOCIAL STUDIES CONTENT (B) ===== */
+const SS_CONST=mc(`
+A constitution is…|a plan of how a government works|a type of map|a storybook|a holiday
+The U.S. Constitution was written in…|1787|1492|1865|1900
+The Constitution begins with the…|Preamble|Bill of Rights|Gettysburg Address|Pledge
+The first words of the Preamble are…|We the People|Once upon a time|Four score|Dear Congress
+The Preamble tells why we have…|a government|a flag|a map|a holiday
+The Bill of Rights is the first ___ changes to the Constitution.|ten|two|fifty|hundred
+Changes to the Constitution are called…|amendments|treasures|maps|bills of sale
+The Bill of Rights protects our…|rights and freedoms|toys|lunch|weather
+Representation means…|people choose leaders to speak for them|the king picks everyone|everyone makes every law|nobody votes
+We choose leaders by…|voting in elections|drawing names from a hat|a coin flip|fighting
+Who makes the laws?|Congress|The President|The Supreme Court|The police
+Who carries out (enforces) the laws?|The President|Congress|The Supreme Court|A jury only
+Who decides what laws mean (judges the law)?|The Supreme Court|The President|Congress|The governor
+Legislative power means…|making laws|enforcing laws|judging laws|breaking laws
+Executive power means…|enforcing laws|making laws|judging laws|breaking laws
+Judicial power means…|judging laws|making laws|enforcing laws|ignoring laws
+The legislative branch is…|Congress|the President|the Supreme Court|the police
+The executive branch is led by…|the President|the Chief Justice|a Senator|a mayor only
+The judicial branch includes the…|Supreme Court|Senate|White House|governor
+Congress has two parts: the Senate and the…|House of Representatives|Supreme Court|White House|Cabinet
+How many senators does each state have?|2|1|5|50
+The President lives and works in the…|White House|Capitol|Supreme Court building|Alamo
+Congress meets in the…|Capitol|White House|Statue of Liberty|Mount Rushmore
+The Supreme Court meets in…|Washington, D.C.|Pierre|New York|Texas
+Having three branches keeps any one part from having too much…|power|money|homework|rain
+A bill is an idea for a new…|law|map|song|holiday only
+A bill becomes a law after Congress passes it and the President…|signs it|burns it|hides it|forgets it
+A governor is the leader of a…|state|country|town only|school only
+State legislators…|make laws for the state|enforce laws for the country|are judges only|are presidents
+The capital of South Dakota is…|Pierre|Sioux Falls|Rapid City|Aberdeen
+The governor works in the state capitol in…|Pierre|Washington, D.C.|Mount Rushmore|Sioux Falls
+How many branches of the U.S. government are there?|3|2|4|5
+A person who stops a law from passing, using the veto, is the…|President|police|teacher|jury
+A veto means “I forbid” and is used by the…|President|judge|governor only|mayor`);
+const SS_CIT=mc(`
+A citizen is a member of a…|country|club only|sports team|bank
+You are a citizen of the U.S. if you are born…|in the U.S.|in a boat|in space only|on Mars
+Someone not born here can become a citizen through…|naturalization|vacation|a car ride|a game
+A good citizen is knowledgeable, good, and…|hard-working|sleepy|angry|greedy
+Voting is a way for citizens to…|choose leaders|play games|buy things|skip school
+Which is a good way to help your community?|volunteering|littering|yelling|breaking rules
+Freedom of speech means you can…|share your ideas|say anything to hurt others|ignore everyone|steal
+Freedom of religion means you can…|choose how and whether to worship|be told what to believe|only follow one faith|never pray
+A jury trial means…|a group of citizens helps decide a case|one person decides everything|a king decides|no one decides
+The right to a trial by jury is in the…|Bill of Rights|Preamble|Pledge|Gettysburg Address
+The free press means…|news can be reported without the government stopping it|only the president prints news|newspapers must be free of cost|no news
+Civil dialogue means…|talking respectfully even when we disagree|yelling|never talking|insulting others
+Why is free speech important?|so people can share ideas and fix problems|so people can be loud|so people can stop talking|so nobody votes
+A person’s duties as a citizen include…|obeying laws and paying taxes|breaking rules|never voting|ignoring neighbors
+Taxes are money people pay to the…|government|grocery store|school bus|mailman
+Taxes help pay for…|roads, schools, and police|candy only|toys only|trophies only
+Being informed means…|knowing what is going on|ignoring news|guessing|talking only
+The right to say what you think comes from the…|First Amendment|Preamble|Twenty-seventh|Declaration only
+Which is a right of a citizen?|voting when old enough|breaking laws|skipping all rules|making your own money`);
+const SS_MATCHGOV=bankMatch(L(`
+Congress=Makes laws
+President=Enforces laws
+Supreme Court=Judges laws
+Legislative=Law making
+Executive=Law enforcing
+Judicial=Law judging
+Governor=Leader of a state
+Preamble=Starts the Constitution
+Bill of Rights=First ten amendments
+Citizen=Member of a country
+Voting=Choosing leaders
+Veto=President says no to a bill`));
+const SS_EARLY=mc(`
+The first president of the United States was…|George Washington|Thomas Jefferson|Abraham Lincoln|Andrew Jackson
+Washington stayed neutral when France fought…|Great Britain|Spain|Mexico|Russia
+Neutral means…|not taking sides|always fighting|running away|being the boss
+Washington’s Thanksgiving Proclamation asked the nation to…|give thanks|go to war|build a bridge|sell goods
+Washington is often called the “Father of Our…|Country|Family|School|Town”
+Thomas Jefferson was the…|third president|first president|sixteenth president|seventh president
+Jefferson wrote most of the…|Declaration of Independence|Gettysburg Address|Bill of Rights|Preamble
+The Louisiana Purchase doubled the size of…|the United States|Mexico|France|Canada
+Jefferson bought the Louisiana land from…|France|Spain|Britain|Canada
+The Louisiana Purchase happened in…|1803|1492|1865|1912
+The Corps of Discovery was led by…|Lewis and Clark|Washington and Adams|Grant and Lee|Lincoln and Douglas
+Lewis and Clark explored the…|Louisiana Territory|South Pole|Moon|Pacific islands
+Lewis and Clark traveled through what is now…|South Dakota|Antarctica|Iceland|Brazil
+The Corps of Discovery was helped by a Shoshone woman named…|Sacagawea|Pocahontas|Harriet Tubman|Betsy Ross
+Jefferson also sent the navy to fight the…|Barbary pirates|Vikings|Romans|Mongols
+During Jefferson’s time, the U.S. ended the international…|slave trade|train system|school system|Postal system
+The War of 1812 was fought between the U.S. and…|Great Britain|France|Mexico|Spain
+In the War of 1812, British troops burned…|Washington, D.C.|Boston|Chicago|Denver
+The burning of Washington happened in…|1814|1775|1865|1900
+First Lady Dolley Madison saved a famous painting of…|George Washington|Abraham Lincoln|Jefferson|Jackson
+The Battle of New Orleans was won by…|Andrew Jackson|Thomas Jefferson|Ulysses Grant|Robert E. Lee
+The Battle of New Orleans was fought in…|1815|1492|1776|1900
+“The Star-Spangled Banner” was written by…|Francis Scott Key|Betsy Ross|Paul Revere|John Adams
+Francis Scott Key wrote it after seeing the flag still waving over…|Fort McHenry|The Alamo|Mount Rushmore|Gettysburg
+The Star-Spangled Banner is our national…|anthem|food|bird|holiday
+The first stanza asks if the flag was still there at…|dawn’s early light|noon|midnight|nighttime
+The “rockets’ red glare” means…|rockets were fired in battle|there were fireworks only|a sunrise|a storm
+The star-spangled banner is the…|American flag|state seal|president’s hat|a ship
+Andrew Jackson was the…|seventh president|first president|third president|sixteenth president
+Andrew Jackson was a hero of the…|Battle of New Orleans|Gettysburg|the Alamo|Crusades
+Jackson believed in a stronger voice for…|common people (democracy)|only kings|only rich people|no one
+Jackson’s harsh actions toward Native American tribes caused…|great suffering|new friendships only|gold only|peace only
+Jackson owned…|enslaved people|only a school|a spaceship|a pirate ship
+Inventions of the early 1800s that changed travel include the…|steamboat and railroad|airplane|car|rocket
+The steamboat used steam to…|move on rivers|fly|dig|climb
+The cotton gin was invented by…|Eli Whitney|Henry Ford|Edison|Bell
+The cotton gin cleaned…|cotton|corn|wheat|rice
+Robert Fulton made the steamboat…|successful|illegal|go away|a toy
+The Erie Canal connected the Great Lakes to…|the Atlantic Ocean|the Pacific|the Gulf of Mexico|Hudson Bay only
+Moving west was called westward…|expansion|erosion|extinction|education
+People who traveled west often used…|covered wagons|jets|bicycles|subways
+The Oregon Trail led settlers to…|Oregon|Florida|Maine|Texas
+The Santa Fe Trail led to…|New Mexico|Maine|Minnesota|Florida
+Mountain men worked in the…|fur trade|computer trade|car trade|banking
+Mountain men trapped animals like…|beavers|elephants|lions|monkeys`);
+const SS_MATCHEARLY=bankMatch(L(`
+George Washington=First president
+Thomas Jefferson=Louisiana Purchase
+Lewis and Clark=Corps of Discovery
+Sacagawea=Helped Lewis and Clark
+Francis Scott Key=Wrote the national anthem
+Andrew Jackson=Won Battle of New Orleans
+Dolley Madison=Saved Washington’s portrait
+Robert Fulton=Steamboat
+Eli Whitney=Cotton gin
+Louisiana Purchase=Bought from France
+War of 1812=Fought Great Britain
+Santa Fe Trail=Led to New Mexico`));
+const SS_SLAVE=mc(`
+Slavery is when people are…|owned by others and forced to work|paid fairly|free to leave|kings
+Slavery was wrong because everyone should be…|free and treated fairly|a farmer|a soldier|a king
+Many enslaved people worked on large farms called…|plantations|villages|factories|skyscrapers
+Plantations grew crops like…|cotton and tobacco|snow|robots|cars
+Enslaved families kept their culture alive through…|songs, stories, and faith|nothing|cell phones|cars
+Enslaved people often created spirituals, which are…|songs of hope and faith|math lessons|laws|maps
+In the North, many people worked in…|factories and cities|only plantations|only mines|nowhere
+In the South, the economy depended mostly on…|farming (cotton)|computers|oil rigs|movies
+The North and South grew apart in…|culture, lifestyle, and economy|animals only|language only|nothing at all
+Abolitionists wanted to…|end slavery|start slavery|sail ships|cut trees
+Abolish means to…|end something|start something|paint something|buy something
+The Underground Railroad was a secret network that helped enslaved people…|escape to freedom|ride trains for fun|find treasure|dig tunnels
+The Underground Railroad was not really…|underground or a railroad|secret|dangerous|helpful
+Harriet Tubman was a…|conductor on the Underground Railroad|president|general|queen
+Harriet Tubman helped about ___ people reach freedom.|70|7|7,000|7 million
+Harriet Tubman was nicknamed…|Moses|Lady Liberty|The Duke|The Queen
+Frederick Douglass was born into…|slavery|royalty|wealth|a presidency
+Frederick Douglass learned to…|read and write|play basketball|sail ships|fly planes
+Learning to read helped Douglass see that…|he deserved freedom|he must stay a slave|books are boring|school is silly
+Frederick Douglass escaped slavery and became a famous…|speaker and writer|king|soldier only|pirate
+Douglass published a newspaper called…|The North Star|The Daily News|The Sun|The Moon
+Douglass wrote his story in a book called…|Narrative of the Life of Frederick Douglass|Little House|Treasure Island|Charlotte’s Web
+Douglass first thought the Constitution allowed slavery, but later he believed it…|promised freedom for all|should be thrown out|was only for kings|was not important
+Douglass said the Fourth of July…|did not feel free for enslaved people|was boring|was a funny holiday|was no longer a holiday
+Women’s suffrage means…|women’s right to vote|women’s right to drive|women’s right to sail|women’s right to sing
+The first big women’s rights meeting was held at…|Seneca Falls, New York|Gettysburg|Washington, D.C. only|the Alamo
+The Seneca Falls meeting was in…|1848|1776|1900|1492
+Elizabeth Cady Stanton and Susan B. Anthony worked for…|women’s right to vote|a bigger army|cheaper trains|school lunches
+Sojourner Truth spoke out for…|freedom and women’s rights|only trains|bank rules|space travel
+The Trail of Tears was the forced move of the…|Cherokee people|Vikings|Romans|Pilgrims
+The Trail of Tears happened in…|1838|1492|1776|1900
+The Cherokee were forced to leave their homes in…|the Southeast|the Arctic|the desert only|the Great Lakes only
+The Treaty of New Echota was signed by only a…|few Cherokee, not their leaders|king|president only|crowd
+The Trail of Tears was very…|sad and hard for the Cherokee|joyful|short|easy
+Which president signed the Indian Removal Act?|Andrew Jackson|George Washington|Abraham Lincoln|Theodore Roosevelt`);
+const SS_MATCHSLAVE=bankMatch(L(`
+Harriet Tubman=Underground Railroad conductor
+Frederick Douglass=Escaped slavery and wrote books
+Sojourner Truth=Spoke for freedom and women’s rights
+Susan B. Anthony=Worked for women’s vote
+Elizabeth Cady Stanton=Seneca Falls leader
+Abolitionist=Wanted to end slavery
+Underground Railroad=Secret route to freedom
+Plantation=Big farm worked by enslaved people
+Trail of Tears=Cherokee forced move
+Seneca Falls=1848 women’s rights meeting
+The North Star=Douglass’s newspaper
+Suffrage=Right to vote`));
+const SS_LINC=mc(`
+Abraham Lincoln was the…|16th president|1st president|7th president|26th president
+Lincoln was born in a small…|log cabin|castle|skyscraper|palace
+Lincoln taught himself by reading…|many books|nothing|only comics|only maps
+Lincoln was nicknamed…|Honest Abe|Big Al|Smart Sam|Young Tom
+Lincoln was against…|the spread of slavery|school|trains|voting
+The Civil War was fought between the…|North (Union) and South (Confederacy)|East and West|U.S. and France|U.S. and Spain
+The Northern states were called the…|Union|Confederacy|Allies|Axis
+The Southern states were called the…|Confederacy|Union|Republic|Colonies
+The Civil War began at…|Fort Sumter|Gettysburg|the Alamo|Mount Rushmore
+The Civil War began in…|1861|1776|1914|1492
+The biggest cause of the Civil War was disagreement about…|slavery|candy|sports|weather
+States’ rights was also a cause, but the main issue was…|slavery|school hours|taxes on toys|pets
+Many Southern states left (seceded) when ___ was elected.|Lincoln|Washington|Jackson|Jefferson
+Secede means to…|leave a group|join a group|win a war|sign a paper
+The Mexican-American War gave the U.S. new land called the…|Mexican Cession|Louisiana Purchase|Gadsden|Alaska
+The California Gold Rush brought many people…|west|east|north only|to Europe
+New western land made people argue about whether it would allow…|slavery|schools|trains|parks
+Lincoln said, “A house divided against itself cannot…|stand”|dance”|run”|talk”
+Lincoln believed right and wrong do not depend only on…|what most people want|facts|rules|laws
+Lincoln believed slavery was wrong even if…|many people supported it|nobody cared|a king said so|school said so
+Lincoln signed the Emancipation Proclamation in…|1863|1776|1900|1492
+The Emancipation Proclamation said enslaved people in rebel states were…|free|doomed|soldiers|kings
+Emancipate means to…|set free|lock up|move away|teach
+The Gettysburg Address was a…|short famous speech|long song|map|poem about farms
+Lincoln gave the Gettysburg Address in…|1863|1776|1492|1900
+The Gettysburg Address begins “Four score and seven years ago.” Four score means…|80|40|20|400
+The Gettysburg Address says our country was founded on the idea that all men are created…|equal|rich|tall|alike
+Lincoln wanted to keep the…|Union together|North and South apart|army small|trains running
+Lincoln wanted the country to be a place where the people…|govern themselves|obey a king|never vote|never argue
+Lincoln was shot by…|John Wilkes Booth|Robert E. Lee|Ulysses Grant|Andrew Jackson
+Lincoln was assassinated in…|1865|1776|1900|1492
+Assassinated means…|killed on purpose, often a leader|retired|elected|moved
+The Lincoln Memorial is in…|Washington, D.C.|Springfield only|New York|Texas
+The Lincoln Memorial has a big statue of Lincoln…|sitting|flying|swimming|dancing
+Lincoln’s plan for Reconstruction was to…|heal and rebuild the country|punish everyone|divide the country|start another war`);
+const SS_WAR=mc(`
+Robert E. Lee was a general for the…|Confederacy|Union|British|Vikings
+Ulysses S. Grant was a general for the…|Union|Confederacy|British|Vikings
+Grant later became the…|18th president|1st president|10th president|30th president
+Clara Barton was a famous…|nurse|general|pirate|artist
+Clara Barton later founded the…|American Red Cross|U.S. Army|Constitution|Congress
+William Tecumseh Sherman was a general for the…|Union|Confederacy|Vikings|British
+Sherman’s March to the Sea went through…|Georgia|Alaska|Maine|Texas
+Sherman’s March to the Sea was meant to…|weaken the South|plant gardens|build trains|find gold
+The Battle of Gettysburg was in…|Pennsylvania|Georgia|Texas|Maine
+Gettysburg was a turning point because the…|Union won|Confederacy won|war ended in a tie|war started
+The Battle of Gettysburg lasted…|three days|three years|one hour|three weeks
+The Union won the war partly because it had more…|people, factories, and railroads|castles|pirates|ships only
+The Civil War ended in…|1865|1776|1900|1492
+General Lee surrendered at…|Appomattox|Gettysburg|Fort Sumter|Pierre
+After the war, the 13th Amendment…|ended slavery|gave votes to kids|started a war|made trains
+The Civil War hurt the South more because most battles were…|fought on Southern land|in space|at sea|in Canada
+The North recovered faster because it had…|factories and cities|only plantations|nothing|more castles
+Many families lost…|loved ones in the war|nothing|nothing at all|phones
+Reconstruction was the time…|after the war when the country rebuilt|before the war|during the war|before Lincoln
+Reconstruction tried to rebuild the South and…|give rights to freed people|stop all trains|end school|start a new war
+A success of Reconstruction was…|freed people gained rights, schools, and the vote|everything was perfect|no one was upset|slavery returned
+A failure of Reconstruction was that…|many freed people were treated unfairly again|everyone was equal|no one learned|the war restarted
+Freedmen’s Bureau helped freed people with…|schools, food, and work|gold|trains|war
+Sioux, Dakota, Lakota and Nakota peoples were…|removed and moved to reservations|given the whole country|never affected|kings
+The Dakota War of 1862 happened in…|Minnesota|Florida|California|Maine
+Many Union veterans settled in…|South Dakota|Antarctica|Iceland|England
+Union veterans helped shape South Dakota’s…|civic life and government|weather|rivers|mountains
+After the Civil War, the 14th Amendment made freed people…|citizens|kings|soldiers|teachers
+After the Civil War, the 15th Amendment gave Black men the right to…|vote|drive|fly|sail`);
+const SS_MATCHWAR=bankMatch(L(`
+Abraham Lincoln=Union president
+Robert E. Lee=Confederate general
+Ulysses S. Grant=Union general
+Clara Barton=Nurse and Red Cross founder
+William T. Sherman=March to the Sea
+Gettysburg=Battle in Pennsylvania
+Emancipation Proclamation=Freed enslaved people in rebel states
+Reconstruction=Rebuilding after the war
+Union=Northern states
+Confederacy=Southern states
+Fort Sumter=Where the war began
+Appomattox=Where Lee surrendered`));
+const SS_GILD=mc(`
+The Gilded Age was a time of fast…|growth and new inventions|quiet and no change|war only|plague only
+Gilded means covered in a thin layer of…|gold|silver|paint|ice
+Thomas Edison invented a practical…|light bulb|airplane|car|telephone
+Alexander Graham Bell invented the…|telephone|light bulb|radio|train
+The Wright brothers flew the first…|airplane|train|car|ship
+Henry Ford made cars…|affordable with the assembly line|only for kings|only for kids|only blue
+Inventions like electricity changed life from farm life to…|city and factory life|castle life|space life|ocean life
+Agrarian means…|based on farming|based on factories|based on computers|based on ships
+The transcontinental railroad finished in…|1869|1492|1776|1900
+Immigrants are people who…|move to a new country|stay home always|travel for a day|stay in a hotel
+Many immigrants came to America for…|jobs, freedom, and a better life|nothing|only to see statues|only to fish
+Many immigrants arrived through…|Ellis Island|Mount Rushmore|the Alamo|Gateway Arch
+Ellis Island is in…|New York Harbor|Texas|South Dakota|Alaska
+Pioneers on the Dakota prairie often lived in…|sod houses|castles|skyscrapers|igloos
+A sod house was made from…|blocks of prairie grass and soil|glass|steel|ice
+Pioneers faced…|blizzards, droughts, and hard work|no weather|no work|only parties
+The Homestead Act gave settlers…|free land to farm|free cars|free phones|free jets
+South Dakota became a state in…|1889|1776|1492|1990
+South Dakota is the ___ state.|40th|1st|13th|50th
+South Dakota’s state seal shows a…|river, a steamboat, a farmer, and a miner|an elephant|a pirate|a castle
+The state seal says, “Under God the people…|rule”|sleep”|fly”|work”
+The state motto of South Dakota is…|Under God the people rule|Live free or die|The Sunshine State|Land of Lincoln
+The farmer on the state seal stands for…|agriculture|travel|fishing|sports
+The miner on the state seal stands for…|mining|farming|fishing|sailing
+The steamboat on the state seal stands for…|travel and trade|farming|school|mining
+The nickname of South Dakota is the…|Mount Rushmore State|Sunshine State|Empire State|Big Apple
+Workers in factories faced…|long hours and unsafe conditions|short days|fair pay always|free vacations
+Workers formed groups called…|unions|clubs of cats|teams|banks
+A strike is when workers…|stop working until problems are fixed|go on vacation|buy more goods|move away
+Jim Crow laws were unfair rules that…|kept Black and white people separated|helped everyone|were kind|ended slavery
+Segregation means…|keeping people apart by race|bringing people together|equality|friendship
+Booker T. Washington started a school called…|Tuskegee Institute|Harvard|Yale|Alamo School
+Booker T. Washington believed in…|education and skills|giving up|war only|silence
+W.E.B. DuBois helped start the…|NAACP|Red Cross|Boy Scouts|Congress
+Anna Julia Cooper was a…|teacher and writer for Black women’s education|queen|pirate|president
+William McKinley was the…|25th president|16th president|1st president|10th president
+During McKinley’s time, the U.S. annexed…|Hawaii|Texas|Mexico|Canada
+Annex means to…|add land to a country|sell land|lose land|paint land
+The Spanish-American War was fought against…|Spain|France|Britain|Canada
+After the Spanish-American War, the U.S. gained territories like…|Puerto Rico and Guam|Iceland|Canada|Texas
+Theodore Roosevelt was the…|26th president|16th president|1st president|10th president
+Theodore Roosevelt was nicknamed…|Teddy|Honest Abe|Old Hickory|Big Mac
+The teddy bear got its name from…|Teddy Roosevelt|Ted Williams|Ted Lincoln|Teddy Bear Inc.
+Roosevelt loved the outdoors and lived in…|the West (Dakota Badlands)|Alaska only|Hawaii|Florida
+Roosevelt worked on conservation, which means…|protecting nature|building cities|cutting trees|making roads
+Roosevelt created many…|national parks and forests|castles|airports|schools only
+Roosevelt’s motto was “Speak softly and carry a big…|stick”|drum”|flag”|bell”
+Child labor laws say that…|kids can’t work long hours or in dangerous jobs|kids must work|kids should never learn|kids can work anywhere
+Workplace safety laws protect…|workers|machines|bosses only|toys
+Food regulation laws make sure food is…|safe to eat|expensive|tiny|blue
+The Pure Food and Drug Act made…|food and medicine safer|trains faster|roads wider|laws longer
+Upton Sinclair wrote “The Jungle,” which showed…|unsafe meat factories|a jungle trip|a school story|space travel
+Progressives were reformers who wanted to…|improve people’s lives|make life harder|start wars|end schools`);
+const SS_MATCHGILD=bankMatch(L(`
+Thomas Edison=Light bulb
+Alexander Graham Bell=Telephone
+Wright brothers=First airplane
+Henry Ford=Affordable cars
+Booker T. Washington=Tuskegee Institute
+W.E.B. DuBois=Helped start NAACP
+William McKinley=Hawaii annexed
+Theodore Roosevelt=Conservation president
+Ellis Island=Immigrants arrived here
+Labor union=Workers’ group
+Sod house=Pioneer home on the prairie
+Immigrant=Person moving to a new country`));
+const SS_WHO=bankMatch(L(`
+Constantine=Roman emperor
+Charlemagne=King of the Franks
+William the Conqueror=Norman king of England
+King John=Signed Magna Carta
+Leonardo da Vinci=Renaissance painter
+Michelangelo=Renaissance sculptor
+George Washington=First president
+Thomas Jefferson=Third president
+Andrew Jackson=Seventh president
+Harriet Tubman=Freedom conductor
+Frederick Douglass=Abolitionist writer
+Abraham Lincoln=Sixteenth president
+Clara Barton=Civil War nurse
+Ulysses S. Grant=Union general
+Robert E. Lee=Confederate general
+William McKinley=Twenty-fifth president
+Theodore Roosevelt=Twenty-sixth president`));
+const T=(id,name,icon,make,time)=>({id,name,icon,make,time});
+const SUBJECTS={
+ maps:{name:'Maps & Globes',icon:'🗺️',color:'#06d6a0',topics:[
+  T(0,'Directions','🧭',()=>SS_DIR,40),T(1,'Map key & symbols','🔑',()=>SS_KEY,40),T(2,'Hemispheres & lines','🌐',()=>SS_HEMI,40),
+  T(3,'Land & climate words','🏝️',()=>SS_GEO,40),T(4,'Match map words','🧩',()=>SS_MATCHGEO,60)]},
+ time:{name:'Time & Holidays',icon:'📅',color:'#f77f00',topics:[
+  T(0,'Timelines & time words','⏳',()=>SS_TIME,40),T(1,'National holidays','🎆',()=>SS_HOL,40),T(2,'Match holidays','🎇',()=>SS_MATCHHOL,60),
+  T(3,'Rules, virtues & courage','🦁',()=>SS_VIRT,40)]},
+ landmarks:{name:'U.S. Landmarks',icon:'🗽',color:'#ef476f',topics:[
+  T(0,'Famous landmarks','🏛️',()=>SS_LAND,45),T(1,'Match landmarks','📍',()=>SS_MATCHLAND,60)]},
+ rome:{name:'Rome & Middle Ages',icon:'🏰',color:'#8d6e63',topics:[
+  T(0,'Rome & early Christians','🏺',()=>SS_ROME,45),T(1,'Islam, Vikings, feudalism','⚔️',()=>SS_MID,45),T(2,'Match Rome & Middle Ages','🧩',()=>SS_MATCHROME,60)]},
+ ren:{name:'Renaissance & World',icon:'🎨',color:'#9b5de5',topics:[
+  T(0,'Africa, India, China, Japan, Renaissance','🌍',()=>SS_REN,45),T(1,'Match world history','🧩',()=>SS_MATCHREN,60)]},
+ gov:{name:'U.S. Government',icon:'🏛️',color:'#118ab2',topics:[
+  T(0,'Constitution & branches','📜',()=>SS_CONST,45),T(1,'Citizens & rights','🗳️',()=>SS_CIT,40),T(2,'Match government','🧩',()=>SS_MATCHGOV,60)]},
+ early:{name:'Early America',icon:'🦅',color:'#2a9d8f',topics:[
+  T(0,'Presidents, Lewis & Clark, 1812','🇺🇸',()=>SS_EARLY,45),T(1,'Match early America','🧩',()=>SS_MATCHEARLY,60)]},
+ civil:{name:'Slavery to Civil War',icon:'🕊️',color:'#e63946',topics:[
+  T(0,'Freedom, Douglass, Tubman, Trails','🚂',()=>SS_SLAVE,45),T(1,'Match freedom leaders','🧩',()=>SS_MATCHSLAVE,60),
+  T(2,'Abraham Lincoln','🎩',()=>SS_LINC,45),T(3,'Civil War & Reconstruction','🛡️',()=>SS_WAR,45),T(4,'Match Civil War','🧩',()=>SS_MATCHWAR,60)]},
+ gilded:{name:'Gilded Age & 1900s',icon:'💡',color:'#ffb703',topics:[
+  T(0,'Inventions, South Dakota, Roosevelt','🌾',()=>SS_GILD,45),T(1,'Match Gilded Age','🧩',()=>SS_MATCHGILD,60),T(2,'Who Am I? Famous people','🧑',()=>SS_WHO,60)]}
+};
+const MEGA_KEYS=['maps','time','landmarks','rome','ren','gov','early','civil','gilded'];
+SUBJECTS.mega={name:'Mega Challenge',icon:'🏆',color:'#ffb703',topics:[
+ T(0,'Mixed questions','🎲',()=>{const gens=[];MEGA_KEYS.forEach(k=>SUBJECTS[k].topics.forEach(t=>{if(!/Match|match|Who Am/.test(t.name))gens.push(t.make())}));return()=>{let q;for(let i=0;i<8;i++){q=pick(gens)();if(q.t==='mc')return q}return q}},45)]};
+/* ---------- screens + flow ---------- */
+let curSub='spelling',curTopic=0,gen=null,qn=0,score=0,cur=null,timer=null,left=0,LIMIT=30,locked=false,lastTick=-1;
+function show(id){
+  clearInterval(timer);if(window.speechSynthesis)speechSynthesis.cancel();
+  ['home','topics','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+}
+$('subjects').innerHTML=Object.entries(SUBJECTS).map(([k,s])=>`<button class="tile" style="background:${s.color}" onclick="openSubject('${k}')"><span>${s.icon}</span>${s.name}</button>`).join('');
+function openSubject(k){
+  curSub=k;const S=SUBJECTS[k];
+  $('subTitle').textContent=S.icon+' '+S.name;
+  $('topicGrid').innerHTML=S.topics.map((t,i)=>`<button class="tile" style="background:${['#ef476f','#118ab2','#9b5de5','#f77f00','#06d6a0','#3a86ff'][i%6]}" onclick="startTopic(${i})"><span>${t.icon}</span>${t.name}</button>`).join('');
+  show('topics');
+}
+function startTopic(i){
+  curTopic=i;const t=SUBJECTS[curSub].topics[i];
+  gen=t.make();$('tname').textContent=t.icon+' '+t.name;
+  qn=0;score=0;$('score').textContent=0;show('game');nextQ();
+}
+function nextQ(){
+  if(qn>=TOTAL)return finish();
+  qn++;locked=false;$('qn').textContent=qn;$('msg').textContent='';
+  cur=gen();
+  LIMIT=SUBJECTS[curSub].topics[curTopic].time||(cur.t==='mc'?30:cur.t==='type'?45:60);
+  const A=$('qarea');
+  const qHtml=`<div class="qbox">${cur.q} <button class="read" title="Read to me" onclick="readQ()">🔊</button></div>`;
+  if(cur.t==='mc'){
+    A.innerHTML=qHtml+'<div class="opts" id="opts"></div>';
+    cur.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>chooseMC(b,o);$('opts').appendChild(b)});
+  }else if(cur.t==='match'){
+    A.innerHTML=qHtml+'<div class="mt" id="mt"></div>';cur.miss=0;cur.sel=null;cur.left=cur.pairs.length;LIMIT=60;selBtn=null;
+    const L1=cur.pairs.map((p,i)=>({t:p[0],i}));const R1=shuf(cur.pairs.map((p,i)=>({t:p[1],i})));
+    const col1=document.createElement('div'),col2=document.createElement('div');
+    [col1,col2].forEach(x=>{x.style.cssText='display:flex;flex-direction:column;gap:10px'});
+    L1.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>matchSel(b,o);col1.appendChild(b)});
+    R1.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>matchPick(b,o);col2.appendChild(b)});
+    $('mt').append(col1,col2);
+  }else if(cur.t==='type'){
+    A.innerHTML=qHtml+'<input class="ans" id="ans" autocomplete="off" autocapitalize="none" spellcheck="false"><br><button class="btn" onclick="checkType()">✔ Check</button>';
+    $('ans').addEventListener('keydown',e=>{if(e.key==='Enter')checkType()});
+    if(!/Mobi|Android/i.test(navigator.userAgent))$('ans').focus();
+  }else{
+    A.innerHTML=qHtml+'<div class="slotrow" id="slot"></div><div class="chips" id="chips"></div><button class="btn home" onclick="clearBuild()">↺ Clear</button><button class="btn" onclick="checkBuild()">✔ Check</button>';
+    cur.picked=[];
+    cur.words.forEach((w,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=w;b.onclick=()=>pickWord(i,b);b.id='w'+i;$('chips').appendChild(b)});
+  }
+  startTimer();
+  setTimeout(readQ,250);
+}
+function readQ(){
+  if(!cur)return;
+  if(cur.speakWord){say(cur.speakWord);return}
+  say(cur.say||plain(cur.q)+(cur.t==='mc'&&!cur.say?'. '+cur.opts.join('. '):''));
+}
+function startTimer(){
+  clearInterval(timer);left=LIMIT;lastTick=-1;upd();
+  timer=setInterval(()=>{left-=.1;upd();if(left<=0){clearInterval(timer);timeout()}},100);
+}
+function upd(){
+  const t=Math.max(0,left);$('time').textContent=Math.ceil(t);
+  const bar=$('bar');bar.style.width=(t/LIMIT*100)+'%';
+  const f=t/LIMIT;bar.style.background=f>.5?'#06d6a0':f>.25?'#ffb703':'#ef476f';
+  if(t<=5&&Math.ceil(t)!==lastTick){lastTick=Math.ceil(t);if(t>0)sfx.tick()}
+}
+function result(ok,shown){
+  locked=true;clearInterval(timer);
+  if(ok){score++;$('score').textContent=score;$('msg').textContent='🎉 Great job!';$('msg').style.color='#06a077';sfx.good()}
+  else{$('msg').textContent='😢 Oops! Answer: '+shown;$('msg').style.color='#d62839';sfx.bad()}
+  setTimeout(nextQ,ok?1300:2400);
+}
+function chooseMC(btn,o){
+  if(locked)return;
+  const ok=o===cur.a;btn.classList.add(ok?'right':'wrong');
+  if(!ok)[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  result(ok,cur.a);
+}
+function checkType(){
+  if(locked)return;const v=$('ans').value.trim().toLowerCase();if(!v)return;
+  result(v===cur.a,cur.a);
+}
+function pickWord(i,b){
+  if(locked)return;cur.picked.push(i);b.classList.add('used');
+  const s=document.createElement('button');s.className='chip';s.style.background='#9b5de5';s.textContent=cur.words[i];s.dataset.i=i;
+  s.onclick=()=>{if(locked)return;cur.picked=cur.picked.filter(x=>x!==i);s.remove();$('w'+i).classList.remove('used')};
+  $('slot').appendChild(s);
+}
+function clearBuild(){if(locked)return;cur.picked=[];$('slot').innerHTML='';[...$('chips').children].forEach(c=>c.classList.remove('used'))}
+function checkBuild(){
+  if(locked)return;if(cur.picked.length!==cur.words.length)return;
+  result(cur.picked.map(i=>cur.words[i]).join(' ')===cur.a,cur.a);
+}
+let selBtn=null;
+function matchSel(b,o){if(locked||b.classList.contains('done'))return;if(selBtn)selBtn.classList.remove('sel');selBtn=b;b.classList.add('sel');cur.sel=o;say(o.t)}
+function matchPick(b,o){
+  if(locked||!cur.sel||b.classList.contains('done'))return;
+  if(cur.pairs[cur.sel.i][1]===o.t){b.classList.add('done');selBtn.classList.remove('sel');selBtn.classList.add('done');selBtn=null;cur.sel=null;sfx.good();if(--cur.left===0)result(cur.miss<=1,cur.a)}
+  else{cur.miss++;b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),350);sfx.bad()}
+}
+function timeout(){
+  if(locked)return;locked=true;sfx.bad();
+  $('msg').textContent="⏰ Time's up! Answer: "+cur.a;$('msg').style.color='#d62839';
+  if(cur.t==='mc')[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  setTimeout(nextQ,2600);
+}
+function finish(){
+  show('end');
+  const S=SUBJECTS[curSub],t=S.topics[curTopic];
+  $('endt').textContent=S.icon+' '+S.name+' · '+t.name;$('final').textContent=score;
+  const s=score>=9?3:score>=6?2:score>=3?1:0;sfx.end(s);
+  $('stars').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+  $('trophy').textContent=s===3?'🏆':s===2?'🥈':s===1?'🥉':'🌱';
+  $('comment').textContent=['Keep practicing, you can do it! 💪','Good try! 🙂','Great work! 👏','Amazing! You are a star! 🌟'][s];
+}
+if(location.hash&&SUBJECTS[location.hash.slice(1)])openSubject(location.hash.slice(1));
+</script>
+<a href="index.html" id="whoBtn" style="position:fixed;top:8px;left:8px;z-index:9999;background:#fff;color:#333;text-decoration:none;font:bold 14px/1 Arial,sans-serif;padding:9px 13px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.3)">👥 Who is playing?</a>
+</body>
+</html>

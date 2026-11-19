@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second Science SD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Comic Sans MS","Chalkboard SE",sans-serif;background:linear-gradient(#7fd8ff,#c9f0ff 60%,#b8f08a 60%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cloud{position:fixed;font-size:70px;animation:drift 30s linear infinite;opacity:.9}
+@keyframes drift{from{transform:translateX(-150px)}to{transform:translateX(110vw)}}
+.card{position:relative;z-index:2;background:#fff;border:6px solid #ffb703;border-radius:32px;padding:20px;width:min(660px,94vw);max-height:98vh;overflow:auto;text-align:center;box-shadow:0 12px 0 #fb8500,0 20px 40px rgba(0,0,0,.25)}
+h1{margin:0 0 6px;color:#e63946;font-size:2.2rem}
+.btn{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#06d6a0;border:none;border-radius:20px;padding:10px 26px;cursor:pointer;box-shadow:0 6px 0 #049a75;margin:8px}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #049a75}
+.home{background:#8d99ae;box-shadow:0 6px 0 #5c677d}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.tile{font:inherit;font-weight:bold;font-size:1.1rem;color:#fff;border:none;border-radius:18px;padding:12px 8px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25);line-height:1.25;text-decoration:none;display:block}
+.tile span{font-size:2.2rem;display:block}
+.tile small{display:block;font-size:.78rem;font-weight:normal;opacity:.95}
+.tile:hover{transform:scale(1.04)}
+.tile:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.tile:last-child:nth-child(odd){grid-column:span 2}
+.hud{display:flex;justify-content:space-between;font-size:1.05rem;font-weight:bold;color:#444;margin-bottom:8px;gap:6px}
+.bar{height:18px;background:#eee;border-radius:12px;overflow:hidden;margin-bottom:12px}
+.bar div{height:100%;width:100%;background:#06d6a0;transition:width .1s linear,background .3s}
+.qbox{font-size:1.5rem;font-weight:bold;color:#222;margin:8px 0;line-height:1.35}
+.qbox svg{max-width:100%;height:auto}
+.read{font-size:1.4rem;background:#fff;border:3px solid #ffb703;border-radius:50%;width:46px;height:46px;cursor:pointer;vertical-align:middle;margin-left:6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.opt{font:inherit;font-size:1.35rem;font-weight:bold;color:#fff;border:none;border-radius:20px;padding:14px 8px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.25);word-break:break-word}
+.opt:nth-child(1){background:#ef476f}.opt:nth-child(2){background:#118ab2}.opt:nth-child(3){background:#9b5de5}.opt:nth-child(4){background:#f77f00}
+.opt.right,.chip.right{background:#06d6a0!important;animation:pop .4s}
+.opt.wrong{background:#555!important;animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.15)}}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.msg{min-height:2.2rem;font-size:1.2rem;font-weight:bold;margin-top:10px}
+input.ans{font:inherit;font-size:1.8rem;text-align:center;width:90%;max-width:360px;padding:10px;border:4px solid #118ab2;border-radius:18px;outline:none}
+.slotrow,.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0;min-height:56px}
+.slotrow{background:#eef7ff;border:3px dashed #118ab2;border-radius:16px;padding:8px}
+.chip{font:inherit;font-size:1.3rem;font-weight:bold;color:#fff;background:#118ab2;border:none;border-radius:14px;padding:9px 14px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.chip.used{opacity:.25;pointer-events:none}
+.letters{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+.letters b{background:#ffd6e0;color:#d00060;border-radius:10px;padding:6px 12px;font-size:1.8rem}
+.bigico{font-size:5rem}
+.snd{position:fixed;top:12px;right:12px;z-index:5}
+.snd button{font-size:1.5rem;width:50px;height:50px;border-radius:50%;border:4px solid #ffb703;background:#fff;cursor:pointer;box-shadow:0 4px 0 #fb8500}
+.snd button.off{opacity:.45;filter:grayscale(1)}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.mt button{font:bold 1.05rem Arial,sans-serif;padding:12px 6px;border:3px solid #cbb8ff;border-radius:14px;background:#fff;color:#333;cursor:pointer}.mt button.sel{background:#ffe08a;border-color:#ffb703}.mt button.done{background:#c8f7dc;border-color:#06d6a0;opacity:.7}.mt button.bad{animation:shk .3s}@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div class="cloud" style="top:5%">☁️</div>
+<div class="cloud" style="top:20%;animation-delay:-12s">☁️</div>
+<div class="cloud" style="top:35%;animation-delay:-22s">☁️</div>
+<div class="snd"><button id="sndBtn" title="Sound and voice" onclick="toggleSnd()">🔊</button></div>
+
+<div class="card">
+  <div id="home">
+    <div class="bigico">📚🦉</div>
+    <h1>Second Science SD 🔬</h1>
+    <p style="margin:4px;font-size:1.1rem"><b>Practice time. Pick a subject!</b></p>
+    <div class="grid" id="subjects"></div>
+    <a class="btn home" href="Mahtab.html" style="text-decoration:none;display:inline-block">⬅ Mahtab</a>
+  </div>
+
+  <div id="topics" class="hidden">
+    <h1 id="subTitle"></h1>
+    <p style="margin:4px;font-size:1.1rem">10 questions each. <b>Choose a topic:</b></p>
+    <div class="grid" id="topicGrid"></div>
+    <button class="btn home" onclick="show('home')">⬅ Back</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <div class="hud"><span>Q <span id="qn">1</span>/10</span><span id="tname"></span><span>⏱ <span id="time">30</span>s</span><span>⭐ <span id="score">0</span></span></div>
+    <div class="bar"><div id="bar"></div></div>
+    <div id="qarea"></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div id="end" class="hidden">
+    <div class="bigico" id="trophy">🏆</div>
+    <h1>Well done!</h1><div id="endt" style="font-size:1.1rem;font-weight:bold"></div>
+    <div style="font-size:2.6rem" id="stars"></div>
+    <p style="font-size:1.8rem;margin:6px">You scored <b id="final"></b> / 10</p>
+    <p style="font-size:1.2rem" id="comment"></p>
+    <button class="btn" onclick="startTopic(curTopic)">🔄 Play Again</button>
+    <button class="btn home" onclick="openSubject(curSub)">📋 Topics</button>
+    <button class="btn home" onclick="show('home')">🏠 Home</button>
+  </div>
+</div>
+
+<script>
+const TOTAL=10;
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[rnd(0,a.length-1)];
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const L=s=>s.trim().split('\n').map(x=>x.trim()).filter(Boolean);
+
+/* ---------- sound + voice ---------- */
+const AC=window.AudioContext||window.webkitAudioContext;
+let ac,sndOn=true,unlocked=false;
+function ctx(){try{ac=ac||new AC();if(ac.state!=='running')ac.resume();return ac}catch(e){return null}}
+function silentUrl(){
+  const n=4410,b=new ArrayBuffer(44+n*2),v=new DataView(b);
+  const w=(o,s)=>[...s].forEach((c,i)=>v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+  v.setUint32(24,22050,true);v.setUint32(28,44100,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*2,true);
+  return URL.createObjectURL(new Blob([b],{type:'audio/wav'}));
+}
+function unlock(){
+  const a=ctx();if(!a)return;
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(unlocked)return;
+  try{const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0)}catch(e){}
+  try{const el=new Audio(silentUrl());el.loop=true;el.volume=.01;const p=el.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+  if(a.state==='running')unlocked=true;
+}
+['pointerdown','touchstart','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+function tone(f,d,type='sine',vol=.15,delay=0){
+  const a=ctx();if(!a)return;
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+const sfx={
+  click(){if(sndOn)tone(700,.08,'triangle',.12)},
+  good(){if(sndOn)[523,659,784,1047].forEach((f,i)=>tone(f,.25,'triangle',.18,i*.09))},
+  bad(){if(sndOn){tone(300,.25,'sawtooth',.1);tone(200,.4,'sawtooth',.1,.18)}},
+  tick(){if(sndOn)tone(1000,.06,'square',.06)},
+  end(s){if(sndOn)(s>=2?[523,659,784,1047,784,1047,1319]:s===1?[523,659,784,659,784]:[784,659,523]).forEach((f,i)=>tone(f,.3,'triangle',.18,i*.13))}
+};
+function say(t){
+  if(!sndOn||!window.speechSynthesis)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;u.lang='en-US';speechSynthesis.speak(u)}catch(e){}
+}
+const plain=h=>h.replace(/<svg[\s\S]*?<\/svg>/g,' ').replace(/<br>/g,'. ').replace(/<[^>]+>/g,'').replace(/___/g,'blank').replace(/\s+/g,' ').trim();
+function toggleSnd(){ctx();sndOn=!sndOn;$('sndBtn').textContent=sndOn?'🔊':'🔇';$('sndBtn').classList.toggle('off',!sndOn);if(!sndOn&&window.speechSynthesis)speechSynthesis.cancel();else sfx.click()}
+document.addEventListener('click',e=>{if(e.target.closest('.tile,.btn'))sfx.click()});
+
+/* ---------- generic builders ---------- */
+function bankMC(lines,o={}){
+  let deck=[];
+  return()=>{
+    if(!deck.length)deck=shuf(lines);
+    const [q,a,...w]=deck.pop().split('|');
+    const set=new Set([a]);
+    shuf(w).forEach(x=>{if(set.size<4)set.add(x)});
+    if(o.fill!==false)for(const l of shuf(lines)){if(set.size>=4)break;const x=l.split('|')[1];if(x!==a)set.add(x)}
+    return{t:'mc',q,a,opts:shuf([...set])};
+  };
+}
+function fixedMC(pairs,opts,qf){
+  let deck=[];
+  return()=>{if(!deck.length)deck=shuf(pairs);const [x,a]=deck.pop();return{t:'mc',q:qf(x),a,opts:[...opts],say:null}};
+}
+
+/* ---------- SPELLING ---------- */
+const W2=`about after again all always animal any around ask away back because been before best big black blue boy bring brown call came carry clean cold color come could day dear does done door down draw drink each early eat every fall far fast find first five fly food four friend from funny gave girl give going good great green grow happy have help here home house jump keep kind know last left light little long look made make many more much must name never night now off old once only open over own pick play please pretty pull put read right round said saw see seven should sing sit sleep small some soon stop take tell thank that their them then these they think this today together tree under upon use very walk want warm wash water week were what when where which white who why will wish with work would write year yellow your`.split(/\s+/);
+const W3=`able across against also answer area asked balloon basket beautiful believe beside between bicycle birthday body bottom bought breakfast bright brother build busy button candy captain careful castle cause center certain change chicken children circle city class climb clothes cloud country cousin crowd daughter decide different dinner discover doctor dollar double during earth enough evening everyone exercise explain family favorite finally flower follow forest forget forward garden gentle giant glass ground group guess guide half happen heavy history hospital hundred hungry idea important island jewel journey kitchen knew knife knock ladder laugh learn leave library listen machine marble measure medicine middle minute mirror money monkey morning mountain mouth moving music nature neighbor nothing notice number ocean office orange paper parent party people picture piece planet pocket police potato probably problem promise purple question quick quiet quite rabbit reason remember return river rocket school science second secret shadow shoulder simple sister smooth snowman someone special spring square station stomach straight strange street strong summer surprise sweater table teacher terrible thousand through thunder tomorrow touch toward travel trouble truck turtle uncle unhappy until usual vacation valley village visit voice weather weight whale whisper window winter wonder world wrong young`.split(/\s+/);
+const ALLW=new Set([...W2,...W3]);
+const WALL=[...ALLW];
+function misspell(w){
+  const out=new Set();let t=0;
+  while(out.size<3&&t++<80){
+    const s=w.split(''),r=rnd(0,4),i=rnd(1,s.length-1);
+    if(r===0&&s.length>3)[s[i-1],s[i]]=[s[i],s[i-1]];
+    else if(r===1&&s.length>3)s.splice(i,1);
+    else if(r===2)s.splice(i,0,s[i-1]);
+    else if(r===3){const idx=s.map((c,k)=>'aeiou'.includes(c)?k:-1).filter(k=>k>=0);if(idx.length){const k=pick(idx);s[k]=pick('aeiou'.split('').filter(x=>x!==s[k]))}}
+    else s.splice(i,0,pick('aeiou'.split('')));
+    const m=s.join('');if(m!==w&&!ALLW.has(m))out.add(m);
+  }
+  let k=0;while(out.size<3)out.add(w+'e'.repeat(++k));
+  return[...out];
+}
+function wordDeck(list){let d=[];return()=>{if(!d.length)d=shuf(list);return d.pop()}}
+const spellRight=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'mc',q:'Which is spelled <b>correctly</b>?',a:w,opts:shuf([w,...misspell(w)]),say:'Which is spelled correctly?'}}};
+const spellListen=list=>{const nx=wordDeck(list);return()=>{const w=nx();return{t:'type',q:'👂 Listen and <b>type the word</b>',a:w,speakWord:w,say:w}}};
+const spellScramble=list=>{const nx=wordDeck(list.filter(w=>w.length>=4));return()=>{const w=nx();let s=w;for(let i=0;i<20&&s===w;i++)s=shuf(w.split('')).join('');return{t:'type',q:'Unscramble the letters:<div class="letters">'+s.split('').map(c=>`<b>${c.toUpperCase()}</b>`).join('')+'</div>',a:w,say:'Unscramble the letters. '+s.split('').join(', ')}}};
+
+/* ---------- SECOND ENGLISH (SFSD 2nd grade ELA) ---------- */
+const bankType=lines=>{let d=[];return()=>{if(!d.length)d=shuf(lines);const [q,a]=d.pop().split('|');return{t:'type',q,a:a.toLowerCase()}}};
+const bankBuild=(list,prompt)=>{let d=[];return()=>{if(!d.length)d=shuf(list);const s=d.pop(),w=s.split(' ');let t=shuf(w);for(let i=0;i<10&&t.join(' ')===s;i++)t=shuf(w);return{t:'build',q:prompt||'Tap the words in the right order 🧩',words:t,a:s,say:prompt||'Put the words in the right order.'}}};
+const bankMatch=(lines,title)=>{let d=[];return()=>{if(d.length<4)d=shuf(lines);const ps=d.splice(0,4).map(x=>x.split('='));return{t:'match',q:title,pairs:ps,a:ps.map(p=>p[0]+' = '+p[1]).join(', '),say:title}}};
+const PS=(passage,qas)=>qas.map(x=>`<i>${passage}</i><br>${x}`);
+const ALLQ=(...arrs)=>arrs.flat();
+
+/* ===== 1. READING STORIES ===== */
+/* ===== SCIENCE CONTENT ===== */
+const mc=s=>bankMC(L(s),{fill:false});
+const SC_NEED=mc(`
+Plants need sunlight, water, and…|air|candy|toys|music
+Which two things do plants need to grow?|sunlight and water|toys and games|snow and ice only|milk and juice
+A plant is put in a dark closet. It will…|turn pale and stop growing well|grow extra tall and green|grow faster|make more flowers
+A plant is never watered. It will…|wilt and dry out|grow bigger|turn blue|grow faster
+Plants are living things. Living things…|need food, water, and air|never change|do not grow|do not need anything
+Which plant will grow best?|one with sun and water|one with no sun and no water|one with only toys|one in a closed box
+To test if plants need sunlight, you should keep one plant in the sun and one…|in the dark|in the sun too|in the sun and water|in a bigger pot
+In a fair test, you change only…|one thing|everything|nothing|three things
+Plants make their own food using sunlight, water, and…|air|dirt only|candy|milk
+Which part of a plant takes in water from the soil?|roots|flower|fruit|leaf tip
+Which part of a plant holds it up?|stem|seed|petal|bud
+Which part of a plant catches sunlight?|leaves|roots|soil|pot
+A seed needs water, warmth, and air to…|sprout|melt|freeze|float away
+Why can’t a plant walk to find water?|it cannot move on its own|it is too happy|it is too loud|it is a rock
+Plants live in a place where they can get…|water and sunlight|only toys|only snow|nothing`);
+const SC_DISP=mc(`
+When a bird eats a berry and drops the seed far away, this is seed…|dispersal|freezing|melting|sorting
+Seed dispersal means seeds are…|moved to new places|burned|eaten forever|kept in a box
+Why do plants need their seeds to move to new places?|to get water and sunlight|to get toys|to be hidden|to make noise
+Some seeds have hooks that stick to an animal’s…|fur|feet only in water|tail only|nest only
+Which animal helps spread seeds by eating fruit?|bird|rock|cloud|puddle
+Squirrels bury nuts. Some nuts grow into…|new trees|rocks|clouds|ice
+Bees help plants by moving pollen from flower to flower. This is called…|pollination|erosion|freezing|melting
+Which animal pollinates flowers?|bee|snail only|rock|fish
+What do bees get from flowers?|nectar|rocks|ice|seeds only
+Seeds that float on the wind, like dandelion seeds, travel by…|wind|bees|fish|rocks
+Elephants ate chalta fruit and dropped the seeds in their…|droppings|nests|homes|toys
+In the Bengal Tiger Reserve, no new chalta trees grew because…|the elephants that spread the seeds were missing|too much ice|no moon|too many toys
+Chalta trees depend on elephants to…|spread their seeds|give them water|give them sunlight|talk to them
+A plant cannot move, so it can depend on an animal to…|carry its seeds|drive it|feed it candy|sing to it
+A model of a bee can be made from a fuzzy pipe cleaner to show how pollen…|sticks and moves|melts|freezes|burns
+Why is a fuzzy bee body good for pollination?|pollen sticks to it|it is heavy|it is cold|it is blue
+A burr stuck to a dog helps the plant by…|moving its seeds|giving it water|making sunlight|eating it
+Animals and plants that need each other have a…|relationship|contest|rule|map`);
+const SC_HAB=mc(`
+A habitat is…|where a plant or animal lives|a kind of food|a type of weather|a toy
+A cactus lives in a…|desert|ocean|ice cap|pond
+A polar bear lives in a…|cold, icy place|desert|rainforest|pond
+A frog lives near…|a pond|a desert sand dune|a cold glacier only|a volcano
+Which habitat is very wet with many tall trees and lots of rain?|rainforest|desert|tundra|prairie
+Which habitat is very dry and hot?|desert|ocean|pond|rainforest
+Which habitat has salty water?|ocean|pond|puddle|lake
+Which habitat is grassy and flat with bison?|prairie|ocean|desert|ice cap
+Different habitats have different kinds of plants and animals. This is called…|diversity|erosion|melting|dispersal
+Biodiversity means…|many different kinds of life|one kind of animal|no animals|only plants
+Which habitat likely has MORE kinds of living things?|rainforest|bare rock|empty parking lot|dry sand only
+To compare habitats, a scientist makes…|observations|wishes|rules|toys
+Which is a good way to compare two habitats?|count and list the plants and animals|guess the weather|ignore them|sing songs
+Which animal lives in a broadleaf forest in India?|Bengal tiger|polar bear|penguin|camel
+Which animal lives in the ocean?|whale|camel|bison|owl
+Which animal lives in a desert?|camel|whale|penguin|frog
+People can hurt biodiversity by…|cutting down all the trees|planting trees|saving water|recycling
+People can help biodiversity by…|protecting habitats|littering|cutting all the trees|polluting water`);
+const SC_PROP=mc(`
+A <b>property</b> of a material is…|something you can observe about it|its price|its age|its name only
+Which is a property of a rock?|hard|friendly|sleepy|funny
+Which property describes a sponge?|soft and bendy|hard and shiny|cold and runny|loud
+Which property describes a glass window?|see-through|fuzzy|stretchy|bouncy
+Which property describes a rubber band?|stretchy|hard|see-through|crunchy
+Which property describes sandpaper?|rough|smooth|slippery|runny
+Which property describes ice?|cold and hard|warm and soft|runny|fuzzy
+Which property tells how a surface feels?|texture|color|sound|price
+Which property tells what you see?|color|texture|flexibility|taste
+<b>Flexible</b> means…|it bends easily|it breaks easily|it floats|it is heavy
+<b>Waterproof</b> means…|water cannot pass through|water goes through|it is very hot|it is sticky
+<b>Transparent</b> means…|you can see through it|it is bumpy|it bends|it is wet
+<b>Opaque</b> means…|you cannot see through it|you can see through it|it is stretchy|it is cold
+Sort by property: Which group is “soft”?|pillow, cotton ball, fur|rock, metal, glass|ice, brick, steel|nail, key, coin
+We can classify materials by…|their properties|their price|their age|their owner
+A material is…|what something is made of|a kind of weather|a plant part|a time of day
+Which material is made from trees?|paper|glass|plastic|metal
+Which material is metal?|spoon|paper cup|cotton ball|wood block
+Which is wood?|a pencil body|a window|a balloon|a coin`);
+const SC_BEST=mc(`
+Best material for a <b>raincoat</b>?|waterproof plastic|paper|cotton ball|tissue
+Best material for a <b>window</b>?|glass (see-through)|wood|metal|cloth
+Best material for a <b>pillow</b>?|soft cotton|rock|metal|glass
+Best material for a <b>bike helmet</b>?|hard plastic|paper|cloth|tissue
+Best material for a <b>boat</b> that must float and not leak?|waterproof material|sponge|paper|salt
+Best material for a <b>cooking pot</b>?|metal|paper|tissue|cloth
+Best material for a <b>jump rope</b>?|bendy rope|glass|metal block|rock
+Best material for a <b>trampoline</b>?|stretchy fabric|rock|glass|paper
+Best material for a <b>blanket</b>?|soft, warm fabric|metal|glass|rock
+Best material for <b>oven mitts</b>?|thick cloth that does not get hot fast|metal|plastic wrap|paper
+Best material for a <b>bridge</b>?|strong steel|tissue|cotton|paper
+Best material for <b>a paper towel</b>?|absorbent paper|plastic wrap|metal|glass
+You test 3 materials with water. Cotton soaks it up, plastic does not. Best for a <b>raincoat</b>?|plastic|cotton|both are same|neither
+To pick the best material, you test it and look at the…|data|colors only|price tag only|name
+In a data table, the material with the best result for the job is the…|one to choose|one to throw away|one to hide|one to paint
+Engineers choose materials by checking…|their properties|their names|their smells|their ages`);
+const SC_MIX=mc(`
+A <b>mixture</b> is…|two or more things mixed together|one pure item|a kind of plant|a kind of weather
+Which is a mixture?|trail mix|a single marble|a rock|one coin
+Which is a mixture?|salad|a spoon|a glass of ice only|a feather
+When you mix ingredients, the mixture can have some properties of…|each ingredient|none of them|only the heaviest|only the container
+Glue engineers use materials like water, flour, and…|starch|rocks|metal pipes|leaves only
+A good glue should be…|sticky|slippery|runny like water only|dry like sand
+Flour mixed with water becomes…|thick and pasty|hard like rock|see-through|a gas
+More water in a glue mixture makes it…|runnier|thicker|harder|dry
+More flour in a glue mixture makes it…|thicker|runnier|clear|colder
+If glue is too runny, you could…|add more flour|add more water|throw it away|freeze the water
+To improve a glue design, you should…|test, look at the data, and change it|never change it|guess|give up
+To compare glues fairly, you…|test each in the same way|test each differently|only test one|skip the test
+A graph helps you…|see and compare data|hide data|paint|sing
+A bar that is taller on a graph means…|a bigger number|a smaller number|no data|an error
+If glue A holds 5 blocks and glue B holds 9, which is stronger?|glue B|glue A|same|cannot tell
+Which tool might you use to measure how much liquid?|measuring cup|ruler|clock|scale of a pet
+Which is NOT a mixture?|a single bar of pure gold|fruit salad|soil with stones|pizza
+Paint is a mixture of…|color and liquid|just rock|only air|just metal
+Medicines, paints, and foods are all examples of…|mixtures|rocks|planets|weather`);
+const SC_BUILD=mc(`
+A toy made of blocks can be taken apart and made into…|a new object|nothing|only the same one|a gas
+Small pieces can be put together to make a…|bigger object|nothing|gas only|storm
+LEGO bricks can be used to build…|many different things|only one thing|nothing|only weather
+Which is a set of small pieces that build something?|blocks|one rock|one coin|one leaf
+Disassemble means…|take apart|put together|paint|melt
+Assemble means…|put together|take apart|throw away|freeze
+You take apart a block tower. You can build…|a new shape|nothing|only the old tower|a puddle
+Pieces keep their properties when…|they are rebuilt into something new|they are lost|they are destroyed|they melt
+A bicycle is made of many…|small parts|one rock|just air|only water
+A puzzle is made of…|many pieces|one piece|water|air
+When you rebuild the pieces, the number of pieces…|stays the same|doubles|disappears|turns to water
+Which is an example of taking apart and making new?|clay animal turned into a clay bowl|ice melting|a seed growing|a rock rolling
+Which is an example of putting parts together?|building a model car|eating lunch|taking a nap|reading a poem
+A set of pieces can be used to build…|more than one object|only one object|nothing|only a circle
+Different shaped pieces can make…|different objects|only the same object|nothing|gas`);
+const SC_HEAT=mc(`
+Ice melting into water is a change caused by…|heating|cooling|wind|sound
+Water freezing into ice is caused by…|cooling|heating|wind|sunlight only
+Melting ice can be changed back by…|freezing it again|burning it|crushing it|painting it
+A change that can be undone is…|reversible|permanent|invisible|noisy
+A change that cannot be undone is…|permanent|reversible|small|loud
+Melting a chocolate bar and cooling it again makes it…|solid again|a plant|gas|gone forever
+Baking a cake is a…|permanent change (cannot be undone)|reversible change|no change|cooling only
+Cooking an egg is a…|permanent change|reversible change|freeze|melt
+Burning a log is a…|permanent change|reversible change|cooling|melting
+Melted butter cooled in the fridge becomes…|solid butter|a gas|a plant|a rock
+Popcorn kernels heated pop. Can you un-pop them?|no, it is permanent|yes, easily|only by freezing|only by waiting
+Which change is reversible?|water to ice and back|baking bread|burning paper|cooking an egg
+Which change is permanent?|toasting bread|freezing water|melting ice|melting wax and cooling it
+Melted wax can become hard again by…|cooling|heating|stirring|shaking
+Ice cream left in the sun becomes…|a liquid|harder|a gas|a rock
+Heating makes things…|warmer and can melt or cook them|colder always|bigger always|invisible
+Cooling can make a liquid…|freeze into a solid|boil|burn|disappear
+Which pair is reversible?|freeze / melt|bake / un-bake|burn / un-burn|toast / un-toast`);
+const SC_LAND=mc(`
+A <b>landform</b> is…|a shape of land|a type of weather|an animal|a plant
+Which is a landform?|mountain|cloud|storm|bee
+Which landform is a very tall, rocky hill?|mountain|valley|beach|island
+Which landform is low land between mountains?|valley|hill|cliff|dune
+Which landform is land surrounded by water?|island|valley|plain|cliff
+Which landform is a steep rock wall at the edge of land or sea?|cliff|beach|plain|dune
+Which landform is flat land?|plain|mountain|cliff|canyon
+Which landform is a deep, narrow cut in the land made by water?|canyon|hill|island|dune
+Which landform is sand piled up by wind?|dune|island|valley|cliff
+<b>Erosion</b> is when…|wind or water moves bits of rock and soil|plants grow|ice freezes|rocks turn into gas
+Which can cause erosion?|wind|a quiet day|a toy|a song
+Which can cause erosion?|flowing water|a book|a bell|a shoe
+Ocean waves can cause a cliff to…|wear away|grow taller|turn green|float
+In the “Disappearing Cliff” story, the cliff by the recreation center…|got closer as it eroded|grew bigger|turned to metal|moved far away
+Small changes over a long time add up to…|big changes|no change|nothing|a gas
+A geologist is a scientist who studies…|rocks and land|animals|stars|weather only
+Which makes a canyon over millions of years?|a river|a rabbit|a song|a toy
+Fast-moving water erodes land…|more|less|never|only in summer
+Wind blowing sand across land is…|erosion|pollination|dispersal|melting
+Why do scientists use models of landforms?|to see how land changes|to play only|to hide rocks|to paint`);
+const SC_FAST=mc(`
+A volcano erupting is an Earth event that happens…|quickly|slowly|never|only on Monday
+An earthquake happens…|quickly|slowly over millions of years|only in winter|only to plants
+A flood after a big storm happens…|quickly|very slowly|never|only in spring
+A landslide can happen…|quickly|never|only in a book|slowly only
+Erosion by a river carving a canyon happens…|very slowly|in a minute|in one day|in one hour
+A mountain wearing down over time happens…|slowly|quickly|in a minute|overnight
+A rock slowly breaking into small pieces by wind happens…|slowly|quickly|in a second|never
+Weather like a thunderstorm happens…|quickly|over millions of years|never|slowly only
+A beach slowly losing sand to waves is…|slow change|fast change|no change|a volcano
+A cliff collapsing overnight is…|fast change|slow change|no change|freezing
+Which is a <b>fast</b> Earth event?|volcanic eruption|a canyon forming|a valley forming|a mountain wearing down
+Which is a <b>slow</b> Earth event?|a canyon forming|earthquake|volcanic eruption|lightning
+Which is a <b>fast</b> Earth event?|earthquake|rock wearing down|beach shrinking over years|mountain wearing down
+Which is a <b>slow</b> Earth event?|rock wearing down|lightning|flash flood|tornado
+Which source can help you learn about Earth events?|a science book|a toy box|a menu|a calendar of birthdays
+To explain an Earth event, you can use information from…|several sources|only one rumor|a guess|no sources
+Big changes to land can come from…|many small changes over time|nothing|a single wish|a rainbow
+Slow changes over a very long time can…|add up to big changes|stop everything|never matter|turn to ice
+Which can change land fast?|a flood|a daisy growing|a snail crawling|a leaf falling
+Which can change land slowly?|wind and water over time|a lightning flash|a volcano eruption|an earthquake`);
+const SC_PROT=mc(`
+To stop wind and water from changing the shape of land, we can…|plant grass and trees|cut all the trees|dig more holes|remove all plants
+Roots of plants help hold…|soil in place|clouds|waves|wind
+A wall built at the beach helps stop…|waves from washing away land|plants growing|rain|sunshine
+Big rocks placed along a shore help…|slow waves|speed up waves|stop the moon|make wind
+A fence of sticks in sand helps stop…|dune sand from blowing away|rain|birds|tides
+Putting plants on a hill helps stop…|soil from washing away|plants growing|rain from falling|sunlight
+A model can help test…|which solution works best|nothing|only toys|only colors
+You test two solutions to slow erosion. The one that lets less soil wash away is…|better|worse|the same|a gas
+Which is a way to slow water erosion on a hill?|plant grass|dig a trench down the hill|remove all plants|pour more water
+A drain pipe directs water away so it does not…|wash away soil|grow plants|stop wind|freeze
+Why do engineers compare solutions?|to find the best one|to waste time|to hide results|to play
+Terraces (steps cut into a hillside) help…|slow runoff|speed up runoff|make it rain|make wind
+A windbreak is a row of trees that…|slows the wind|makes wind faster|stops water|melts ice
+Sand bags can help during a flood to…|block water|make water|freeze water|grow plants
+A model beach with sand and a small wall lets us…|test how waves change land|swim|bake|paint`);
+const SC_WATER=mc(`
+Where is water found on Earth?|oceans, rivers, lakes, and ice|only in clouds|only in pools|only in cups
+Which has the MOST water on Earth?|ocean|pond|river|puddle
+Ocean water is…|salty|sweet|sour|solid
+Most lake and river water is…|fresh (not salty)|very salty|sticky|solid
+Ice is water as a…|solid|liquid|gas|plasma
+Rain is water as a…|liquid|solid|gas|rock
+Water vapor is water as a…|gas|solid|liquid|rock
+Ice melting changes water from…|solid to liquid|gas to liquid|liquid to gas|solid to gas
+Water freezing changes water from…|liquid to solid|solid to liquid|gas to solid|liquid to gas
+Water boiling changes water from…|liquid to gas|gas to liquid|solid to liquid|liquid to solid
+Snow and hail are water as a…|solid|gas|rock|liquid only
+A glacier is a huge piece of…|moving ice|sand|rock|warm water
+Fog and clouds are made of tiny drops of water in the…|air|soil|rock|oil
+Where can we find frozen water on Earth?|glaciers and the poles|deserts|hot beaches|volcano tops only
+Where is water found underground?|groundwater|clouds|space|only deserts
+Puddles disappear in the sun because water changes into a…|gas (water vapor)|solid|rock|plant
+Dew on grass in the morning is water as a…|liquid|solid|gas|rock
+Steam from a kettle is water as a…|gas (and tiny drops)|solid|rock|plant
+Frost on a window is water as a…|solid|gas|rock|plant`);
+const SC_BODIES=mc(`
+A <b>lake</b> is…|water with land around it|land with water around it|a mountain|a desert
+An <b>island</b> is…|land with water all around it|water with land around it|a flat plain|a valley
+A <b>river</b> is…|water that flows|a mountain|a desert|a cliff
+A <b>pond</b> is…|a small body of still water|a big ocean|a river|a mountain
+An <b>ocean</b> is…|a huge body of salt water|a small puddle|a pond|a river
+A <b>bay</b> is…|water partly surrounded by land|an island|a desert|a canyon
+A <b>stream</b> is…|a small flowing river|an ocean|a mountain|a glacier
+A <b>peninsula</b> is land with water on…|almost all sides|no sides|one side only|top only
+Which body of water is the biggest?|ocean|pond|stream|lake
+Which is a kind of land (not water)?|hill|lake|river|ocean
+Which is a body of water?|lake|hill|valley|plain
+A <b>waterfall</b> happens when a river…|drops over a cliff|freezes only|dries up|turns to sand
+Which landform is made of sand beside water?|beach|canyon|mountain|plain
+Which map color usually shows water?|blue|brown|green|white
+Which map color usually shows land?|green or brown|blue|clear|none
+A map helps us find…|shapes of land and water|only food|only toys|only clouds
+Where do rivers flow?|from high land to low land|uphill|nowhere|only in circles
+Where does a river often end up?|in a lake or an ocean|on a mountain top|in the clouds|in a desert only
+Landforms near your home might include…|hills, rivers, or plains|only oceans|only mountains|only deserts
+In South Dakota, there are…|the Black Hills and the Missouri River|only oceans|only jungles|only volcanoes`);
+const SC_ENG=mc(`
+An <b>engineer</b> is a person who…|designs and builds things to solve problems|studies old bones|grows flowers only|bakes only
+The first step of engineering is to…|ask a question about a problem|build right away|throw things|sleep
+A <b>problem</b> that people want to solve is…|a need|a prize|a toy|a joke
+After you think of a design, you can make a…|sketch or model|wish|rumor|song
+A <b>prototype</b> is…|a first model to test|a finished toy|a weather map|a poem
+Why do we test our designs?|to see how well they work|to waste time|to break them|to hide them
+If a design fails, an engineer should…|try to improve it|give up forever|hide it|blame the wind
+Engineers use data to…|compare designs|hide results|play|sleep
+Design A holds 6 books. Design B holds 4. Which is stronger?|A|B|same|cannot tell
+To compare two designs fairly, you must test them…|the same way|differently|only once for one|never
+A <b>strength</b> of a design is…|something it does well|something it does badly|its color only|its price only
+A <b>weakness</b> of a design is…|something it does not do well|something it does well|its best part|its name
+Why does the shape of a tool matter?|it helps the tool do its job|it does not matter|only for color|only for weight
+A fork has prongs because that shape helps…|pick up food|cut paper|dig holes|float
+A wide wheel rolls better on…|sand|ice only|stone only|air
+Sketching a design before building helps you…|plan|forget|break things|hurry
+An improved design is one that…|works better than before|looks the same|is broken|is lost
+Technology is…|tools people make to solve problems|a kind of animal|a kind of rock|weather
+Which is a tool people made to solve a problem?|umbrella|cloud|mountain|puddle
+Why do we ask questions about a problem?|to understand it better|to confuse people|to waste time|to stop`);
+const SC_SKILL=mc(`
+A scientist <b>observes</b> by…|using their senses|guessing only|sleeping|ignoring
+Which tool measures how long something is?|ruler|thermometer|scale|clock
+Which tool measures temperature?|thermometer|ruler|magnifying glass|measuring cup
+Which tool shows tiny details up close?|magnifying glass|ruler|scale|clock
+Which tool measures how heavy something is?|scale|ruler|thermometer|clock
+A <b>question</b> a scientist can test is…|Do plants grow better with sunlight?|Is blue better than red?|Who is cutest?|What is yummiest?
+A <b>prediction</b> is…|a smart guess about what will happen|a fact|a result|a title
+<b>Data</b> are…|facts and measurements you collect|guesses|toys|songs
+A <b>fair test</b> changes…|one thing at a time|everything|nothing|two things always
+A <b>conclusion</b> is…|what you figure out from your data|your first guess|your tools|your name
+A <b>model</b> is…|a drawing or object that shows how something works|the real thing only|a rumor|a sound
+Scientists share their results by…|talking, writing, and drawing|hiding them|erasing them|ignoring them
+A <b>pattern</b> is…|something that repeats|something that never happens|a mistake|a color
+<b>Cause and effect</b>: Cause is why it happens. The effect is…|what happens|your name|a tool|a place
+Ice melts in the sun. The <b>cause</b> is…|the heat|the ice|the water|the cup
+Which is an <b>evidence</b> to say plants need light?|plants kept in the dark turned pale|plants are pretty|my friend said so|plants are green
+Why do scientists use evidence?|to support their ideas|to hide ideas|to play|to sleep
+Why is it important to keep a science notebook?|to record what you observe|to doodle only|to hide data|to lose data
+Scientists ask…|questions and look for answers|nothing|no one|only friends`);
+const SC_WORDS=bankMatch(L(`
+Habitat=Where an animal lives
+Pollen=Dust from flowers that helps make seeds
+Seed=Plant baby inside a fruit
+Roots=Take water from soil
+Erosion=Wind or water moving rock and soil
+Landform=Shape of land
+Property=What a material is like
+Mixture=Things mixed together
+Solid=Has its own shape
+Liquid=Flows and takes the container shape
+Gas=Spreads out in the air
+Melt=Change from solid to liquid
+Freeze=Change from liquid to solid
+Evaporate=Change from liquid to gas
+Engineer=Designs solutions to problems
+Geologist=Studies rocks and land
+Pollinate=Move pollen between flowers
+Disperse=Spread out
+Reversible=Can be changed back
+Permanent=Cannot be changed back
+Cliff=Steep rock wall
+Island=Land surrounded by water
+Glacier=A giant slow-moving ice mass
+Sunlight=What plants need to make food
+Prototype=First model to test`),'Match each word with its meaning!');
+const SC_MATCHMAT=bankMatch(L(`
+Raincoat=Waterproof
+Window=See-through
+Pillow=Soft
+Rubber band=Stretchy
+Sandpaper=Rough
+Brick=Hard
+Cotton ball=Fluffy
+Metal spoon=Shiny
+Glass=Breakable
+Sponge=Absorbent
+Ice=Solid water
+Steam=Water gas`),'Match each object to its property!');
+const SC_MATCHHAB=bankMatch(L(`
+Camel=Desert
+Polar bear=Arctic
+Frog=Pond
+Whale=Ocean
+Monkey=Rainforest
+Bison=Prairie
+Penguin=Antarctica
+Bengal tiger=Forest in India
+Cactus=Desert
+Fish=Water
+Owl=Forest
+Seal=Cold ocean`),'Match each living thing to its habitat!');
+const SC_MATCHCHG=bankMatch(L(`
+Melting ice=Reversible
+Freezing water=Reversible
+Melting butter=Reversible
+Baking a cake=Permanent
+Cooking an egg=Permanent
+Burning paper=Permanent
+Popping popcorn=Permanent
+Melting wax=Reversible
+Toasting bread=Permanent
+Ice cream melting=Reversible`),'Reversible or permanent? Match each change!');
+const SC_MATCHFAST=bankMatch(L(`
+Volcano erupts=Fast
+Earthquake=Fast
+Flash flood=Fast
+Canyon forms=Slow
+Mountain wears down=Slow
+Beach loses sand=Slow
+Landslide=Fast
+Rock breaks into pebbles=Slow
+Lightning=Fast
+River carves a valley=Slow`),'Fast or slow Earth event? Match them!');
+const SC_STATE=bankMatch(L(`
+Ice=Solid
+Rain=Liquid
+Steam=Gas
+Snow=Solid
+Juice=Liquid
+Water vapor=Gas
+Hail=Solid
+Dew=Liquid
+Frost=Solid
+Fog=Tiny liquid drops`),'Solid, liquid or gas? Match them!');
+
+const T=(id,name,icon,make,time)=>({id,name,icon,make,time});
+const SUBJECTS={
+ plants:{name:'Plants Need',icon:'🌱',color:'#06d6a0',topics:[
+  T(0,'Sunlight, water & air','☀️',()=>SC_NEED,40),T(1,'Seeds on the move','🐘',()=>SC_DISP,40),T(2,'Habitats & diversity','🌳',()=>SC_HAB,40),
+  T(3,'Match animals to homes','🏠',()=>SC_MATCHHAB,60)]},
+ materials:{name:'Materials',icon:'🧱',color:'#f77f00',topics:[
+  T(0,'Properties','🔍',()=>SC_PROP,40),T(1,'Best material for the job','🛠️',()=>SC_BEST,40),T(2,'Match property','🧩',()=>SC_MATCHMAT,60),
+  T(3,'Mixtures & glue','🧪',()=>SC_MIX,45),T(4,'Take apart, build new','🔧',()=>SC_BUILD,40)]},
+ changes:{name:'Heat & Cool',icon:'🔥',color:'#ef476f',topics:[
+  T(0,'Heating & cooling','🧊',()=>SC_HEAT,40),T(1,'Reversible or permanent','🔁',()=>SC_MATCHCHG,60)]},
+ land:{name:'Changing Land',icon:'⛰️',color:'#8d6e63',topics:[
+  T(0,'Landforms & erosion','🏔️',()=>SC_LAND,40),T(1,'Fast or slow events','🌋',()=>SC_FAST,40),T(2,'Match fast or slow','⏱️',()=>SC_MATCHFAST,60),
+  T(3,'Protect the land','🧱',()=>SC_PROT,40),T(4,'Land & water near me','🗺️',()=>SC_BODIES,40)]},
+ water:{name:'Water on Earth',icon:'💧',color:'#118ab2',topics:[
+  T(0,'Solid, liquid, gas','🌊',()=>SC_WATER,40),T(1,'Match states','🧊',()=>SC_STATE,60)]},
+ engineer:{name:'Engineer It',icon:'⚙️',color:'#9b5de5',topics:[
+  T(0,'Design & test','📐',()=>SC_ENG,40),T(1,'Scientist skills','🔬',()=>SC_SKILL,40),T(2,'Science words','📖',()=>SC_WORDS,60)]}
+};
+const MEGA_KEYS=['plants','materials','changes','land','water','engineer'];
+SUBJECTS.mega={name:'Mega Challenge',icon:'🏆',color:'#ffb703',topics:[
+ T(0,'Mixed questions','🎲',()=>{const gens=[];MEGA_KEYS.forEach(k=>SUBJECTS[k].topics.forEach(t=>{if(!/Match|match|words/.test(t.name))gens.push(t.make())}));return()=>{let q;for(let i=0;i<8;i++){q=pick(gens)();if(q.t==='mc')return q}return q}},45)]};
+
+/* ---------- screens + flow ---------- */
+let curSub='spelling',curTopic=0,gen=null,qn=0,score=0,cur=null,timer=null,left=0,LIMIT=30,locked=false,lastTick=-1;
+function show(id){
+  clearInterval(timer);if(window.speechSynthesis)speechSynthesis.cancel();
+  ['home','topics','game','end'].forEach(s=>$(s).classList.toggle('hidden',s!==id));
+}
+$('subjects').innerHTML=Object.entries(SUBJECTS).map(([k,s])=>`<button class="tile" style="background:${s.color}" onclick="openSubject('${k}')"><span>${s.icon}</span>${s.name}</button>`).join('');
+function openSubject(k){
+  curSub=k;const S=SUBJECTS[k];
+  $('subTitle').textContent=S.icon+' '+S.name;
+  $('topicGrid').innerHTML=S.topics.map((t,i)=>`<button class="tile" style="background:${['#ef476f','#118ab2','#9b5de5','#f77f00','#06d6a0','#3a86ff'][i%6]}" onclick="startTopic(${i})"><span>${t.icon}</span>${t.name}</button>`).join('');
+  show('topics');
+}
+function startTopic(i){
+  curTopic=i;const t=SUBJECTS[curSub].topics[i];
+  gen=t.make();$('tname').textContent=t.icon+' '+t.name;
+  qn=0;score=0;$('score').textContent=0;show('game');nextQ();
+}
+function nextQ(){
+  if(qn>=TOTAL)return finish();
+  qn++;locked=false;$('qn').textContent=qn;$('msg').textContent='';
+  cur=gen();
+  LIMIT=SUBJECTS[curSub].topics[curTopic].time||(cur.t==='mc'?30:cur.t==='type'?45:60);
+  const A=$('qarea');
+  const qHtml=`<div class="qbox">${cur.q} <button class="read" title="Read to me" onclick="readQ()">🔊</button></div>`;
+  if(cur.t==='mc'){
+    A.innerHTML=qHtml+'<div class="opts" id="opts"></div>';
+    cur.opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o;b.onclick=()=>chooseMC(b,o);$('opts').appendChild(b)});
+  }else if(cur.t==='match'){
+    A.innerHTML=qHtml+'<div class="mt" id="mt"></div>';cur.miss=0;cur.sel=null;cur.left=cur.pairs.length;LIMIT=60;selBtn=null;
+    const L1=cur.pairs.map((p,i)=>({t:p[0],i}));const R1=shuf(cur.pairs.map((p,i)=>({t:p[1],i})));
+    const col1=document.createElement('div'),col2=document.createElement('div');
+    [col1,col2].forEach(x=>{x.style.cssText='display:flex;flex-direction:column;gap:10px'});
+    L1.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>matchSel(b,o);col1.appendChild(b)});
+    R1.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>matchPick(b,o);col2.appendChild(b)});
+    $('mt').append(col1,col2);
+  }else if(cur.t==='type'){
+    A.innerHTML=qHtml+'<input class="ans" id="ans" autocomplete="off" autocapitalize="none" spellcheck="false"><br><button class="btn" onclick="checkType()">✔ Check</button>';
+    $('ans').addEventListener('keydown',e=>{if(e.key==='Enter')checkType()});
+    if(!/Mobi|Android/i.test(navigator.userAgent))$('ans').focus();
+  }else{
+    A.innerHTML=qHtml+'<div class="slotrow" id="slot"></div><div class="chips" id="chips"></div><button class="btn home" onclick="clearBuild()">↺ Clear</button><button class="btn" onclick="checkBuild()">✔ Check</button>';
+    cur.picked=[];
+    cur.words.forEach((w,i)=>{const b=document.createElement('button');b.className='chip';b.textContent=w;b.onclick=()=>pickWord(i,b);b.id='w'+i;$('chips').appendChild(b)});
+  }
+  startTimer();
+  setTimeout(readQ,250);
+}
+function readQ(){
+  if(!cur)return;
+  if(cur.speakWord){say(cur.speakWord);return}
+  say(cur.say||plain(cur.q)+(cur.t==='mc'&&!cur.say?'. '+cur.opts.join('. '):''));
+}
+function startTimer(){
+  clearInterval(timer);left=LIMIT;lastTick=-1;upd();
+  timer=setInterval(()=>{left-=.1;upd();if(left<=0){clearInterval(timer);timeout()}},100);
+}
+function upd(){
+  const t=Math.max(0,left);$('time').textContent=Math.ceil(t);
+  const bar=$('bar');bar.style.width=(t/LIMIT*100)+'%';
+  const f=t/LIMIT;bar.style.background=f>.5?'#06d6a0':f>.25?'#ffb703':'#ef476f';
+  if(t<=5&&Math.ceil(t)!==lastTick){lastTick=Math.ceil(t);if(t>0)sfx.tick()}
+}
+function result(ok,shown){
+  locked=true;clearInterval(timer);
+  if(ok){score++;$('score').textContent=score;$('msg').textContent='🎉 Great job!';$('msg').style.color='#06a077';sfx.good()}
+  else{$('msg').textContent='😢 Oops! Answer: '+shown;$('msg').style.color='#d62839';sfx.bad()}
+  setTimeout(nextQ,ok?1300:2400);
+}
+function chooseMC(btn,o){
+  if(locked)return;
+  const ok=o===cur.a;btn.classList.add(ok?'right':'wrong');
+  if(!ok)[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  result(ok,cur.a);
+}
+function checkType(){
+  if(locked)return;const v=$('ans').value.trim().toLowerCase();if(!v)return;
+  result(v===cur.a,cur.a);
+}
+function pickWord(i,b){
+  if(locked)return;cur.picked.push(i);b.classList.add('used');
+  const s=document.createElement('button');s.className='chip';s.style.background='#9b5de5';s.textContent=cur.words[i];s.dataset.i=i;
+  s.onclick=()=>{if(locked)return;cur.picked=cur.picked.filter(x=>x!==i);s.remove();$('w'+i).classList.remove('used')};
+  $('slot').appendChild(s);
+}
+function clearBuild(){if(locked)return;cur.picked=[];$('slot').innerHTML='';[...$('chips').children].forEach(c=>c.classList.remove('used'))}
+function checkBuild(){
+  if(locked)return;if(cur.picked.length!==cur.words.length)return;
+  result(cur.picked.map(i=>cur.words[i]).join(' ')===cur.a,cur.a);
+}
+let selBtn=null;
+function matchSel(b,o){if(locked||b.classList.contains('done'))return;if(selBtn)selBtn.classList.remove('sel');selBtn=b;b.classList.add('sel');cur.sel=o;say(o.t)}
+function matchPick(b,o){
+  if(locked||!cur.sel||b.classList.contains('done'))return;
+  if(cur.pairs[cur.sel.i][1]===o.t){b.classList.add('done');selBtn.classList.remove('sel');selBtn.classList.add('done');selBtn=null;cur.sel=null;sfx.good();if(--cur.left===0)result(cur.miss<=1,cur.a)}
+  else{cur.miss++;b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),350);sfx.bad()}
+}
+function timeout(){
+  if(locked)return;locked=true;sfx.bad();
+  $('msg').textContent="⏰ Time's up! Answer: "+cur.a;$('msg').style.color='#d62839';
+  if(cur.t==='mc')[...$('opts').children].forEach(b=>{if(b.textContent===cur.a)b.classList.add('right')});
+  setTimeout(nextQ,2600);
+}
+function finish(){
+  show('end');
+  const S=SUBJECTS[curSub],t=S.topics[curTopic];
+  $('endt').textContent=S.icon+' '+S.name+' · '+t.name;$('final').textContent=score;
+  const s=score>=9?3:score>=6?2:score>=3?1:0;sfx.end(s);
+  $('stars').textContent='⭐'.repeat(s)+'☆'.repeat(3-s);
+  $('trophy').textContent=s===3?'🏆':s===2?'🥈':s===1?'🥉':'🌱';
+  $('comment').textContent=['Keep practicing, you can do it! 💪','Good try! 🙂','Great work! 👏','Amazing! You are a star! 🌟'][s];
+}
+if(location.hash&&SUBJECTS[location.hash.slice(1)])openSubject(location.hash.slice(1));
+</script>
+<a href="index.html" id="whoBtn" style="position:fixed;top:8px;left:8px;z-index:9999;background:#fff;color:#333;text-decoration:none;font:bold 14px/1 Arial,sans-serif;padding:9px 13px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.3)">👥 Who is playing?</a>
+</body>
+</html>
