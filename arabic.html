@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn Arabic &amp; Quran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400;700&family=Noto+Nastaliq+Urdu&family=Amiri+Quran&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--arfont:"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif;--bg:#10243a;--card:#1b3a5c;--acc:#f5b942;--ok:#3ecf8e;--bad:#ef5b5b;--txt:#f2f6fa;--in:#12304f}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;justify-content:center}
+  #app{width:100%;max-width:760px;padding:16px}
+  h1{text-align:center;color:var(--acc);margin:8px 0 12px}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+  button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 16px;background:var(--card);color:var(--txt)}
+  button:hover{filter:brightness(1.2)}
+  button:disabled{opacity:.5;cursor:default}
+  .tabs button.on{background:var(--acc);color:#222;font-weight:700}
+  .top button{font-size:18px;padding:12px 22px;background:#0b1a2b}
+  .card{background:var(--card);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+  .ar{font-family:var(--arfont);direction:rtl;line-height:1.5}
+  .bn{font-family:"Noto Sans Bengali","Hind Siliguri","Nirmala UI","Vrinda","Shonar Bangla",sans-serif;line-height:1.5}
+  .fontsel{text-align:center;font-size:13px;margin-bottom:8px}.fontsel select{font:inherit;background:var(--card);color:var(--txt);border:0;border-radius:8px;padding:6px 10px}
+  .big{font-size:110px}
+  .forms{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .forms div{background:var(--in);border-radius:10px;padding:8px 4px}
+  .forms .ar{font-size:54px}
+  .forms small{display:block;opacity:.8;font-size:12px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+  .grid button{font-size:56px;padding:6px;background:var(--in)}
+  .grid button.names{font-size:22px;padding:18px}
+  .grid button.ayopt{font-size:26px;padding:12px}
+  .grid button.ok,.chip.ok{background:var(--ok)!important;color:#102}
+  .grid button.bad{background:var(--bad)}
+  .stat{display:flex;justify-content:space-between;margin-bottom:10px;font-weight:600}
+  .q{font-size:18px;margin:4px 0}
+  .tag{display:inline-block;background:var(--acc);color:#222;border-radius:20px;padding:2px 12px;font-weight:700}
+  .note{font-size:13px;opacity:.8;margin-top:8px}
+  .lettergrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+  .lettergrid button{padding:4px;font-size:30px}
+  .lettergrid button.sel{background:var(--acc);color:#222}
+  .msg{min-height:24px;margin-top:10px;font-weight:700}
+  /* quran */
+  .surahs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
+  .surahs button{padding:6px;font-size:13px;background:var(--in);position:relative}
+  .surahs button.sel{background:var(--acc);color:#222;font-weight:700}
+  .surahs .ar{display:block;font-size:20px}
+  .surahs i{font-style:normal;font-size:11px;opacity:.85}
+  .opts{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:14px;margin:8px 0}
+  .opts label{cursor:pointer}
+  .ayah{background:var(--in);border-radius:12px;padding:12px;margin:8px 0;text-align:center}
+  .ayah.playing{outline:2px solid var(--acc)}
+  .ayah .ar{font-size:34px}
+  .ayah .tr{color:#9fd4ff;font-style:italic;margin-top:6px}
+  .ayah .en{opacity:.9;margin-top:4px}
+  .num{display:inline-block;background:var(--acc);color:#222;border-radius:50%;min-width:26px;height:26px;line-height:26px;font-size:13px;font-weight:700;margin:0 4px}
+  .words{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;direction:rtl;margin:10px 0;min-height:56px}
+  .chip{font-size:30px;padding:4px 12px;background:var(--in);border-radius:10px}
+  .slot{background:#0b1a2b;border-radius:12px;padding:8px;min-height:70px}
+  .blank{display:inline-block;min-width:80px;border-bottom:3px solid var(--acc);color:var(--acc)}
+  .hid{background:#0b1a2b;color:transparent;border-radius:6px;padding:0 6px;cursor:pointer;user-select:none}
+  .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+  @media(max-width:480px){.forms{grid-template-columns:repeat(2,1fr)}.big{font-size:90px}.ayah .ar{font-size:28px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>🕌 Learn Arabic &amp; Quran</h1>
+  <div class="fontsel">Arabic font: <select id="fontSel"><option value="sa">South Asian Quranic (Lateef)</option><option value="nq">Nastaliq (Noto Nastaliq Urdu)</option><option value="am">Uthmani / Madani (Amiri Quran)</option></select></div>
+  <div class="tabs top"><button data-s="letters" class="on">🔤 Arabic Letters</button><button data-s="quran">📖 Learning Quran</button><button data-s="duas">🤲 Duas &amp; Salah</button></div>
+
+  <div id="letters">
+    <div class="tabs">
+      <button data-m="learn" class="on">📖 Learn</button>
+      <button data-m="g1">🎯 Which form? (glyph → type)</button>
+      <button data-m="g2">🔤 Find the glyph</button>
+      <button data-m="g3">❓ Name the letter</button>
+      <button data-m="h0">✍ Harakat guide</button>
+      <button data-m="h1">🔊 Read the syllable</button>
+      <button data-m="h2">🔠 Pick the syllable</button>
+      <button data-m="h3">📚 Read the word</button>
+      <button data-m="w1">🖋 How to write (arrows)</button>
+      <button data-m="w2">✍ Writing test</button>
+      <button data-m="w3">〰 Trace the letter</button>
+      <button data-m="w4">🎨 Paint the letter</button>
+    </div>
+    <div id="view"></div>
+  </div>
+
+  <div id="quran" style="display:none"></div>
+  <div id="duas" style="display:none"></div>
+  <div id="bangla" style="display:none"></div>
+</div>
+
+<script>
+/* ===== Section switch ===== */
+document.querySelectorAll('.top button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.top button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById('letters').style.display=b.dataset.s==='letters'?'':'none';
+  document.getElementById('quran').style.display=b.dataset.s==='quran'?'':'none';
+  document.getElementById('duas').style.display=b.dataset.s==='duas'?'':'none';
+  document.getElementById('bangla').style.display=b.dataset.s==='bangla'?'':'none';
+  if(b.dataset.s==='bangla')bRender();
+  if(b.dataset.s==='quran')qRender(); else stopAudio();
+  if(b.dataset.s==='duas')dRender(); else if(b.dataset.s!=='bangla'&&'speechSynthesis' in window)speechSynthesis.cancel();
+});
+
+/* ===== Arabic letters ===== */
+const Z='\u200D';
+const L=[["ا","Alif",0],["ب","Ba",1],["ت","Ta",1],["ث","Tha",1],["ج","Jeem",1],["ح","Haa",1],["خ","Khaa",1],["د","Dal",0],["ذ","Dhal",0],["ر","Ra",0],["ز","Zay",0],["س","Seen",1],["ش","Sheen",1],["ص","Saad",1],["ض","Daad",1],["ط","Taa",1],["ظ","Dhaa",1],["ع","Ain",1],["غ","Ghain",1],["ف","Fa",1],["ق","Qaf",1],["ك","Kaf",1],["ل","Lam",1],["م","Meem",1],["ن","Noon",1],["ه","Ha",1],["و","Waw",0],["ي","Ya",1]]
+.map(([c,n,j])=>({c,n,j,f:{isolated:c,initial:j?c+Z:c,medial:j?Z+c+Z:Z+c,final:Z+c}}));
+const FORMS=["isolated","initial","medial","final"];
+const LBL={isolated:"Isolated",initial:"Beginning",medial:"Middle",final:"Ending"};
+const view=document.getElementById('view');
+let mode='learn',idx=0,score=0,streak=0,best=+localStorage.arBest||0,total=0,pool=new Set(L.map((_,i)=>i)),weak={},locked=false;
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const poolArr=()=>[...pool].map(i=>L[i]);
+
+function poolPicker(){
+  return `<div class="lettergrid">${L.map((l,i)=>`<button class="ar ${pool.has(i)?'sel':''}" data-i="${i}">${l.c}</button>`).join('')}</div>
+  <div class="note">Tap letters to include/exclude them from practice (${pool.size} selected). <a href="#" id="all" style="color:var(--acc)">All</a></div>`;
+}
+function bindPicker(){
+  view.querySelectorAll('.lettergrid button').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i; if(pool.has(i)&&pool.size>4)pool.delete(i); else pool.add(i);
+    render();
+  });
+  const a=document.getElementById('all'); if(a)a.onclick=e=>{e.preventDefault();pool=new Set(L.map((_,i)=>i));render()};
+}
+function learn(){
+  const l=L[idx];
+  view.innerHTML=`<div class="card">
+    <div class="ar big">${l.c}</div><h2 style="margin:0">${l.n}</h2>
+    <div class="forms">${FORMS.map(f=>`<div><span class="ar">${l.f[f]}</span><small>${LBL[f]}</small></div>`).join('')}</div>
+    ${l.j?'':'<div class="note">⚠ This letter does not connect to the next letter, so it looks the same at the beginning as isolated, and the same at the middle as ending.</div>'}
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
+      <button id="p">◀ Prev</button><span style="align-self:center">${idx+1} / ${L.length}</span><button id="n">Next ▶</button></div>
+    <div class="note">Try the games above when you're ready!</div></div>`;
+  document.getElementById('p').onclick=()=>{idx=(idx+L.length-1)%L.length;learn()};
+  document.getElementById('n').onclick=()=>{idx=(idx+1)%L.length;learn()};
+}
+function game(){
+  locked=false;
+  const arr=poolArr();
+  const weakL=arr.filter(l=>weak[l.n]>0);
+  const l=(weakL.length&&Math.random()<.4)?rnd(weakL):rnd(arr);
+  const form=rnd(FORMS);
+  let q,opts,correct,okSet;
+  if(mode==='g1'){
+    q=`<div class="q">Letter <b>${l.n}</b> — which form is this?</div><div class="ar big">${l.f[form]}</div>`;
+    opts=FORMS.map(f=>({label:LBL[f],v:f,cls:'names'})); correct=form;
+    okSet=new Set(FORMS.filter(f=>l.f[f]===l.f[form]));
+  } else if(mode==='g2'){
+    q=`<div class="q">Find the <span class="tag">${LBL[form]}</span> form of <b>${l.n}</b> <span class="ar" style="font-size:32px">(${l.c})</span></div>`;
+    const others=shuffle(arr.filter(x=>x!==l)).slice(0,3);
+    const cands=[l.f[form],...others.map(o=>o.f[form])];
+    const wrongF=FORMS.filter(f=>l.f[f]!==l.f[form]);
+    if(wrongF.length&&Math.random()<.7)cands[1]=l.f[rnd(wrongF)];
+    opts=shuffle([...new Set(cands)].map(g=>({label:g,v:g,cls:'ar'}))); correct=l.f[form];
+    okSet=new Set([correct]);
+  } else {
+    q=`<div class="q">Which letter is this? <span class="tag">${LBL[form]}</span> form</div><div class="ar big">${l.f[form]}</div>`;
+    const others=shuffle(arr.filter(x=>x!==l)).slice(0,3);
+    opts=shuffle([l,...others]).map(o=>({label:o.n,v:o.n,cls:'names'})); correct=l.n;
+    okSet=new Set([correct]);
+  }
+  view.innerHTML=`<div class="card">
+    <div class="stat"><span>⭐ ${score}/${total}</span><span>🔥 ${streak}</span><span>🏆 ${best}</span></div>
+    ${q}
+    <div class="grid">${opts.map((o,i)=>`<button class="${o.cls}" data-i="${i}">${o.label}</button>`).join('')}</div>
+    <div class="msg" id="msg"></div></div>
+    <div class="card">${poolPicker()}</div>`;
+  bindPicker();
+  view.querySelectorAll('.grid button').forEach(b=>b.onclick=()=>{
+    if(locked)return; locked=true; total++;
+    const o=opts[+b.dataset.i], good=okSet.has(o.v), msg=document.getElementById('msg');
+    if(good){
+      b.classList.add('ok'); score++; streak++; best=Math.max(best,streak); localStorage.arBest=best;
+      if(weak[l.n])weak[l.n]--;
+      msg.textContent='✅ Correct!';
+    } else {
+      b.classList.add('bad'); streak=0; weak[l.n]=(weak[l.n]||0)+1;
+      view.querySelectorAll('.grid button').forEach((bb,i)=>{if(okSet.has(opts[i].v))bb.classList.add('ok')});
+      msg.innerHTML=`❌ ${l.n}: <span class="ar" style="font-size:30px">${FORMS.map(f=>l.f[f]).reverse().join(' ')}</span>`;
+    }
+    setTimeout(()=>{if(mode===document.querySelector('#letters .tabs .on').dataset.m&&mode[0]==='g')game()},good?800:2200);
+  });
+}
+function render(){mode==='learn'?learn():mode==='h0'?hLearn():mode[0]==='h'?hGame():mode==='w1'?wLearn():mode[0]==='w'?wRe():game()}
+document.querySelectorAll('#letters .tabs button').forEach(b=>b.onclick=()=>{
+  if(b.dataset.m[0]==='w'&&b.dataset.m!=='w1')wNewTarget();
+  document.querySelectorAll('#letters .tabs button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); mode=b.dataset.m; score=total=streak=0; render();
+});
+render();
+
+/* ===== Learning Quran ===== */
+// Data: surahs 90-114 from api.alquran.cloud (quran-uthmani, en.transliteration, en.sahih)
+const RAW=[{"n":90,"ar":"سُورَةُ البَلَدِ","en":"Al-Balad","mean":"The City","ayahs":[[6024,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ لَآ أُقْسِمُ بِهَٰذَا ٱلْبَلَدِ","Laaa uqsimu bihaazal balad","I swear by this city, Makkah -"],[6025,"وَأَنتَ حِلٌّۢ بِهَٰذَا ٱلْبَلَدِ","Wa anta hillum bihaazal balad","And you, [O Muhammad], are free of restriction in this city -"],[6026,"وَوَالِدٍۢ وَمَا وَلَدَ","Wa waalidinw wa maa walad","And [by] the father and that which was born [of him],"],[6027,"لَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ فِى كَبَدٍ","Laqad khalaqnal insaana fee kabad","We have certainly created man into hardship."],[6028,"أَيَحْسَبُ أَن لَّن يَقْدِرَ عَلَيْهِ أَحَدٌۭ","Ayahsabu al-lai yaqdira 'alaihi ahad","Does he think that never will anyone overcome him?"],[6029,"يَقُولُ أَهْلَكْتُ مَالًۭا لُّبَدًا","Yaqoolu ahlaktu maalal lubadaa","He says, \"I have spent wealth in abundance.\""],[6030,"أَيَحْسَبُ أَن لَّمْ يَرَهُۥٓ أَحَدٌ","Ayahsabu al lam yarahooo ahad","Does he think that no one has seen him?"],[6031,"أَلَمْ نَجْعَل لَّهُۥ عَيْنَيْنِ","Alam naj'al lahoo 'aynayn","Have We not made for him two eyes?"],[6032,"وَلِسَانًۭا وَشَفَتَيْنِ","Wa lisaananw wa shafatayn","And a tongue and two lips?"],[6033,"وَهَدَيْنَٰهُ ٱلنَّجْدَيْنِ","Wa hadaynaahun najdayn","And have shown him the two ways?"],[6034,"فَلَا ٱقْتَحَمَ ٱلْعَقَبَةَ","Falaq tahamal-'aqabah","But he has not broken through the difficult pass."],[6035,"وَمَآ أَدْرَىٰكَ مَا ٱلْعَقَبَةُ","Wa maaa adraaka mal'aqabah","And what can make you know what is [breaking through] the difficult pass?"],[6036,"فَكُّ رَقَبَةٍ","Fakku raqabah","It is the freeing of a slave"],[6037,"أَوْ إِطْعَٰمٌۭ فِى يَوْمٍۢ ذِى مَسْغَبَةٍۢ","Aw it'aamun fee yawmin zee masghabah","Or feeding on a day of severe hunger"],[6038,"يَتِيمًۭا ذَا مَقْرَبَةٍ","Yateeman zaa maqrabah","An orphan of near relationship"],[6039,"أَوْ مِسْكِينًۭا ذَا مَتْرَبَةٍۢ","Aw miskeenan zaa matrabah","Or a needy person in misery"],[6040,"ثُمَّ كَانَ مِنَ ٱلَّذِينَ ءَامَنُوا۟ وَتَوَاصَوْا۟ بِٱلصَّبْرِ وَتَوَاصَوْا۟ بِٱلْمَرْحَمَةِ","Summa kaana minal lazeena aamanoo wa tawaasaw bissabri wa tawaasaw bilmarhamah","And then being among those who believed and advised one another to patience and advised one another to compassion."],[6041,"أُو۟لَٰٓئِكَ أَصْحَٰبُ ٱلْمَيْمَنَةِ","Ulaaa'ika As-haabul maimanah","Those are the companions of the right."],[6042,"وَٱلَّذِينَ كَفَرُوا۟ بِـَٔايَٰتِنَا هُمْ أَصْحَٰبُ ٱلْمَشْـَٔمَةِ","Wallazeena kafaroo bi aayaatinaa hum as-haabul Mash'amah","But they who disbelieved in Our signs - those are the companions of the left."],[6043,"عَلَيْهِمْ نَارٌۭ مُّؤْصَدَةٌۢ","Alaihim naarum mu'sadah","Over them will be fire closed in."]]},{"n":91,"ar":"سُورَةُ الشَّمۡسِ","en":"Ash-Shams","mean":"The Sun","ayahs":[[6044,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلشَّمْسِ وَضُحَىٰهَا","Wash shamsi wa duhaa haa","By the sun and its brightness"],[6045,"وَٱلْقَمَرِ إِذَا تَلَىٰهَا","Wal qamari izaa talaa haa","And [by] the moon when it follows it"],[6046,"وَٱلنَّهَارِ إِذَا جَلَّىٰهَا","Wannahaari izaa jallaa haa","And [by] the day when it displays it"],[6047,"وَٱلَّيْلِ إِذَا يَغْشَىٰهَا","Wallaili izaa yaghshaa haa","And [by] the night when it covers it"],[6048,"وَٱلسَّمَآءِ وَمَا بَنَىٰهَا","Wassamaaa'i wa maa banaahaa","And [by] the sky and He who constructed it"],[6049,"وَٱلْأَرْضِ وَمَا طَحَىٰهَا","Wal ardi wa maa tahaahaa","And [by] the earth and He who spread it"],[6050,"وَنَفْسٍۢ وَمَا سَوَّىٰهَا","Wa nafsinw wa maa sawwaahaa","And [by] the soul and He who proportioned it"],[6051,"فَأَلْهَمَهَا فُجُورَهَا وَتَقْوَىٰهَا","Fa-alhamahaa fujoorahaa wa taqwaahaa","And inspired it [with discernment of] its wickedness and its righteousness,"],[6052,"قَدْ أَفْلَحَ مَن زَكَّىٰهَا","Qad aflaha man zakkaahaa","He has succeeded who purifies it,"],[6053,"وَقَدْ خَابَ مَن دَسَّىٰهَا","Wa qad khaaba man dassaahaa","And he has failed who instills it [with corruption]."],[6054,"كَذَّبَتْ ثَمُودُ بِطَغْوَىٰهَآ","Kazzabat Samoodu bi taghwaahaaa","Thamud denied [their prophet] by reason of their transgression,"],[6055,"إِذِ ٱنۢبَعَثَ أَشْقَىٰهَا","Izim ba'asa ashqaahaa","When the most wretched of them was sent forth."],[6056,"فَقَالَ لَهُمْ رَسُولُ ٱللَّهِ نَاقَةَ ٱللَّهِ وَسُقْيَٰهَا","Faqaala lahum Rasoolul laahi naaqatal laahi wa suqiyaahaa","And the messenger of Allah [Salih] said to them, \"[Do not harm] the she-camel of Allah or [prevent her from] her drink.\""],[6057,"فَكَذَّبُوهُ فَعَقَرُوهَا فَدَمْدَمَ عَلَيْهِمْ رَبُّهُم بِذَنۢبِهِمْ فَسَوَّىٰهَا","Fakazzaboohu fa'aqaroohaa fadamdama 'alaihim Rabbuhum bizambihim fasaw waahaa","But they denied him and hamstrung her. So their Lord brought down upon them destruction for their sin and made it equal [upon all of them]."],[6058,"وَلَا يَخَافُ عُقْبَٰهَا","Wa laa yakhaafu'uqbaahaa","And He does not fear the consequence thereof."]]},{"n":92,"ar":"سُورَةُ اللَّيۡلِ","en":"Al-Lail","mean":"The Night","ayahs":[[6059,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلَّيْلِ إِذَا يَغْشَىٰ","Wallaili izaa yaghshaa","By the night when it covers"],[6060,"وَٱلنَّهَارِ إِذَا تَجَلَّىٰ","Wannahaari izaa tajalla","And [by] the day when it appears"],[6061,"وَمَا خَلَقَ ٱلذَّكَرَ وَٱلْأُنثَىٰٓ","Wa maa khalaqaz zakara wal unthaa","And [by] He who created the male and female,"],[6062,"إِنَّ سَعْيَكُمْ لَشَتَّىٰ","Inna sa'yakum lashattaa","Indeed, your efforts are diverse."],[6063,"فَأَمَّا مَنْ أَعْطَىٰ وَٱتَّقَىٰ","Fa ammaa man a'taa wattaqaa","As for he who gives and fears Allah"],[6064,"وَصَدَّقَ بِٱلْحُسْنَىٰ","Wa saddaqa bil husnaa","And believes in the best [reward],"],[6065,"فَسَنُيَسِّرُهُۥ لِلْيُسْرَىٰ","Fasanu yassiruhoo lilyusraa","We will ease him toward ease."],[6066,"وَأَمَّا مَنۢ بَخِلَ وَٱسْتَغْنَىٰ","Wa ammaa mam bakhila wastaghnaa","But as for he who withholds and considers himself free of need"],[6067,"وَكَذَّبَ بِٱلْحُسْنَىٰ","Wa kazzaba bil husnaa","And denies the best [reward],"],[6068,"فَسَنُيَسِّرُهُۥ لِلْعُسْرَىٰ","Fasanu yassiruhoo lil'usraa","We will ease him toward difficulty."],[6069,"وَمَا يُغْنِى عَنْهُ مَالُهُۥٓ إِذَا تَرَدَّىٰٓ","Wa maa yughnee 'anhu maaluhooo izaa taraddaa","And what will his wealth avail him when he falls?"],[6070,"إِنَّ عَلَيْنَا لَلْهُدَىٰ","Inna 'alainaa lal hudaa","Indeed, [incumbent] upon Us is guidance."],[6071,"وَإِنَّ لَنَا لَلْءَاخِرَةَ وَٱلْأُولَىٰ","Wa inna lanaa lal Aakhirata wal oolaa","And indeed, to Us belongs the Hereafter and the first [life]."],[6072,"فَأَنذَرْتُكُمْ نَارًۭا تَلَظَّىٰ","Fa anzartukum naaran talazzaa","So I have warned you of a Fire which is blazing."],[6073,"لَا يَصْلَىٰهَآ إِلَّا ٱلْأَشْقَى","Laa yaslaahaaa illal ashqaa","None will [enter to] burn therein except the most wretched one."],[6074,"ٱلَّذِى كَذَّبَ وَتَوَلَّىٰ","Allazee kazzaba wa tawallaa","Who had denied and turned away."],[6075,"وَسَيُجَنَّبُهَا ٱلْأَتْقَى","Wa sa yujannnabuhal atqaa","But the righteous one will avoid it -"],[6076,"ٱلَّذِى يُؤْتِى مَالَهُۥ يَتَزَكَّىٰ","Allazee yu'tee maalahoo yatazakkaa","[He] who gives [from] his wealth to purify himself"],[6077,"وَمَا لِأَحَدٍ عِندَهُۥ مِن نِّعْمَةٍۢ تُجْزَىٰٓ","Wa maa li ahadin 'indahoo min ni'matin tujzaaa","And not [giving] for anyone who has [done him] a favor to be rewarded"],[6078,"إِلَّا ٱبْتِغَآءَ وَجْهِ رَبِّهِ ٱلْأَعْلَىٰ","Illab tighaaa'a wajhi rabbihil a 'laa","But only seeking the countenance of his Lord, Most High."],[6079,"وَلَسَوْفَ يَرْضَىٰ","Wa lasawfa yardaa","And he is going to be satisfied."]]},{"n":93,"ar":"سُورَةُ الضُّحَىٰ","en":"Ad-Dhuhaa","mean":"The Morning Hours","ayahs":[[6080,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلضُّحَىٰ","Wad duhaa","By the morning brightness"],[6081,"وَٱلَّيْلِ إِذَا سَجَىٰ","Wal laili iza sajaa","And [by] the night when it covers with darkness,"],[6082,"مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ","Ma wad da'aka rabbuka wa ma qalaa","Your Lord has not taken leave of you, [O Muhammad], nor has He detested [you]."],[6083,"وَلَلْءَاخِرَةُ خَيْرٌۭ لَّكَ مِنَ ٱلْأُولَىٰ","Walal-aakhiratu khairul laka minal-oola","And the Hereafter is better for you than the first [life]."],[6084,"وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰٓ","Wa la sawfa y'uteeka rabbuka fatarda","And your Lord is going to give you, and you will be satisfied."],[6085,"أَلَمْ يَجِدْكَ يَتِيمًۭا فَـَٔاوَىٰ","Alam ya jidka yateeman fa aawaa","Did He not find you an orphan and give [you] refuge?"],[6086,"وَوَجَدَكَ ضَآلًّۭا فَهَدَىٰ","Wa wa jadaka daal lan fahada","And He found you lost and guided [you],"],[6087,"وَوَجَدَكَ عَآئِلًۭا فَأَغْنَىٰ","Wa wa jadaka 'aa-ilan fa aghnaa","And He found you poor and made [you] self-sufficient."],[6088,"فَأَمَّا ٱلْيَتِيمَ فَلَا تَقْهَرْ","Fa am mal yateema fala taqhar","So as for the orphan, do not oppress [him]."],[6089,"وَأَمَّا ٱلسَّآئِلَ فَلَا تَنْهَرْ","Wa am mas saa-ila fala tanhar","And as for the petitioner, do not repel [him]."],[6090,"وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ","Wa amma bi ni'mati rabbika fahad dith","But as for the favor of your Lord, report [it]."]]},{"n":94,"ar":"سُورَةُ الشَّرۡحِ","en":"Ash-Sharh","mean":"The Consolation","ayahs":[[6091,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ أَلَمْ نَشْرَحْ لَكَ صَدْرَكَ","Alam nashrah laka sadrak","Did We not expand for you, [O Muhammad], your breast?"],[6092,"وَوَضَعْنَا عَنكَ وِزْرَكَ","Wa wa d'ana 'anka wizrak","And We removed from you your burden"],[6093,"ٱلَّذِىٓ أَنقَضَ ظَهْرَكَ","Allazee anqada zahrak","Which had weighed upon your back"],[6094,"وَرَفَعْنَا لَكَ ذِكْرَكَ","Wa raf 'ana laka zikrak","And raised high for you your repute."],[6095,"فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا","Fa inna ma'al usri yusra","For indeed, with hardship [will be] ease."],[6096,"إِنَّ مَعَ ٱلْعُسْرِ يُسْرًۭا","Inna ma'al 'usri yusra","Indeed, with hardship [will be] ease."],[6097,"فَإِذَا فَرَغْتَ فَٱنصَبْ","Fa iza faragh ta fansab","So when you have finished [your duties], then stand up [for worship]."],[6098,"وَإِلَىٰ رَبِّكَ فَٱرْغَب","Wa ilaa rabbika far ghab","And to your Lord direct [your] longing."]]},{"n":95,"ar":"سُورَةُ التِّينِ","en":"At-Tin","mean":"The Fig","ayahs":[[6099,"بِّسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلتِّينِ وَٱلزَّيْتُونِ","Wat teeni waz zaitoon","By the fig and the olive"],[6100,"وَطُورِ سِينِينَ","Wa toori sineen","And [by] Mount Sinai"],[6101,"وَهَٰذَا ٱلْبَلَدِ ٱلْأَمِينِ","Wa haazal balad-il ameen","And [by] this secure city [Makkah],"],[6102,"لَقَدْ خَلَقْنَا ٱلْإِنسَٰنَ فِىٓ أَحْسَنِ تَقْوِيمٍۢ","Laqad khalaqnal insaana fee ahsani taqweem","We have certainly created man in the best of stature;"],[6103,"ثُمَّ رَدَدْنَٰهُ أَسْفَلَ سَٰفِلِينَ","Thumma ra dad naahu asfala saafileen","Then We return him to the lowest of the low,"],[6104,"إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ فَلَهُمْ أَجْرٌ غَيْرُ مَمْنُونٍۢ","Ill-lal lazeena aamanoo wa 'amilus saalihaati; falahum ajrun ghairu mamnoon","Except for those who believe and do righteous deeds, for they will have a reward uninterrupted."],[6105,"فَمَا يُكَذِّبُكَ بَعْدُ بِٱلدِّينِ","Fama yu kaz zibuka b'adu bid deen","So what yet causes you to deny the Recompense?"],[6106,"أَلَيْسَ ٱللَّهُ بِأَحْكَمِ ٱلْحَٰكِمِينَ","Alai sal laahu bi-ahkamil haakimeen","Is not Allah the most just of judges?"]]},{"n":96,"ar":"سُورَةُ العَلَقِ","en":"Al-Alaq","mean":"The Clot","ayahs":[[6107,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ٱقْرَأْ بِٱسْمِ رَبِّكَ ٱلَّذِى خَلَقَ","Iqra bismi rab bikal lazee khalaq","Recite in the name of your Lord who created -"],[6108,"خَلَقَ ٱلْإِنسَٰنَ مِنْ عَلَقٍ","Khalaqal insaana min 'alaq","Created man from a clinging substance."],[6109,"ٱقْرَأْ وَرَبُّكَ ٱلْأَكْرَمُ","Iqra wa rab bukal akram","Recite, and your Lord is the most Generous -"],[6110,"ٱلَّذِى عَلَّمَ بِٱلْقَلَمِ","Al lazee 'allama bil qalam","Who taught by the pen -"],[6111,"عَلَّمَ ٱلْإِنسَٰنَ مَا لَمْ يَعْلَمْ","'Al lamal insaana ma lam y'alam","Taught man that which he knew not."],[6112,"كَلَّآ إِنَّ ٱلْإِنسَٰنَ لَيَطْغَىٰٓ","Kallaa innal insaana layatghaa","No! [But] indeed, man transgresses"],[6113,"أَن رَّءَاهُ ٱسْتَغْنَىٰٓ","Ar-ra aahus taghnaa","Because he sees himself self-sufficient."],[6114,"إِنَّ إِلَىٰ رَبِّكَ ٱلرُّجْعَىٰٓ","Innna ilaa rabbikar ruj'aa","Indeed, to your Lord is the return."],[6115,"أَرَءَيْتَ ٱلَّذِى يَنْهَىٰ","Ara-aital lazee yanhaa","Have you seen the one who forbids"],[6116,"عَبْدًا إِذَا صَلَّىٰٓ","'Abdan iza sallaa","A servant when he prays?"],[6117,"أَرَءَيْتَ إِن كَانَ عَلَى ٱلْهُدَىٰٓ","Ara-aita in kana 'alal hudaa","Have you seen if he is upon guidance"],[6118,"أَوْ أَمَرَ بِٱلتَّقْوَىٰٓ","Au amara bit taqwaa","Or enjoins righteousness?"],[6119,"أَرَءَيْتَ إِن كَذَّبَ وَتَوَلَّىٰٓ","Ara-aita in kaz zaba wa ta walla","Have you seen if he denies and turns away -"],[6120,"أَلَمْ يَعْلَم بِأَنَّ ٱللَّهَ يَرَىٰ","Alam y'alam bi-an nal lahaa yaraa","Does he not know that Allah sees?"],[6121,"كَلَّا لَئِن لَّمْ يَنتَهِ لَنَسْفَعًۢا بِٱلنَّاصِيَةِ","Kalla la illam yantahi la nasfa'am bin nasiyah","No! If he does not desist, We will surely drag him by the forelock -"],[6122,"نَاصِيَةٍۢ كَٰذِبَةٍ خَاطِئَةٍۢ","Nasiyatin kazi batin khaatiyah","A lying, sinning forelock."],[6123,"فَلْيَدْعُ نَادِيَهُۥ","Fal yad'u naadiyah","Then let him call his associates;"],[6124,"سَنَدْعُ ٱلزَّبَانِيَةَ","Sanad 'uz zabaaniyah","We will call the angels of Hell."],[6125,"كَلَّا لَا تُطِعْهُ وَٱسْجُدْ وَٱقْتَرِب ۩","Kalla; la tuti'hu wasjud waqtarib","No! Do not obey him. But prostrate and draw near [to Allah]."]]},{"n":97,"ar":"سُورَةُ القَدۡرِ","en":"Al-Qadr","mean":"The Power, Fate","ayahs":[[6126,"بِّسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ إِنَّآ أَنزَلْنَٰهُ فِى لَيْلَةِ ٱلْقَدْرِ","Innaa anzalnaahu fee lailatil qadr","Indeed, We sent the Qur'an down during the Night of Decree."],[6127,"وَمَآ أَدْرَىٰكَ مَا لَيْلَةُ ٱلْقَدْرِ","Wa maa adraaka ma lailatul qadr","And what can make you know what is the Night of Decree?"],[6128,"لَيْلَةُ ٱلْقَدْرِ خَيْرٌۭ مِّنْ أَلْفِ شَهْرٍۢ","Lailatul qadri khairum min alfee shahr","The Night of Decree is better than a thousand months."],[6129,"تَنَزَّلُ ٱلْمَلَٰٓئِكَةُ وَٱلرُّوحُ فِيهَا بِإِذْنِ رَبِّهِم مِّن كُلِّ أَمْرٍۢ","Tanaz zalul malaa-ikatu war roohu feeha bi izni-rab bihim min kulli amr","The angels and the Spirit descend therein by permission of their Lord for every matter."],[6130,"سَلَٰمٌ هِىَ حَتَّىٰ مَطْلَعِ ٱلْفَجْرِ","Salaamun hiya hattaa mat la'il fajr","Peace it is until the emergence of dawn."]]},{"n":98,"ar":"سُورَةُ البَيِّنَةِ","en":"Al-Bayyina","mean":"The Evidence","ayahs":[[6131,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ لَمْ يَكُنِ ٱلَّذِينَ كَفَرُوا۟ مِنْ أَهْلِ ٱلْكِتَٰبِ وَٱلْمُشْرِكِينَ مُنفَكِّينَ حَتَّىٰ تَأْتِيَهُمُ ٱلْبَيِّنَةُ","Lam ya kunil lazeena kafaru min ahlil kitaabi wal mushri keena mun fak keena hattaa ta-tiya humul bayyinah","Those who disbelieved among the People of the Scripture and the polytheists were not to be parted [from misbelief] until there came to them clear evidence -"],[6132,"رَسُولٌۭ مِّنَ ٱللَّهِ يَتْلُوا۟ صُحُفًۭا مُّطَهَّرَةًۭ","Rasoolum minal laahi yatlu suhufam mutahharah","A Messenger from Allah, reciting purified scriptures"],[6133,"فِيهَا كُتُبٌۭ قَيِّمَةٌۭ","Feeha kutubun qaiyimah","Within which are correct writings."],[6134,"وَمَا تَفَرَّقَ ٱلَّذِينَ أُوتُوا۟ ٱلْكِتَٰبَ إِلَّا مِنۢ بَعْدِ مَا جَآءَتْهُمُ ٱلْبَيِّنَةُ","Wa maa tafarraqal lazeena ootul kitaaba il-la mim b'adi ma jaa-at humul baiyyinah","Nor did those who were given the Scripture become divided until after there had come to them clear evidence."],[6135,"وَمَآ أُمِرُوٓا۟ إِلَّا لِيَعْبُدُوا۟ ٱللَّهَ مُخْلِصِينَ لَهُ ٱلدِّينَ حُنَفَآءَ وَيُقِيمُوا۟ ٱلصَّلَوٰةَ وَيُؤْتُوا۟ ٱلزَّكَوٰةَ ۚ وَذَٰلِكَ دِينُ ٱلْقَيِّمَةِ","Wa maa umiroo il-la liy'abu dul laaha mukhliseena lahud-deena huna faa-a wa yuqeemus salaahta wa yu-tuz zakaata; wa zaalika deenul qaiyimah","And they were not commanded except to worship Allah, [being] sincere to Him in religion, inclining to truth, and to establish prayer and to give zakah. And that is the correct religion."],[6136,"إِنَّ ٱلَّذِينَ كَفَرُوا۟ مِنْ أَهْلِ ٱلْكِتَٰبِ وَٱلْمُشْرِكِينَ فِى نَارِ جَهَنَّمَ خَٰلِدِينَ فِيهَآ ۚ أُو۟لَٰٓئِكَ هُمْ شَرُّ ٱلْبَرِيَّةِ","Innal lazeena kafaru min ahlil kitaabi wal mushri keena fee nari jahan nama khaali deena feeha; ulaa-ika hum shar rul ba reeyah","Indeed, they who disbelieved among the People of the Scripture and the polytheists will be in the fire of Hell, abiding eternally therein. Those are the worst of creatures."],[6137,"إِنَّ ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ أُو۟لَٰٓئِكَ هُمْ خَيْرُ ٱلْبَرِيَّةِ","Innal lazeena aamanu wa 'amilus saalihaati ula-ika hum khairul bareey yah","Indeed, they who have believed and done righteous deeds - those are the best of creatures."],[6138,"جَزَآؤُهُمْ عِندَ رَبِّهِمْ جَنَّٰتُ عَدْنٍۢ تَجْرِى مِن تَحْتِهَا ٱلْأَنْهَٰرُ خَٰلِدِينَ فِيهَآ أَبَدًۭا ۖ رَّضِىَ ٱللَّهُ عَنْهُمْ وَرَضُوا۟ عَنْهُ ۚ ذَٰلِكَ لِمَنْ خَشِىَ رَبَّهُۥ","Jazaa-uhum inda rabbihim jan naatu 'adnin tajree min tahtihal an haaru khalideena feeha abada; radiy-yallaahu 'anhum wa ra du 'an zaalika liman khashiya rabbah.","Their reward with Allah will be gardens of perpetual residence beneath which rivers flow, wherein they will abide forever, Allah being pleased with them and they with Him. That is for whoever has feared his Lord."]]},{"n":99,"ar":"سُورَةُ الزَّلۡزَلَةِ","en":"Az-Zalzala","mean":"The Earthquake","ayahs":[[6139,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ إِذَا زُلْزِلَتِ ٱلْأَرْضُ زِلْزَالَهَا","Izaa zul zilatil ardu zil zaalaha","When the earth is shaken with its [final] earthquake"],[6140,"وَأَخْرَجَتِ ٱلْأَرْضُ أَثْقَالَهَا","Wa akh rajatil ardu athqaalaha","And the earth discharges its burdens"],[6141,"وَقَالَ ٱلْإِنسَٰنُ مَا لَهَا","Wa qaalal insaanu ma laha","And man says, \"What is [wrong] with it?\" -"],[6142,"يَوْمَئِذٍۢ تُحَدِّثُ أَخْبَارَهَا","Yawmaa izin tuhad dithu akhbaaraha","That Day, it will report its news"],[6143,"بِأَنَّ رَبَّكَ أَوْحَىٰ لَهَا","Bi-anna rabbaka awhaa laha","Because your Lord has commanded it."],[6144,"يَوْمَئِذٍۢ يَصْدُرُ ٱلنَّاسُ أَشْتَاتًۭا لِّيُرَوْا۟ أَعْمَٰلَهُمْ","Yawma iziy yas durun naasu ash tatal liyuraw a'maalahum","That Day, the people will depart separated [into categories] to be shown [the result of] their deeds."],[6145,"فَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍ خَيْرًۭا يَرَهُۥ","Famaiy ya'mal mithqala zarratin khai raiy-yarah","So whoever does an atom's weight of good will see it,"],[6146,"وَمَن يَعْمَلْ مِثْقَالَ ذَرَّةٍۢ شَرًّۭا يَرَهُۥ","Wa maiy-y'amal mithqala zarratin sharraiy-yarah","And whoever does an atom's weight of evil will see it."]]},{"n":100,"ar":"سُورَةُ العَادِيَاتِ","en":"Al-Aadiyaat","mean":"The Chargers","ayahs":[[6147,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلْعَٰدِيَٰتِ ضَبْحًۭا","Wal'aadi yaati dabha","By the racers, panting,"],[6148,"فَٱلْمُورِيَٰتِ قَدْحًۭا","Fal moori yaati qadha","And the producers of sparks [when] striking"],[6149,"فَٱلْمُغِيرَٰتِ صُبْحًۭا","Fal mugheeraati subha","And the chargers at dawn,"],[6150,"فَأَثَرْنَ بِهِۦ نَقْعًۭا","Fa atharna bihee naq'a","Stirring up thereby [clouds of] dust,"],[6151,"فَوَسَطْنَ بِهِۦ جَمْعًا","Fawa satna bihee jam'a","Arriving thereby in the center collectively,"],[6152,"إِنَّ ٱلْإِنسَٰنَ لِرَبِّهِۦ لَكَنُودٌۭ","Innal-insana lirabbihee lakanood","Indeed mankind, to his Lord, is ungrateful."],[6153,"وَإِنَّهُۥ عَلَىٰ ذَٰلِكَ لَشَهِيدٌۭ","Wa innahu 'alaa zaalika la shaheed","And indeed, he is to that a witness."],[6154,"وَإِنَّهُۥ لِحُبِّ ٱلْخَيْرِ لَشَدِيدٌ","Wa innahu lihubbil khairi la shadeed","And indeed he is, in love of wealth, intense."],[6155,"۞ أَفَلَا يَعْلَمُ إِذَا بُعْثِرَ مَا فِى ٱلْقُبُورِ","Afala ya'lamu iza b'uthira ma filquboor","But does he not know that when the contents of the graves are scattered"],[6156,"وَحُصِّلَ مَا فِى ٱلصُّدُورِ","Wa hussila maa fis sudoor","And that within the breasts is obtained,"],[6157,"إِنَّ رَبَّهُم بِهِمْ يَوْمَئِذٍۢ لَّخَبِيرٌۢ","Inna rabbahum bihim yauma 'izil la khabeer","Indeed, their Lord with them, that Day, is [fully] Acquainted."]]},{"n":101,"ar":"سُورَةُ القَارِعَةِ","en":"Al-Qaari'a","mean":"The Calamity","ayahs":[[6158,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ ٱلْقَارِعَةُ","Al qaari'ah","The Striking Calamity -"],[6159,"مَا ٱلْقَارِعَةُ","Mal qaariah","What is the Striking Calamity?"],[6160,"وَمَآ أَدْرَىٰكَ مَا ٱلْقَارِعَةُ","Wa maa adraaka mal qaari'ah","And what can make you know what is the Striking Calamity?"],[6161,"يَوْمَ يَكُونُ ٱلنَّاسُ كَٱلْفَرَاشِ ٱلْمَبْثُوثِ","Yauma ya koonun naasu kal farashil mabthooth","It is the Day when people will be like moths, dispersed,"],[6162,"وَتَكُونُ ٱلْجِبَالُ كَٱلْعِهْنِ ٱلْمَنفُوشِ","Wa ta koonul jibalu kal 'ihnil manfoosh","And the mountains will be like wool, fluffed up."],[6163,"فَأَمَّا مَن ثَقُلَتْ مَوَٰزِينُهُۥ","Fa-amma man thaqulat mawa zeenuh","Then as for one whose scales are heavy [with good deeds],"],[6164,"فَهُوَ فِى عِيشَةٍۢ رَّاضِيَةٍۢ","Fahuwa fee 'ishatir raadiyah","He will be in a pleasant life."],[6165,"وَأَمَّا مَنْ خَفَّتْ مَوَٰزِينُهُۥ","Wa amma man khaffat mawa zeenuh","But as for one whose scales are light,"],[6166,"فَأُمُّهُۥ هَاوِيَةٌۭ","Fa-ummuhu haawiyah","His refuge will be an abyss."],[6167,"وَمَآ أَدْرَىٰكَ مَا هِيَهْ","Wa maa adraaka maa hiyah","And what can make you know what that is?"],[6168,"نَارٌ حَامِيَةٌۢ","Naarun hamiyah","It is a Fire, intensely hot."]]},{"n":102,"ar":"سُورَةُ التَّكَاثُرِ","en":"At-Takaathur","mean":"Competition","ayahs":[[6169,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ أَلْهَىٰكُمُ ٱلتَّكَاثُرُ","Al haaku mut takathur","Competition in [worldly] increase diverts you"],[6170,"حَتَّىٰ زُرْتُمُ ٱلْمَقَابِرَ","Hatta zurtumul-maqaabir","Until you visit the graveyards."],[6171,"كَلَّا سَوْفَ تَعْلَمُونَ","Kalla sawfa ta'lamoon","No! You are going to know."],[6172,"ثُمَّ كَلَّا سَوْفَ تَعْلَمُونَ","Thumma kalla sawfa ta'lamoon","Then no! You are going to know."],[6173,"كَلَّا لَوْ تَعْلَمُونَ عِلْمَ ٱلْيَقِينِ","Kalla law ta'lamoona 'ilmal yaqeen","No! If you only knew with knowledge of certainty..."],[6174,"لَتَرَوُنَّ ٱلْجَحِيمَ","Latara-wun nal jaheem","You will surely see the Hellfire."],[6175,"ثُمَّ لَتَرَوُنَّهَا عَيْنَ ٱلْيَقِينِ","Thumma latara wunnaha 'ainal yaqeen","Then you will surely see it with the eye of certainty."],[6176,"ثُمَّ لَتُسْـَٔلُنَّ يَوْمَئِذٍ عَنِ ٱلنَّعِيمِ","Thumma latus alunna yauma-izin 'anin na'eem","Then you will surely be asked that Day about pleasure."]]},{"n":103,"ar":"سُورَةُ العَصۡرِ","en":"Al-Asr","mean":"The Declining Day, Epoch","ayahs":[[6177,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَٱلْعَصْرِ","Wal' asr","By time,"],[6178,"إِنَّ ٱلْإِنسَٰنَ لَفِى خُسْرٍ","Innal insaana lafee khusr","Indeed, mankind is in loss,"],[6179,"إِلَّا ٱلَّذِينَ ءَامَنُوا۟ وَعَمِلُوا۟ ٱلصَّٰلِحَٰتِ وَتَوَاصَوْا۟ بِٱلْحَقِّ وَتَوَاصَوْا۟ بِٱلصَّبْرِ","Il lal lazeena aamanu wa 'amilus saali haati wa tawa saw bil haqqi wa tawa saw bis sabr","Except for those who have believed and done righteous deeds and advised each other to truth and advised each other to patience."]]},{"n":104,"ar":"سُورَةُ الهُمَزَةِ","en":"Al-Humaza","mean":"The Traducer","ayahs":[[6180,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ وَيْلٌۭ لِّكُلِّ هُمَزَةٍۢ لُّمَزَةٍ","Wai lul-li kulli hu mazatil-lumaza","Woe to every scorner and mocker"],[6181,"ٱلَّذِى جَمَعَ مَالًۭا وَعَدَّدَهُۥ","Al-lazi jama'a maalaw wa'addadah","Who collects wealth and [continuously] counts it."],[6182,"يَحْسَبُ أَنَّ مَالَهُۥٓ أَخْلَدَهُۥ","Yahsabu anna maalahu akhladah","He thinks that his wealth will make him immortal."],[6183,"كَلَّا ۖ لَيُنۢبَذَنَّ فِى ٱلْحُطَمَةِ","Kalla layum ba zanna fil hutamah","No! He will surely be thrown into the Crusher."],[6184,"وَمَآ أَدْرَىٰكَ مَا ٱلْحُطَمَةُ","Wa maa adraaka mal-hutamah","And what can make you know what is the Crusher?"],[6185,"نَارُ ٱللَّهِ ٱلْمُوقَدَةُ","Narul laahil-mooqada","It is the fire of Allah, [eternally] fueled,"],[6186,"ٱلَّتِى تَطَّلِعُ عَلَى ٱلْأَفْـِٔدَةِ","Al latee tat tali'u 'alalafidah","Which mounts directed at the hearts."],[6187,"إِنَّهَا عَلَيْهِم مُّؤْصَدَةٌۭ","Innaha 'alaihim mu'sada","Indeed, Hellfire will be closed down upon them"],[6188,"فِى عَمَدٍۢ مُّمَدَّدَةٍۭ","Fee 'amadim-mu mad dadah","In extended columns."]]},{"n":105,"ar":"سُورَةُ الفِيلِ","en":"Al-Fil","mean":"The Elephant","ayahs":[[6189,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَٰبِ ٱلْفِيلِ","Alam tara kaifa fa'ala rabbuka bi ashaabil feel","Have you not considered, [O Muhammad], how your Lord dealt with the companions of the elephant?"],[6190,"أَلَمْ يَجْعَلْ كَيْدَهُمْ فِى تَضْلِيلٍۢ","Alam yaj'al kai dahum fee tad leel","Did He not make their plan into misguidance?"],[6191,"وَأَرْسَلَ عَلَيْهِمْ طَيْرًا أَبَابِيلَ","Wa arsala 'alaihim tairan abaabeel","And He sent against them birds in flocks,"],[6192,"تَرْمِيهِم بِحِجَارَةٍۢ مِّن سِجِّيلٍۢ","Tar meehim bi hi jaaratim min sij jeel","Striking them with stones of hard clay,"],[6193,"فَجَعَلَهُمْ كَعَصْفٍۢ مَّأْكُولٍۭ","Faja 'alahum ka'asfim m'akool","And He made them like eaten straw."]]},{"n":106,"ar":"سُورَةُ قُرَيۡشٍ","en":"Quraish","mean":"Quraysh","ayahs":[[6194,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ لِإِيلَٰفِ قُرَيْشٍ","Li-ilaafi quraish","For the accustomed security of the Quraysh -"],[6195,"إِۦلَٰفِهِمْ رِحْلَةَ ٱلشِّتَآءِ وَٱلصَّيْفِ","Elaafihim rihlatash shitaa-i wass saif","Their accustomed security [in] the caravan of winter and summer -"],[6196,"فَلْيَعْبُدُوا۟ رَبَّ هَٰذَا ٱلْبَيْتِ","Fal y'abudu rabba haazal-bait","Let them worship the Lord of this House,"],[6197,"ٱلَّذِىٓ أَطْعَمَهُم مِّن جُوعٍۢ وَءَامَنَهُم مِّنْ خَوْفٍۭ","Allazi at'amahum min ju'inw-wa-aamana hum min khawf","Who has fed them, [saving them] from hunger and made them safe, [saving them] from fear."]]},{"n":107,"ar":"سُورَةُ المَاعُونِ","en":"Al-Maa'un","mean":"Almsgiving","ayahs":[[6198,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ أَرَءَيْتَ ٱلَّذِى يُكَذِّبُ بِٱلدِّينِ","Ara-aital lazee yu kazzibu bid deen","Have you seen the one who denies the Recompense?"],[6199,"فَذَٰلِكَ ٱلَّذِى يَدُعُّ ٱلْيَتِيمَ","Fa zaalikal lazi yadu'ul-yateem","For that is the one who drives away the orphan"],[6200,"وَلَا يَحُضُّ عَلَىٰ طَعَامِ ٱلْمِسْكِينِ","Wa la ya huddu 'alaa ta'amil miskeen","And does not encourage the feeding of the poor."],[6201,"فَوَيْلٌۭ لِّلْمُصَلِّينَ","Fa wai lul-lil mu salleen","So woe to those who pray"],[6202,"ٱلَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ","Al lazeena hum 'an salaatihim sahoon","[But] who are heedless of their prayer -"],[6203,"ٱلَّذِينَ هُمْ يُرَآءُونَ","Al lazeena hum yuraa-oon","Those who make show [of their deeds]"],[6204,"وَيَمْنَعُونَ ٱلْمَاعُونَ","Wa yamna'oonal ma'oon","And withhold [simple] assistance."]]},{"n":108,"ar":"سُورَةُ الكَوۡثَرِ","en":"Al-Kawthar","mean":"Abundance","ayahs":[[6205,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ إِنَّآ أَعْطَيْنَٰكَ ٱلْكَوْثَرَ","Innaa a'taina kal kauthar","Indeed, We have granted you, [O Muhammad], al-Kawthar."],[6206,"فَصَلِّ لِرَبِّكَ وَٱنْحَرْ","Fa salli li rabbika wanhar","So pray to your Lord and sacrifice [to Him alone]."],[6207,"إِنَّ شَانِئَكَ هُوَ ٱلْأَبْتَرُ","Inna shani-aka huwal abtar","Indeed, your enemy is the one cut off."]]},{"n":109,"ar":"سُورَةُ الكَافِرُونَ","en":"Al-Kaafiroon","mean":"The Disbelievers","ayahs":[[6208,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ قُلْ يَٰٓأَيُّهَا ٱلْكَٰفِرُونَ","Qul yaa-ai yuhal kaafiroon","Say, \"O disbelievers,"],[6209,"لَآ أَعْبُدُ مَا تَعْبُدُونَ","Laa a'budu ma t'abudoon","I do not worship what you worship."],[6210,"وَلَآ أَنتُمْ عَٰبِدُونَ مَآ أَعْبُدُ","Wa laa antum 'aabidoona maa a'bud","Nor are you worshippers of what I worship."],[6211,"وَلَآ أَنَا۠ عَابِدٌۭ مَّا عَبَدتُّمْ","Wa laa ana 'abidum maa 'abattum","Nor will I be a worshipper of what you worship."],[6212,"وَلَآ أَنتُمْ عَٰبِدُونَ مَآ أَعْبُدُ","Wa laa antum 'aabidoona ma a'bud","Nor will you be worshippers of what I worship."],[6213,"لَكُمْ دِينُكُمْ وَلِىَ دِينِ","Lakum deenukum wa liya deen.","For you is your religion, and for me is my religion.\""]]},{"n":110,"ar":"سُورَةُ النَّصۡرِ","en":"An-Nasr","mean":"Divine Support","ayahs":[[6214,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ إِذَا جَآءَ نَصْرُ ٱللَّهِ وَٱلْفَتْحُ","Iza jaa-a nas rullahi walfath","When the victory of Allah has come and the conquest,"],[6215,"وَرَأَيْتَ ٱلنَّاسَ يَدْخُلُونَ فِى دِينِ ٱللَّهِ أَفْوَاجًۭا","Wa ra-aitan naasa yadkhuloona fee deenil laahi afwajah","And you see the people entering into the religion of Allah in multitudes,"],[6216,"فَسَبِّحْ بِحَمْدِ رَبِّكَ وَٱسْتَغْفِرْهُ ۚ إِنَّهُۥ كَانَ تَوَّابًۢا","Fa sab bih bihamdi rabbika was taghfir, innahu kaana tawwaaba","Then exalt [Him] with praise of your Lord and ask forgiveness of Him. Indeed, He is ever Accepting of repentance."]]},{"n":111,"ar":"سُورَةُ المَسَدِ","en":"Al-Masad","mean":"The Palm Fibre","ayahs":[[6217,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ تَبَّتْ يَدَآ أَبِى لَهَبٍۢ وَتَبَّ","Tab bat yadaa abee Lahabinw-wa tabb","May the hands of Abu Lahab be ruined, and ruined is he."],[6218,"مَآ أَغْنَىٰ عَنْهُ مَالُهُۥ وَمَا كَسَبَ","Maa aghna 'anhu maaluhu wa ma kasab","His wealth will not avail him or that which he gained."],[6219,"سَيَصْلَىٰ نَارًۭا ذَاتَ لَهَبٍۢ","Sa yas laa naran zaata lahab","He will [enter to] burn in a Fire of [blazing] flame"],[6220,"وَٱمْرَأَتُهُۥ حَمَّالَةَ ٱلْحَطَبِ","Wam ra-atuh hamma latal-hatab","And his wife [as well] - the carrier of firewood."],[6221,"فِى جِيدِهَا حَبْلٌۭ مِّن مَّسَدٍۭ","Fee jeediha hab lum mim-masad","Around her neck is a rope of [twisted] fiber."]]},{"n":112,"ar":"سُورَةُ الإِخۡلَاصِ","en":"Al-Ikhlaas","mean":"Sincerity","ayahs":[[6222,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ قُلْ هُوَ ٱللَّهُ أَحَدٌ","Qul huwal laahu ahad","Say, \"He is Allah, [who is] One,"],[6223,"ٱللَّهُ ٱلصَّمَدُ","Allah hus-samad","Allah, the Eternal Refuge."],[6224,"لَمْ يَلِدْ وَلَمْ يُولَدْ","Lam yalid wa lam yoolad","He neither begets nor is born,"],[6225,"وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ","Wa lam yakul-lahu kufuwan ahad","Nor is there to Him any equivalent.\""]]},{"n":113,"ar":"سُورَةُ الفَلَقِ","en":"Al-Falaq","mean":"The Dawn","ayahs":[[6226,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ قُلْ أَعُوذُ بِرَبِّ ٱلْفَلَقِ","Qul a'uzoo bi rabbil-falaq","Say, \"I seek refuge in the Lord of daybreak"],[6227,"مِن شَرِّ مَا خَلَقَ","Min sharri ma khalaq","From the evil of that which He created"],[6228,"وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ","Wa min sharri ghasiqin iza waqab","And from the evil of darkness when it settles"],[6229,"وَمِن شَرِّ ٱلنَّفَّٰثَٰتِ فِى ٱلْعُقَدِ","Wa min sharrin-naffaa-thaati fil 'uqad","And from the evil of the blowers in knots"],[6230,"وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ","Wa min shar ri haasidin iza hasad","And from the evil of an envier when he envies.\""]]},{"n":114,"ar":"سُورَةُ النَّاسِ","en":"An-Naas","mean":"Mankind","ayahs":[[6231,"بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ قُلْ أَعُوذُ بِرَبِّ ٱلنَّاسِ","Qul a'uzu birabbin naas","Say, \"I seek refuge in the Lord of mankind,"],[6232,"مَلِكِ ٱلنَّاسِ","Malikin naas","The Sovereign of mankind."],[6233,"إِلَٰهِ ٱلنَّاسِ","Ilaahin naas","The God of mankind,"],[6234,"مِن شَرِّ ٱلْوَسْوَاسِ ٱلْخَنَّاسِ","Min sharril was waasil khannaas","From the evil of the retreating whisperer -"],[6235,"ٱلَّذِى يُوَسْوِسُ فِى صُدُورِ ٱلنَّاسِ","Al lazee yuwas wisu fee sudoorin naas","Who whispers [evil] into the breasts of mankind -"],[6236,"مِنَ ٱلْجِنَّةِ وَٱلنَّاسِ","Minal jinnati wan naas","From among the jinn and mankind.\""]]}];
+const SURAHS=RAW.map(s=>({...s,ayahs:s.ayahs.map((a,i)=>({
+  id:a[0],n:i+1,
+  // The API prefixes ayah 1 with the Bismillah; strip its 4 words
+  ar:i===0?a[1].split(' ').slice(4).join(' '):a[1],
+  tr:a[2],en:a[3]}))})).reverse(); // 114 -> 90
+const Q={s:SURAHS[0].n,m:'read',tr:true,en:true,aud:true,idx:0,stage:0,done:JSON.parse(localStorage.qDone||'{}'),sc:0,tot:0,hidden:new Set()};
+const qEl=document.getElementById('quran');
+const curS=()=>SURAHS.find(s=>s.n===Q.s);
+const AUDIO='https://cdn.islamic.network/quran/audio/128/ar.alafasy/';
+let audio=null,playQ=[],playTok=0;
+function stopAudio(){playTok++;playQ=[];if(audio){audio.pause();audio=null}document.querySelectorAll('.ayah.playing').forEach(e=>e.classList.remove('playing'))}
+function playAyah(a,onEnd){
+  if(audio){audio.pause()}
+  const tok=++playTok;
+  audio=new Audio(AUDIO+a.id+'.mp3');
+  audio.onended=()=>{if(tok===playTok&&onEnd)onEnd()};
+  audio.onerror=()=>{const m=document.getElementById('amsg');if(m)m.textContent='⚠ Audio needs an internet connection.'};
+  audio.play().catch(()=>{});
+}
+function playAll(from){
+  const s=curS();let i=from;
+  const step=()=>{
+    document.querySelectorAll('.ayah.playing').forEach(e=>e.classList.remove('playing'));
+    if(i>=s.ayahs.length)return;
+    const el=document.getElementById('ay'+i);if(el){el.classList.add('playing');el.scrollIntoView({block:'nearest',behavior:'smooth'})}
+    playAyah(s.ayahs[i],()=>{i++;step()});
+  };
+  step();
+}
+const norm=w=>w.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g,'');
+function save(){localStorage.qDone=JSON.stringify(Q.done)}
+
+function qRender(){
+  stopAudio();
+  const s=curS(), dn=(Q.done[s.n]||[]).length;
+  const modes=[['read','📖 Read & Listen'],['mem','🧠 Memorize'],['order','🧩 Word order'],['fill','✏ Fill the blank'],['next','➡ Next ayah'],['recall','🗣 Recite next ayah']];
+  qEl.innerHTML=`
+  <div class="card"><div class="surahs">${SURAHS.map(x=>`<button class="${x.n===Q.s?'sel':''}" data-s="${x.n}"><span class="ar">${x.ar.replace('سُورَةُ ','')}</span>${x.n}. ${x.en}<br><i>${(Q.done[x.n]||[]).length}/${x.ayahs.length} ✔</i></button>`).join('')}</div></div>
+  <div class="card">
+    <h2 style="margin:0">${s.n}. ${s.en} <span class="ar" style="font-size:32px">${s.ar}</span></h2>
+    <div class="note">${s.mean} · ${s.ayahs.length} ayat · memorized ${dn}/${s.ayahs.length}</div>
+    <div class="opts">
+      <label><input type="checkbox" id="oTr" ${Q.tr?'checked':''}> English spelling (transliteration)</label>
+      <label><input type="checkbox" id="oEn" ${Q.en?'checked':''}> English meaning</label>
+      <label><input type="checkbox" id="oAu" ${Q.aud?'checked':''}> 🔊 Audio</label>
+    </div>
+    <div class="tabs" style="margin:6px 0 0">${modes.map(m=>`<button data-m="${m[0]}" class="${Q.m===m[0]?'on':''}">${m[1]}</button>`).join('')}</div>
+  </div>
+  <div id="qbody"></div>
+  <div class="note" style="text-align:center" id="amsg">Arabic text: Uthmani script with harakat. Audio: Mishary Alafasy via islamic.network (online). Text via api.alquran.cloud.</div>`;
+  qEl.querySelectorAll('.surahs button').forEach(b=>b.onclick=()=>{Q.s=+b.dataset.s;Q.idx=0;Q.stage=0;Q.hidden=new Set();Q.sc=Q.tot=0;qRender()});
+  qEl.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{Q.m=b.dataset.m;Q.idx=0;Q.stage=0;Q.hidden=new Set();Q.sc=Q.tot=0;qRender()});
+  const t=(id,k)=>document.getElementById(id).onchange=e=>{Q[k]=e.target.checked;qRender()};
+  t('oTr','tr');t('oEn','en');t('oAu','aud');
+  ({read:mRead,mem:mMem,order:mOrder,fill:mFill,next:mNext,recall:mRecall})[Q.m]();
+}
+const extra=a=>(Q.tr?`<div class="tr">${a.tr}</div>`:'')+(Q.en?`<div class="en">${a.en}</div>`:'');
+const playBtn=(i,txt='🔊 Listen')=>Q.aud?`<button data-play="${i}">${txt}</button>`:'';
+function bindPlay(){qEl.querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>{stopAudio();playAyah(curS().ayahs[+b.dataset.play])})}
+const body=h=>{document.getElementById('qbody').innerHTML=h};
+function markDone(a){const d=Q.done[Q.s]=Q.done[Q.s]||[];if(!d.includes(a.n)){d.push(a.n);save()}}
+
+function mRead(){
+  const s=curS();
+  body(`${Q.aud?'<div class="row" style="margin:0 0 6px"><button id="pa">▶ Play whole surah</button><button id="ps">⏹ Stop</button></div>':''}
+  ${s.n!==9?'<div class="ayah ar" style="font-size:28px">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>':''}
+  ${s.ayahs.map((a,i)=>`<div class="ayah" id="ay${i}"><div class="ar"><span class="num">${a.n}</span> ${a.ar}</div>${extra(a)}${Q.aud?`<div class="row">${playBtn(i,'🔊')}</div>`:''}</div>`).join('')}`);
+  bindPlay();
+  const pa=document.getElementById('pa');if(pa){pa.onclick=()=>{stopAudio();playAll(0)};document.getElementById('ps').onclick=stopAudio}
+}
+
+/* Memorize: progressively hide words, then recite from memory */
+function mMem(){
+  const s=curS(),a=s.ayahs[Q.idx],words=a.ar.split(' ');
+  const levels=[0,.34,.67,1], lv=levels[Q.stage];
+  if(!Q.hidden.size||Q.hidden._k!==Q.idx+'-'+Q.stage){
+    const cnt=Math.round(words.length*lv);
+    Q.hidden=new Set(shuffle(words.map((_,i)=>i)).slice(0,cnt));Q.hidden._k=Q.idx+'-'+Q.stage;
+  }
+  const txt=words.map((w,i)=>Q.hidden.has(i)?`<span class="hid" data-w="${i}">${w}</span>`:w).join(' ');
+  const mastered=(Q.done[s.n]||[]).includes(a.n);
+  body(`<div class="card"><div class="stat"><span>Ayah ${a.n} / ${s.ayahs.length} ${mastered?'✔':''}</span><span>Level ${Q.stage+1} / 4</span></div>
+    <div class="ar" style="font-size:38px">${txt}</div>${extra(a)}
+    <div class="note">${Q.stage<3?'Read it aloud, filling in the hidden words. Tap a hidden word to peek.':'Recite the whole ayah from memory, then tap a word to check yourself.'}</div>
+    <div class="row">${playBtn(Q.idx)}
+      <button id="easy" ${Q.stage?'':'disabled'}>⬅ Easier</button>
+      <button id="hard">${Q.stage<3?'Harder ➜':'✅ I recited it!'}</button></div>
+    <div class="row"><button id="pv" ${Q.idx?'':'disabled'}>◀ Prev ayah</button><button id="nx" ${Q.idx<s.ayahs.length-1?'':'disabled'}>Next ayah ▶</button></div>
+    <div class="note">Tip: after each ayah, replay the earlier ones in the "Read" tab to chain them together.</div></div>`);
+  bindPlay();
+  qEl.querySelectorAll('.hid').forEach(h=>h.onclick=()=>{h.style.color='';h.style.background='none'});
+  const rs=()=>{Q.hidden=new Set();mMem()};
+  document.getElementById('easy').onclick=()=>{Q.stage--;rs()};
+  document.getElementById('hard').onclick=()=>{
+    if(Q.stage<3){Q.stage++;rs()}
+    else{markDone(a);if(Q.idx<s.ayahs.length-1){Q.idx++;Q.stage=0;rs()}else{qRender()}}
+  };
+  document.getElementById('pv').onclick=()=>{Q.idx--;Q.stage=0;rs()};
+  document.getElementById('nx').onclick=()=>{Q.idx++;Q.stage=0;rs()};
+}
+
+/* Word order: rebuild the ayah */
+function mOrder(){
+  const s=curS(),a=s.ayahs[Q.idx],words=a.ar.split(' ');
+  const bank=shuffle(words.map((w,i)=>({w,i})));
+  let placed=[];
+  const draw=()=>{
+    body(`<div class="card"><div class="stat"><span>Ayah ${a.n} / ${s.ayahs.length}</span><span>⭐ ${Q.sc}/${Q.tot}</span></div>
+      <div class="q">Tap the words in the correct order</div>
+      ${Q.tr?`<div class="tr" style="color:#9fd4ff">${a.tr}</div>`:''}${Q.en?`<div class="en">${a.en}</div>`:''}
+      <div class="words slot" id="slot">${placed.map(p=>`<button class="chip ar" data-r="${p.i}">${p.w}</button>`).join('')}</div>
+      <div class="words">${bank.filter(b=>!placed.includes(b)).map(b=>`<button class="chip ar" data-a="${b.i}">${b.w}</button>`).join('')}</div>
+      <div class="row">${playBtn(Q.idx,'🔊 Hear it')}<button id="rs">↺ Reset</button><button id="sk">Skip ▶</button></div>
+      <div class="msg" id="msg"></div></div>`);
+    bindPlay();
+    qEl.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{placed.push(bank.find(x=>x.i==b.dataset.a));draw();check()});
+    qEl.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{placed=placed.filter(x=>x.i!=b.dataset.r);draw()});
+    document.getElementById('rs').onclick=()=>{placed=[];draw()};
+    document.getElementById('sk').onclick=nextAyah;
+  };
+  const nextAyah=()=>{Q.idx=(Q.idx+1)%s.ayahs.length;mOrder()};
+  const check=()=>{
+    if(placed.length<words.length)return;
+    Q.tot++;
+    const ok=placed.every((p,k)=>p.w===words[k]);
+    const m=document.getElementById('msg');
+    if(ok){Q.sc++;markDone(a);m.textContent='✅ Perfect!';qEl.querySelectorAll('.slot .chip').forEach(c=>c.classList.add('ok'));
+      if(Q.aud)playAyah(a);setTimeout(nextAyah,Q.aud?3500:1200)}
+    else{m.textContent='❌ Not quite — tap a word to remove it, or Reset.'}
+  };
+  draw();
+}
+
+/* Fill the blank */
+function mFill(){
+  const s=curS(),a=s.ayahs[Q.idx],words=a.ar.split(' ');
+  const cand=words.map((w,i)=>i).filter(i=>norm(words[i]).length>2);
+  const wi=rnd(cand.length?cand:words.map((_,i)=>i)), right=words[wi];
+  const poolW=[...new Set(s.ayahs.flatMap(x=>x.ar.split(' ')))].filter(w=>w!==right&&norm(w)!==norm(right));
+  const opts=shuffle([right,...shuffle(poolW).slice(0,3)]);
+  body(`<div class="card"><div class="stat"><span>Ayah ${a.n} / ${s.ayahs.length}</span><span>⭐ ${Q.sc}/${Q.tot}</span></div>
+    <div class="q">Which word is missing?</div>
+    <div class="ar" style="font-size:36px">${words.map((w,i)=>i===wi?'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>':w).join(' ')}</div>${extra(a)}
+    <div class="grid">${opts.map(o=>`<button class="ar" data-o="${o}" style="font-size:38px">${o}</button>`).join('')}</div>
+    <div class="row">${playBtn(Q.idx,'🔊 Hint')}</div><div class="msg" id="msg"></div></div>`);
+  bindPlay();
+  let lock=false;
+  qEl.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+    if(lock)return;lock=true;Q.tot++;
+    const good=b.dataset.o===right;
+    qEl.querySelectorAll('[data-o]').forEach(x=>{if(x.dataset.o===right)x.classList.add('ok')});
+    if(good){Q.sc++;document.getElementById('msg').textContent='✅ Correct!'}else{b.classList.add('bad');document.getElementById('msg').textContent='❌ Not quite'}
+    setTimeout(()=>{Q.idx=Math.random()<.5?(Q.idx+1)%s.ayahs.length:Math.floor(Math.random()*s.ayahs.length);mFill()},good?900:1800);
+  });
+}
+
+/* Next ayah: what comes after this one? */
+function mNext(){
+  const s=curS();
+  if(Q.idx>=s.ayahs.length-1)Q.idx=0;
+  const a=s.ayahs[Q.idx],right=s.ayahs[Q.idx+1];
+  let others=shuffle(s.ayahs.filter(x=>x!==a&&x!==right));
+  if(others.length<3)others=others.concat(shuffle(SURAHS.filter(x=>x!==s).flatMap(x=>x.ayahs)).slice(0,3-others.length));
+  const opts=shuffle([right,...others.slice(0,3)]);
+  body(`<div class="card"><div class="stat"><span>After ayah ${a.n}</span><span>⭐ ${Q.sc}/${Q.tot}</span></div>
+    <div class="q">What is the <b>next</b> ayah?</div>
+    <div class="ayah"><div class="ar">${a.ar}</div>${extra(a)}</div>
+    <div class="grid" style="grid-template-columns:1fr">${opts.map((o,i)=>`<button class="ar ayopt" data-o="${i}">${o.ar}</button>`).join('')}</div>
+    <div class="row">${playBtn(Q.idx,'🔊 Hear this ayah')}</div><div class="msg" id="msg"></div></div>`);
+  bindPlay();
+  let lock=false;
+  qEl.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+    if(lock)return;lock=true;Q.tot++;
+    const good=opts[+b.dataset.o]===right;
+    qEl.querySelectorAll('[data-o]').forEach(x=>{if(opts[+x.dataset.o]===right)x.classList.add('ok')});
+    if(good){Q.sc++;markDone(right);document.getElementById('msg').textContent='✅ Correct!'}else{b.classList.add('bad');document.getElementById('msg').textContent='❌ Not quite'}
+    setTimeout(()=>{Q.idx=Math.floor(Math.random()*(s.ayahs.length-1));mNext()},good?1000:2200);
+  });
+}
+
+/* Recite next ayah: recall from memory, reveal, self-check; missed ayat come back more often */
+const miss={};
+function mRecall(){
+  const s=curS();
+  const pool=s.ayahs.slice(0,-1).flatMap(a=>Array((miss[s.n+'-'+a.n]||0)+1).fill(a));
+  const a=rnd(pool);
+  Q.idx=a.n-1;
+  const nx=s.ayahs[a.n];
+  body(`<div class="card"><div class="stat"><span>After ayah ${a.n}</span><span>? ${Q.sc}/${Q.tot}</span></div>
+    <div class="q">Recite the <b>next</b> ayah from memory</div>
+    <div class="ayah"><div class="ar">${a.ar}</div>${extra(a)}</div>
+    <div class="row">${playBtn(Q.idx,'?? Hear this ayah')}<button id="rv">?? Reveal next ayah</button></div>
+    <div id="rev"></div></div>`);
+  bindPlay();
+  document.getElementById('rv').onclick=()=>{
+    document.getElementById('rv').disabled=true;
+    document.getElementById('rev').innerHTML=`<div class="ayah"><div class="ar"><span class="num">${nx.n}</span> ${nx.ar}</div>${extra(nx)}
+      <div class="row">${Q.aud?'<button id="pn">?? Listen</button>':''}<button id="y">? I knew it</button><button id="n">? Not yet</button></div></div>`;
+    const pn=document.getElementById('pn');if(pn)pn.onclick=()=>{stopAudio();playAyah(nx)};
+    const go=ok=>{Q.tot++;const k=s.n+'-'+a.n;
+      if(ok){Q.sc++;markDone(nx);miss[k]=Math.max(0,(miss[k]||0)-1)}else miss[k]=(miss[k]||0)+2;
+      mRecall()};
+    document.getElementById('y').onclick=()=>go(true);
+    document.getElementById('n').onclick=()=>go(false);
+  };
+}
+
+/* ===== Reading with harakat (letters section) ===== */
+const SND={"ا":"ʾ","ب":"b","ت":"t","ث":"th","ج":"j","ح":"ḥ","خ":"kh","د":"d","ذ":"dh","ر":"r","ز":"z","س":"s","ش":"sh","ص":"ṣ","ض":"ḍ","ط":"ṭ","ظ":"ẓ","ع":"ʿ","غ":"gh","ف":"f","ق":"q","ك":"k","ل":"l","م":"m","ن":"n","ه":"h","و":"w","ي":"y"};
+const HK={fatha:'\u064E',kasra:'\u0650',damma:'\u064F',sukoon:'\u0652',shadda:'\u0651',fathatan:'\u064B',kasratan:'\u064D',dammatan:'\u064C'};
+const HGUIDE=[
+ [HK.fatha,'Fatha','short "a" (like "cat")','بَ = ba'],
+ [HK.kasra,'Kasra','short "i" (like "sit")','بِ = bi'],
+ [HK.damma,'Damma','short "u" (like "put")','بُ = bu'],
+ [HK.sukoon,'Sukoon','no vowel — the letter closes the syllable','أَبْ = ab'],
+ [HK.shadda,'Shadda','doubles the letter (say it twice)','بَّ = bba'],
+ [HK.fathatan,'Fathatan','"an" at the end of a word','بًا = ban'],
+ [HK.kasratan,'Kasratan','"in" at the end of a word','بٍ = bin'],
+ [HK.dammatan,'Dammatan','"un" at the end of a word','بٌ = bun'],
+ ['\u064E\u0627','Fatha + Alif','long "aa"','بَا = baa'],
+ ['\u0650\u064A','Kasra + Ya','long "ee"','بِي = bee'],
+ ['\u064F\u0648','Damma + Waw','long "oo"','بُو = boo']];
+function syllables(level){
+  const out=[];
+  Object.keys(SND).forEach(c=>{
+    const s=SND[c];
+    out.push({g:c+HK.fatha,s:s+'a',lv:1},{g:c+HK.kasra,s:s+'i',lv:1},{g:c+HK.damma,s:s+'u',lv:1});
+    out.push({g:c+HK.fatha+'ا',s:s+'aa',lv:2},{g:c+HK.kasra+'ي',s:s+'ee',lv:2},{g:c+HK.damma+'و',s:s+'oo',lv:2});
+    out.push({g:c+HK.fathatan,s:s+'an',lv:3},{g:c+HK.kasratan,s:s+'in',lv:3},{g:c+HK.dammatan,s:s+'un',lv:3});
+    out.push({g:c+HK.shadda+HK.fatha,s:s+s+'a',lv:4},{g:'أَ'+c+HK.sukoon,s:'a'+s,lv:4});
+  });
+  return out.filter(x=>x.lv<=level);
+}
+const WORDS=[["كَتَبَ","kataba","he wrote"],["كِتَابٌ","kitaabun","a book"],["مَدْرَسَةٌ","madrasatun","a school"],["بَيْتٌ","baytun","a house"],["وَلَدٌ","waladun","a boy"],["بِنْتٌ","bintun","a girl"],["شَمْسٌ","shamsun","sun"],["قَمَرٌ","qamarun","moon"],["مَاءٌ","maa'un","water"],["رَجُلٌ","rajulun","a man"],["قَلَمٌ","qalamun","a pen"],["بَابٌ","baabun","a door"],["يَدٌ","yadun","a hand"],["عَيْنٌ","'aynun","an eye"],["أُمٌّ","ummun","a mother"],["أَبٌ","abun","a father"],["أَخٌ","akhun","a brother"],["جَمَلٌ","jamalun","a camel"],["سَمَكٌ","samakun","a fish"],["كَلْبٌ","kalbun","a dog"],["قِطَّةٌ","qittatun","a cat"],["شَجَرَةٌ","shajaratun","a tree"],["وَرْدَةٌ","wardatun","a rose"],["نُورٌ","nuurun","light"],["دَرْسٌ","darsun","a lesson"],["عِلْمٌ","'ilmun","knowledge"],["حُبٌّ","hubbun","love"],["سَلَامٌ","salaamun","peace"],["رَبٌّ","rabbun","a lord"],["مَسْجِدٌ","masjidun","a mosque"],["صَلَاةٌ","salaatun","prayer"],["قُرْآنٌ","qur'aanun","a Quran"],["خُبْزٌ","khubzun","bread"],["لَبَنٌ","labanun","milk"],["تُفَّاحَةٌ","tuffaahatun","an apple"],["سَيَّارَةٌ","sayyaaratun","a car"],["طَالِبٌ","taalibun","a student"],["مُعَلِّمٌ","mu'allimun","a teacher"],["ذَهَبَ","dhahaba","he went"],["جَلَسَ","jalasa","he sat"],["فَتَحَ","fataha","he opened"],["سَمِعَ","sami'a","he heard"],["رَجَعَ","raja'a","he returned"],["يَكْتُبُ","yaktubu","he writes"],["يَذْهَبُ","yadhhabu","he goes"],["يَقْرَأُ","yaqra'u","he reads"]];
+function swapVowels(t){
+  const idxs=[];[...t].forEach((c,i)=>{if('aiu'.includes(c))idxs.push(i)});
+  const set=new Set();let tries=0;
+  while(set.size<3&&tries++<40){
+    const ch=[...t];const k=rnd(idxs);const v=ch[k];
+    ch[k]=rnd('aiu'.split('').filter(x=>x!==v));
+    if(Math.random()<.3&&idxs.length>1){const k2=rnd(idxs);if(k2!==k)ch[k2]=rnd('aiu'.split('').filter(x=>x!==ch[k2]))}
+    const r=ch.join('');if(r!==t)set.add(r);
+  }
+  return [...set];
+}
+let hLevel=2;
+function hLearn(){
+  view.innerHTML=`<div class="card"><h2 style="margin-top:0">How to read with harakat</h2>
+  <div class="note" style="font-size:15px;opacity:1">Harakat are the small marks above or below a letter. They tell you which vowel to read. Learn each mark, then practise with the games.</div>
+  <div class="forms" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${HGUIDE.map(h=>`<div><span class="ar" style="font-size:54px">ـ${h[0]}</span><b>${h[1]}</b><small>${h[2]}</small><small class="ar" style="font-size:22px">${h[3].split(' = ')[0]}</small><small>${h[3].split(' = ')[1]}</small></div>`).join('')}</div>
+  <div class="note">Steps to read any word: 1) Read each letter's sound. 2) Add the vowel mark. 3) A sukoon means no vowel. 4) A shadda means doubled. 5) Join the syllables smoothly.</div>
+  <div class="row"><button id="go1">Start: Read the syllable ➜</button></div></div>`;
+  document.getElementById('go1').onclick=()=>document.querySelector('#letters .tabs button[data-m=h1]').click();
+}
+function lvlPicker(){
+  return `<div class="opts">Level: ${[[1,'1 · Short vowels'],[2,'2 · + Long vowels'],[3,'3 · + Tanween'],[4,'4 · + Shadda & Sukoon']].map(l=>`<label><input type="radio" name="lv" value="${l[0]}" ${hLevel===l[0]?'checked':''}> ${l[1]}</label>`).join('')}</div>`;
+}
+function hGame(){
+  locked=false;
+  let q,opts,okVal;
+  if(mode==='h3'){
+    const w=rnd(WORDS);
+    q=`<div class="q">Read this word</div><div class="ar big" style="font-size:80px">${w[0]}</div><div class="note">Meaning: ${w[2]}</div>`;
+    opts=shuffle([w[1],...swapVowels(w[1])]).map(v=>({label:v,v,cls:'names'}));okVal=w[1];
+  } else {
+    const all=syllables(hLevel),sy=rnd(all);
+    if(mode==='h1'){
+      q=`<div class="q">How do you read this?</div><div class="ar big">${sy.g}</div>`;
+      const others=shuffle(all.filter(x=>x.s!==sy.s&&(x.g[0]===sy.g[0]||Math.random()<.5)));
+      const set=[sy.s];others.forEach(o=>{if(set.length<4&&!set.includes(o.s))set.push(o.s)});
+      opts=shuffle(set).map(v=>({label:v,v,cls:'names'}));okVal=sy.s;
+    } else {
+      q=`<div class="q">Which one is <span class="tag">${sy.s}</span> ?</div>`;
+      const others=shuffle(all.filter(x=>x.s!==sy.s&&(x.s[0]===sy.s[0]||x.g[0]===sy.g[0]||Math.random()<.4)));
+      const set=[sy.g];others.forEach(o=>{if(set.length<4&&!set.includes(o.g))set.push(o.g)});
+      opts=shuffle(set).map(v=>({label:v,v,cls:'ar'}));okVal=sy.g;
+    }
+  }
+  view.innerHTML=`<div class="card"><div class="stat"><span>⭐ ${score}/${total}</span><span>🔥 ${streak}</span><span>🏆 ${best}</span></div>${q}
+    <div class="grid">${opts.map((o,i)=>`<button class="${o.cls}" data-i="${i}">${o.label}</button>`).join('')}</div><div class="msg" id="msg"></div></div>
+    ${mode==='h3'?'':`<div class="card">${lvlPicker()}</div>`}`;
+  view.querySelectorAll('input[name=lv]').forEach(r=>r.onchange=()=>{hLevel=+r.value;hGame()});
+  view.querySelectorAll('.grid button').forEach(b=>b.onclick=()=>{
+    if(locked)return;locked=true;total++;
+    const good=opts[+b.dataset.i].v===okVal,msg=document.getElementById('msg'),m0=mode;
+    view.querySelectorAll('.grid button').forEach((bb,i)=>{if(opts[i].v===okVal)bb.classList.add('ok')});
+    if(good){score++;streak++;best=Math.max(best,streak);localStorage.arBest=best;msg.textContent='✅ Correct!'}
+    else{b.classList.add('bad');streak=0;msg.textContent='❌ It is: '+okVal}
+    setTimeout(()=>{if(mode===m0)hGame()},good?800:1800);
+  });
+}
+
+/* ===== Duas & Salah ===== */
+const FATIHA={"ar":"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ الْحَمْدُ لِلَّهِ رَبِّ الْعَٰلَمِينَ الرَّحْمَٰنِ الرَّحِيمِ مَٰلِكِ يَوْمِ الدِّينِ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ اهْدِنَا الصِّرَٰطَ الْمُسْتَقِيمَ صِرَٰطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّآلِّينَ","tr":"Bismillaahir Rahmaanir Raheem Alhamdu lillaahi Rabbil 'aalameen Ar-Rahmaanir-Raheem Maaliki Yawmid-Deen Iyyaaka na'budu wa lyyaaka nasta'een Ihdinas-Siraatal-Mustaqeem Siraatal-lazeena an'amta 'alaihim ghayril-maghdoobi 'alaihim wa lad-daaalleen","en":"In the name of Allah, the Entirely Merciful, the Especially Merciful. [All] praise is [due] to Allah, Lord of the worlds - The Entirely Merciful, the Especially Merciful, Sovereign of the Day of Recompense. It is You we worship and You we ask for help. Guide us to the straight path - The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray."};
+const DUAS=[
+{c:'salah',t:'Takbir (start of prayer)',when:'Opening the prayer',ar:'اللَّهُ أَكْبَرُ',tr:'Allaahu akbar',en:'Allah is the Greatest.'},
+{c:'salah',t:'Thana (opening supplication)',when:'After the first takbir, standing',ar:'سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلَا إِلَهَ غَيْرُكَ',tr:"Subhaanakal-laahumma wa bihamdika wa tabaarakasmuka wa ta'aalaa jadduka wa laa ilaaha ghayruk",en:'Glory and praise to You, O Allah. Blessed is Your name, exalted is Your majesty, and there is no god but You.'},
+{c:'salah',t:"Ta'awwudh",when:'Before reciting in the first rak\'ah',ar:'أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ',tr:"A'oodhu billaahi minash-shaytaanir-rajeem",en:'I seek refuge in Allah from the accursed Satan.'},
+{c:'salah',t:'Bismillah',when:'Before Al-Fatiha and before each surah',ar:'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',tr:'Bismillaahir-rahmaanir-raheem',en:'In the name of Allah, the Most Gracious, the Most Merciful.'},
+{c:'salah',t:'Surah Al-Fatiha',when:'Every rak\'ah, standing',ar:FATIHA.ar,tr:FATIHA.tr,en:FATIHA.en},
+{c:'salah',t:'Tasbih of Ruku',when:'In ruku (bowing)',ar:'سُبْحَانَ رَبِّيَ الْعَظِيمِ',tr:"Subhaana rabbiyal-'azeem",en:'Glory to my Lord, the Magnificent.'},
+{c:'salah',t:"Rising from Ruku (Tasmee')",when:'Rising from ruku',ar:'سَمِعَ اللَّهُ لِمَنْ حَمِدَهُ',tr:"Sami'allaahu liman hamidah",en:'Allah hears the one who praises Him.'},
+{c:'salah',t:'Tahmeed (while standing up)',when:'After rising from ruku',ar:'رَبَّنَا لَكَ الْحَمْدُ',tr:'Rabbanaa lakal-hamd',en:'Our Lord, all praise is for You.'},
+{c:'salah',t:'Tasbih of Sujood',when:'In sujood (prostration)',ar:'سُبْحَانَ رَبِّيَ الْأَعْلَى',tr:"Subhaana rabbiyal-a'laa",en:'Glory to my Lord, the Most High.'},
+{c:'salah',t:'Between the two sujood',when:'Sitting between two prostrations',ar:'رَبِّ اغْفِرْ لِي',tr:'Rabbigh-fir lee',en:'My Lord, forgive me.'},
+{c:'salah',t:'Tashahhud (At-Tahiyyat)',when:'Sitting after two rak\'ahs and at the end',ar:'التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ',tr:"At-tahiyyaatu lillaahi was-salawaatu wat-tayyibaat. As-salaamu 'alayka ayyuhan-nabiyyu wa rahmatullaahi wa barakaatuh. As-salaamu 'alaynaa wa 'alaa 'ibaadillaahis-saaliheen. Ash-hadu al-laa ilaaha illallaah wa ash-hadu anna Muhammadan 'abduhu wa rasooluh",en:'All greetings, prayers and good things are for Allah. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous servants of Allah. I bear witness that there is no god but Allah, and I bear witness that Muhammad is His servant and messenger.'},
+{c:'salah',t:'Durood Ibrahimi',when:'After the Tashahhud in the last sitting',ar:'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ اللَّهُمَّ بَارِكْ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ',tr:"Allaahumma salli 'alaa Muhammadin wa 'alaa aali Muhammad, kamaa sallayta 'alaa Ibraaheema wa 'alaa aali Ibraaheem, innaka hameedun majeed. Allaahumma baarik 'alaa Muhammadin wa 'alaa aali Muhammad, kamaa baarakta 'alaa Ibraaheema wa 'alaa aali Ibraaheem, innaka hameedun majeed",en:'O Allah, send prayers upon Muhammad and the family of Muhammad as You sent prayers upon Ibrahim and the family of Ibrahim; You are Praiseworthy and Glorious. O Allah, bless Muhammad and the family of Muhammad as You blessed Ibrahim and the family of Ibrahim; You are Praiseworthy and Glorious.'},
+{c:'salah',t:'Dua before Salam (1)',when:'After Durood, before the salam',ar:'رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ',tr:"Rabbanaa aatinaa fid-dunyaa hasanatan wa fil-aakhirati hasanatan wa qinaa 'adhaaban-naar",en:'Our Lord, give us good in this world and good in the Hereafter, and protect us from the punishment of the Fire.'},
+{c:'salah',t:'Dua before Salam (2)',when:'After Durood, before the salam',ar:'رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِنْ ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ رَبَّنَا اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ',tr:"Rabbij-'alnee muqeemas-salaati wa min dhurriyyatee, rabbanaa wa taqabbal du'aa'. Rabbanagh-fir lee wa liwaalidayya wa lil-mu'mineena yawma yaqoomul-hisaab",en:'My Lord, make me an establisher of prayer, and from my descendants. Our Lord, accept my supplication. Our Lord, forgive me, my parents and the believers on the Day the account is established.'},
+{c:'salah',t:'Salam (ending the prayer)',when:'Turning right then left to end the prayer',ar:'السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّهِ',tr:"As-salaamu 'alaykum wa rahmatullaah",en:'Peace and the mercy of Allah be upon you.'},
+{c:'salah',t:'Dua Qunoot (Witr)',when:'In the third rak\'ah of Witr',ar:'اللَّهُمَّ إِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ وَنُؤْمِنُ بِكَ وَنَتَوَكَّلُ عَلَيْكَ وَنُثْنِي عَلَيْكَ الْخَيْرَ وَنَشْكُرُكَ وَلَا نَكْفُرُكَ وَنَخْلَعُ وَنَتْرُكُ مَنْ يَفْجُرُكَ اللَّهُمَّ إِيَّاكَ نَعْبُدُ وَلَكَ نُصَلِّي وَنَسْجُدُ وَإِلَيْكَ نَسْعَى وَنَحْفِدُ وَنَرْجُو رَحْمَتَكَ وَنَخْشَى عَذَابَكَ إِنَّ عَذَابَكَ بِالْكُفَّارِ مُلْحِقٌ',tr:"Allaahumma innaa nasta'eenuka wa nastaghfiruka wa nu'minu bika wa natawakkalu 'alayka wa nuthnee 'alaykal-khayra wa nashkuruka wa laa nakfuruka wa nakhla'u wa natruku man yafjuruk. Allaahumma iyyaaka na'budu wa laka nusallee wa nasjudu wa ilayka nas'aa wa nahfidu wa narjoo rahmataka wa nakhshaa 'adhaabaka inna 'adhaabaka bil-kuffaari mulhiq",en:'O Allah, we seek Your help and Your forgiveness, we believe in You and rely on You, we praise You with all good and thank You and are not ungrateful. We cast off and leave whoever disobeys You. O Allah, You alone we worship, to You we pray and prostrate, to You we hasten and strive, we hope for Your mercy and fear Your punishment. Your punishment will surely reach the disbelievers.'},
+{c:'salah',t:'Tasbih after prayer',when:'After finishing the prayer',ar:'سُبْحَانَ اللَّهِ وَالْحَمْدُ لِلَّهِ وَاللَّهُ أَكْبَرُ',tr:'Subhaanallaah, wal-hamdu lillaah, wallaahu akbar',en:'Glory be to Allah, praise be to Allah, Allah is the Greatest.'},
+{c:'salah',t:'Istighfar after prayer',when:'Right after the salam',ar:'أَسْتَغْفِرُ اللَّهَ',tr:'Astaghfirullaah',en:'I seek forgiveness from Allah.'},
+{c:'daily',t:'Waking up',when:'When waking from sleep',ar:'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ',tr:"Alhamdu lillaahil-ladhee ahyaanaa ba'da maa amaatanaa wa ilayhin-nushoor",en:'Praise be to Allah who gave us life after causing us to die, and to Him is the resurrection.'},
+{c:'daily',t:'Before sleeping',when:'When going to sleep',ar:'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',tr:'Bismikallaahumma amootu wa ahyaa',en:'In Your name, O Allah, I die and I live.'},
+{c:'daily',t:'Before eating',when:'Before eating or drinking',ar:'بِسْمِ اللَّهِ',tr:'Bismillaah',en:'In the name of Allah.'},
+{c:'daily',t:'After eating',when:'After finishing a meal',ar:'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ',tr:"Alhamdu lillaahil-ladhee at'amanaa wa saqaanaa wa ja'alanaa muslimeen",en:'Praise be to Allah who fed us, gave us drink and made us Muslims.'},
+{c:'daily',t:'Entering the masjid',when:'Entering the mosque',ar:'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',tr:'Allaahummaf-tah lee abwaaba rahmatik',en:'O Allah, open for me the doors of Your mercy.'},
+{c:'daily',t:'Leaving the masjid',when:'Leaving the mosque',ar:'اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ',tr:"Allaahumma innee as'aluka min fadlik",en:'O Allah, I ask You of Your bounty.'},
+{c:'daily',t:'Leaving the house',when:'Stepping out of the home',ar:'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',tr:"Bismillaah, tawakkaltu 'alallaah, wa laa hawla wa laa quwwata illaa billaah",en:'In the name of Allah, I put my trust in Allah; there is no power and no strength except with Allah.'},
+{c:'daily',t:'Increase in knowledge',when:'Asking for knowledge',ar:'رَبِّ زِدْنِي عِلْمًا',tr:"Rabbi zidnee 'ilmaa",en:'My Lord, increase me in knowledge.'},
+{c:'daily',t:'Ease and open the heart',when:'Before a task, study or speaking',ar:'رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي',tr:'Rabbish-rah lee sadree wa yassir lee amree',en:'My Lord, expand my chest and ease my task for me.'},
+{c:'daily',t:'Dua of Adam (repentance)',when:'Asking forgiveness and mercy',ar:'رَبَّنَا ظَلَمْنَا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ',tr:"Rabbanaa zalamnaa anfusanaa wa in lam taghfir lanaa wa tarhamnaa lanakoonanna minal-khaasireen",en:'Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy on us, we will surely be among the losers.'},
+{c:'daily',t:'Dua of Yunus (distress)',when:'In hardship and distress',ar:'لَا إِلَهَ إِلَّا أَنْتَ سُبْحَانَكَ إِنِّي كُنْتُ مِنَ الظَّالِمِينَ',tr:'Laa ilaaha illaa anta subhaanaka innee kuntu minaz-zaalimeen',en:'There is no god but You; glory be to You. Indeed, I have been among the wrongdoers.'},
+{c:'daily',t:'Steadfast hearts',when:'Asking for guidance',ar:'رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً إِنَّكَ أَنْتَ الْوَهَّابُ',tr:"Rabbanaa laa tuzigh quloobanaa ba'da idh hadaytanaa wa hab lanaa min ladunka rahmatan innaka antal-wahhaab",en:'Our Lord, do not let our hearts deviate after You have guided us, and grant us mercy from Yourself. You are the Bestower.'},
+{c:'daily',t:'Righteous family',when:'Asking for a righteous family',ar:'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا',tr:"Rabbanaa hab lanaa min azwaajinaa wa dhurriyyaatinaa qurrata a'yunin waj'alnaa lilmuttaqeena imaamaa",en:'Our Lord, grant us from our spouses and offspring comfort to our eyes, and make us leaders for the righteous.'},
+{c:'daily',t:'Hasbunallah (reliance)',when:'Relying on Allah',ar:'حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ',tr:"Hasbiyallaahu laa ilaaha illaa huwa 'alayhi tawakkaltu wa huwa rabbul-'arshil-'azeem",en:'Allah is sufficient for me; there is no god but Him. In Him I trust, and He is the Lord of the Mighty Throne.'},
+{c:'daily',t:'La hawla wa la quwwata',when:'In difficulty, or any time',ar:'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',tr:'Laa hawla wa laa quwwata illaa billaah',en:'There is no power and no strength except with Allah.'},
+{c:'daily',t:'Dua of Musa (need)',when:'Asking Allah for any good',ar:'رَبِّ إِنِّي لِمَا أَنْزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ',tr:'Rabbi innee limaa anzalta ilayya min khayrin faqeer',en:'My Lord, I am in need of whatever good You send down to me.'},
+{c:'daily',t:'Pardon (Laylatul Qadr)',when:'Asking for forgiveness, especially in Ramadan',ar:'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',tr:"Allaahumma innaka 'afuwwun tuhibbul-'afwa fa'fu 'annee",en:'O Allah, You are the Pardoner and love to pardon, so pardon me.'}
+];
+const D={cat:'all',open:null,m:'read',tr:true,en:true,sc:0,tot:0,stage:0,nb:1,hidden:new Set(),tk:0,done:JSON.parse(localStorage.dDone||'{}')};
+const dEl=document.getElementById('duas');
+const dList=()=>DUAS.filter(d=>D.cat==='all'||d.c===D.cat);
+const dCur=()=>DUAS.find(x=>x.t===D.open);
+const later=(f,ms)=>{const k=D.tk;setTimeout(()=>{if(k===D.tk)f()},ms)};
+function speak(txt){
+  if(!('speechSynthesis'in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt.replace(/[\u0640]/g,''));u.lang='ar-SA';u.rate=.7;
+  speechSynthesis.speak(u);
+}
+const dExtra=d=>(D.tr?`<div class="tr" style="color:#9fd4ff;font-style:italic;margin-top:6px">${d.tr}</div>`:'')+(D.en?`<div class="en" style="margin-top:4px">${d.en}</div>`:'');
+const dSpeakBtn=()=>('speechSynthesis'in window)?'<button data-speak>🔊 Hear (device voice)</button>':'';
+function dBindSpeak(d){dEl.querySelectorAll('[data-speak]').forEach(b=>b.onclick=()=>speak(d.ar))}
+const dBody=h=>{document.getElementById('dbody').innerHTML=h};
+const dMarkDone=d=>{D.done[d.t]=1;localStorage.dDone=JSON.stringify(D.done)};
+const dOtherWords=d=>{const mine=new Set(d.ar.split(' ').map(norm));return [...new Set(DUAS.flatMap(x=>x.ar.split(' ')))].filter(w=>!mine.has(norm(w)))};
+const dModes=[['read','📖 Read'],['mem','🧠 Memorize'],['order','🧩 Word order'],['fill','✏ Fill the blanks'],['next','➡ Next word'],['init','🔤 First letters'],['recite','🗣 Recite & reveal'],['which','🎯 Which dua?'],['mix','🎲 Mixed challenge']];
+function dRender(){
+  D.tk++;
+  if(!D.open){
+    const list=dList();
+    dEl.innerHTML=`<div class="card"><h2 style="margin-top:0">Choose a dua</h2>
+    <div class="tabs" style="margin:0 0 8px">${[['all','All'],['salah','🕋 Duas in Salah'],['daily','🤲 Daily duas & munajat']].map(c=>`<button data-c="${c[0]}" class="${D.cat===c[0]?'on':''}">${c[1]}</button>`).join('')}</div>
+    <div class="note">Tap a dua to open it. All games then use only that dua.</div>
+    <div class="surahs" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${list.map((x,i)=>`<button data-i="${i}">${x.t}<br><i>${D.done[x.t]?'✔ memorized':''}</i></button>`).join('')}</div></div>`;
+    dEl.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{D.cat=b.dataset.c;dRender()});
+    dEl.querySelectorAll('.surahs [data-i]').forEach(b=>b.onclick=()=>{D.open=list[+b.dataset.i].t;D.m='read';D.sc=D.tot=0;D.stage=0;D.hidden=new Set();dRender()});
+    return;
+  }
+  const d=dCur();
+  dEl.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><button id="back">⬅ All duas</button><b>${d.t}</b><span>${D.done[d.t]?'✔ memorized':''}</span></div>
+    <div class="opts"><label><input type="checkbox" id="dTr" ${D.tr?'checked':''}> English spelling</label>
+    <label><input type="checkbox" id="dEn" ${D.en?'checked':''}> English meaning</label></div>
+    <div class="tabs" style="margin:6px 0 0">${dModes.map(m=>`<button data-m="${m[0]}" class="${D.m===m[0]?'on':''}">${m[1]}</button>`).join('')}</div></div>
+  <div id="dbody"></div>
+  <div class="note" style="text-align:center">Arabic is written with harakat. "Hear" uses your device's Arabic voice (if installed); there is no recorded audio for duas.</div>`;
+  document.getElementById('back').onclick=()=>{D.open=null;dRender()};
+  dEl.querySelectorAll('.tabs [data-m]').forEach(b=>b.onclick=()=>{D.m=b.dataset.m;D.sc=D.tot=0;D.stage=0;D.hidden=new Set();dRender()});
+  document.getElementById('dTr').onchange=e=>{D.tr=e.target.checked;dRender()};
+  document.getElementById('dEn').onchange=e=>{D.en=e.target.checked;dRender()};
+  dRun(D.m);
+}
+function dRun(m){({read:dRead,mem:dMem,order:dOrder,fill:dFill,next:dNext,init:dInit,recite:dRecite,which:dWhich,mix:dMix})[m]()}
+function dMix(){
+  const g=[dOrder,dFill,dNext,dWhich];rnd(g)();
+}
+const dNextBtn=f=>{const b=document.getElementById('nx');if(b)b.onclick=f};
+function dRead(){
+  const d=dCur();
+  dBody(`<div class="card"><h2 style="margin-top:0">${d.t}</h2><div class="note">When: ${d.when}</div>
+    <div class="ayah"><div class="ar" style="font-size:36px">${d.ar}</div>${dExtra(d)}</div><div class="row">${dSpeakBtn()}</div></div>`);
+  dBindSpeak(d);
+}
+function dMem(){
+  const d=dCur(),words=d.ar.split(' '),lv=[0,.34,.67,1][D.stage];
+  const key=d.t+'-'+D.stage;
+  if(D.hidden._k!==key){D.hidden=new Set(shuffle(words.map((_,i)=>i)).slice(0,Math.round(words.length*lv)));D.hidden._k=key}
+  dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>Level ${D.stage+1} / 4</span></div>
+    <div class="ar" style="font-size:34px">${words.map((w,i)=>D.hidden.has(i)?`<span class="hid" data-w>${w}</span>`:w).join(' ')}</div>${dExtra(d)}
+    <div class="note">${D.stage<3?'Say it aloud filling the hidden words. Tap a hidden word to peek.':'Recite everything from memory, then tap words to check.'}</div>
+    <div class="row">${dSpeakBtn()}<button id="e" ${D.stage?'':'disabled'}>⬅ Easier</button><button id="h">${D.stage<3?'Harder ➜':'✅ I recited it!'}</button></div></div>`);
+  dBindSpeak(d);
+  dEl.querySelectorAll('.hid').forEach(h=>h.onclick=()=>{h.style.color='';h.style.background='none'});
+  document.getElementById('e').onclick=()=>{D.stage--;dMem()};
+  document.getElementById('h').onclick=()=>{if(D.stage<3){D.stage++;dMem()}else{dMarkDone(d);D.stage=0;dRender()}};
+}
+function dOrder(){
+  const d=dCur(),words=d.ar.split(' ');
+  const size=words.length<=8?1:words.length<=16?2:3;
+  const chunks=[];for(let i=0;i<words.length;i+=size)chunks.push(words.slice(i,i+size).join(' '));
+  const n=Math.min(chunks.length,8),st=Math.floor(Math.random()*(chunks.length-n+1)),part=chunks.slice(st,st+n);
+  const bank=shuffle(part.map((w,i)=>({w,i})));let placed=[];
+  const draw=()=>{
+    dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>⭐ ${D.sc}/${D.tot}</span></div>
+      <div class="q">Put the pieces of the dua in order</div>${st>0?'<div class="note">(…continues from the middle of the dua)</div>':''}
+      <div class="note">${d.en}</div>
+      <div class="words slot">${placed.map(p=>`<button class="chip ar" data-r="${p.i}">${p.w}</button>`).join('')}</div>
+      <div class="words">${bank.filter(b=>!placed.includes(b)).map(b=>`<button class="chip ar" data-a="${b.i}">${b.w}</button>`).join('')}</div>
+      <div class="row"><button id="rs">↺ Reset</button><button id="sk">Skip ▶</button></div><div class="msg" id="msg"></div></div>`);
+    dEl.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{placed.push(bank.find(x=>x.i==b.dataset.a));draw();chk()});
+    dEl.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{placed=placed.filter(x=>x.i!=b.dataset.r);draw()});
+    document.getElementById('rs').onclick=()=>{placed=[];draw()};
+    document.getElementById('sk').onclick=()=>dRun(D.m);
+  };
+  const chk=()=>{
+    if(placed.length<part.length)return;D.tot++;
+    const ok=placed.every((p,k)=>p.w===part[k]),m=document.getElementById('msg');
+    if(ok){D.sc++;m.textContent='✅ Perfect!';dEl.querySelectorAll('.slot .chip').forEach(c=>c.classList.add('ok'));later(()=>dRun(D.m),1200)}
+    else m.textContent='❌ Not quite — tap a piece to remove it, or Reset.';
+  };
+  draw();
+}
+function dFill(){
+  const d=dCur(),words=d.ar.split(' ');
+  const cand=words.map((w,i)=>i).filter(i=>norm(words[i]).length>2);
+  const pool=cand.length?cand:words.map((_,i)=>i);
+  const nb=Math.min(D.nb,pool.length);
+  const blanks=shuffle(pool).slice(0,nb).sort((a,b)=>a-b);
+  const rights=blanks.map(i=>words[i]);
+  const other=shuffle(dOtherWords(d)).slice(0,2);
+  const bank=shuffle([...rights.map((w,k)=>({w,k})),...other.map((w,k)=>({w,k:-1-k}))]);
+  let filled=[];
+  const draw=()=>{
+    dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>⭐ ${D.sc}/${D.tot}</span></div><div class="q">Fill the missing word${nb>1?'s':''} in order</div>
+    <div class="opts">Blanks: ${[1,2,3].map(n=>`<button data-nb="${n}" class="${D.nb===n?'on':''}">${n}</button>`).join('')}</div>
+    <div class="ar" style="font-size:32px">${words.map((w,i)=>{const k=blanks.indexOf(i);return k<0?w:k<filled.length?`<span style="color:var(--ok,#7ee08a)">${filled[k].w}</span>`:'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'}).join(' ')}</div>${dExtra(d)}
+    <div class="grid">${bank.filter(b=>!filled.includes(b)).map(b=>`<button class="ar" data-o="${bank.indexOf(b)}" style="font-size:34px">${b.w}</button>`).join('')}</div>
+    <div class="row"><button id="rs">↺ Reset</button><button id="sk">Skip ▶</button></div><div class="msg" id="msg"></div></div>`);
+    dEl.querySelectorAll('[data-nb]').forEach(b=>b.onclick=()=>{D.nb=+b.dataset.nb;dFill()});
+    document.getElementById('rs').onclick=()=>{filled=[];draw()};
+    document.getElementById('sk').onclick=()=>dRun(D.m);
+    dEl.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+      const o=bank[+b.dataset.o],k=filled.length;D.tot++;
+      if(norm(o.w)===norm(rights[k])&&o.w===rights[k]){
+        filled.push(o);D.sc++;
+        if(filled.length===nb){draw();document.getElementById('msg').textContent='✅ Correct!';later(()=>dRun(D.m),1100)}else draw();
+      }else{b.classList.add('bad');document.getElementById('msg').textContent='❌ Not that one — try again';}
+    });
+  };
+  draw();
+}
+function dNext(){
+  const d=dCur(),words=d.ar.split(' ');
+  if(words.length<2){dBody('<div class="card">This dua is too short for this game.</div>');return}
+  const k=1+Math.floor(Math.random()*(words.length-1)),right=words[k];
+  const mine=shuffle(words.filter(w=>norm(w)!==norm(right)));
+  const dist=[...new Set([...mine.slice(0,2),...shuffle(dOtherWords(d)).slice(0,3)])].slice(0,3);
+  const opts=shuffle([right,...dist]);
+  dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>⭐ ${D.sc}/${D.tot}</span></div><div class="q">Which word comes next?</div>
+    <div class="ar" style="font-size:32px">${words.slice(Math.max(0,k-4),k).join(' ')} <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="grid">${opts.map(o=>`<button class="ar" data-o="${o}" style="font-size:34px">${o}</button>`).join('')}</div><div class="msg" id="msg"></div></div>`);
+  let lock=false;
+  dEl.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+    if(lock)return;lock=true;D.tot++;const good=b.dataset.o===right;
+    dEl.querySelectorAll('[data-o]').forEach(x=>{if(x.dataset.o===right)x.classList.add('ok')});
+    if(good){D.sc++;document.getElementById('msg').textContent='✅ Correct!'}else{b.classList.add('bad');document.getElementById('msg').textContent='❌ Not quite'}
+    later(()=>dRun(D.m),good?900:1800);
+  });
+}
+function dInit(){
+  const d=dCur(),words=d.ar.split(' ');
+  const ini=w=>{const ch=[...w];let s=ch[0];for(let i=1;i<ch.length&&/[\u064B-\u065F\u0670]/.test(ch[i]);i++)s+=ch[i];return s+' …'};
+  let shown=false;
+  const draw=()=>{
+    dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>⭐ ${D.sc}/${D.tot}</span></div>
+    <div class="q">Recite the dua from the first letters</div>
+    <div class="ar" style="font-size:32px">${words.map(w=>shown?w:ini(w)).join(' ')}</div>${shown?dExtra(d):''}
+    <div class="row">${dSpeakBtn()}${shown?'<button id="y">✅ I got it</button><button id="n">🔁 Need practice</button>':'<button id="rv">👁 Reveal</button>'}</div></div>`);
+    dBindSpeak(d);
+    const rv=document.getElementById('rv');if(rv)rv.onclick=()=>{shown=true;draw()};
+    const y=document.getElementById('y');if(y)y.onclick=()=>{D.sc++;D.tot++;dInit()};
+    const n=document.getElementById('n');if(n)n.onclick=()=>{D.tot++;dInit()};
+  };
+  draw();
+}
+function dRecite(){
+  const d=dCur(),words=d.ar.split(' ');let k=0;
+  const draw=()=>{
+    const fin=k>=words.length;
+    dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>⭐ ${D.sc}/${D.tot}</span></div>
+    <div class="q">Say the next word aloud, then tap to check yourself</div>
+    <div class="ar" style="font-size:32px">${words.slice(0,k).join(' ')} ${fin?'':'<span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>'}</div>${fin?dExtra(d):''}
+    <div class="row">${dSpeakBtn()}${fin?'<button id="y">✅ I knew it all</button><button id="n">🔁 Again</button>':'<button id="rv">Show next word</button><button id="all">Show all</button>'}</div></div>`);
+    dBindSpeak(d);
+    const rv=document.getElementById('rv');if(rv)rv.onclick=()=>{k++;draw()};
+    const al=document.getElementById('all');if(al)al.onclick=()=>{k=words.length;draw()};
+    const y=document.getElementById('y');if(y)y.onclick=()=>{D.sc++;D.tot++;dRecite()};
+    const n=document.getElementById('n');if(n)n.onclick=()=>{D.tot++;dRecite()};
+  };
+  draw();
+}
+function dWhich(){
+  const d=dCur(),type=Math.random()<.5?'en':'when';
+  const others=shuffle(DUAS.filter(x=>x!==d&&norm(x.ar)!==norm(d.ar))).slice(0,3);
+  const opts=shuffle([d,...others]);
+  dBody(`<div class="card"><div class="stat"><span>${d.t}</span><span>⭐ ${D.sc}/${D.tot}</span></div>
+    <div class="q">${type==='en'?'Which Arabic dua has this meaning?':'Which dua do we say when…'}</div>
+    <div class="ayah"><div class="en" style="font-size:18px">${type==='en'?d.en:d.when}</div></div>
+    <div class="grid" style="grid-template-columns:1fr">${opts.map((o,i)=>{const w=o.ar.split(' ');return `<button class="ar" style="font-size:26px;padding:12px" data-o="${i}">${w.slice(0,8).join(' ')}${w.length>8?' …':''}</button>`}).join('')}</div>
+    <div class="msg" id="msg"></div></div>`);
+  let lock=false;
+  dEl.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+    if(lock)return;lock=true;D.tot++;const good=opts[+b.dataset.o]===d;
+    dEl.querySelectorAll('[data-o]').forEach(x=>{if(opts[+x.dataset.o]===d)x.classList.add('ok')});
+    if(good){D.sc++;document.getElementById('msg').textContent='✅ Correct!'}else{b.classList.add('bad');document.getElementById('msg').textContent='❌ Not quite'}
+    later(()=>dRun(D.m),good?1000:2200);
+  });
+}
+
+/* ===== Writing letters: stroke guide with arrows + writing test ===== */
+const WS=300;let WFONT='"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif';
+const WCOL={ink:'#f5b942',guide:'rgba(120,170,230,.35)'};
+let wAnim=0;
+const WST={i:1,f:'isolated',glyph:{}};
+function glyphOf(i,f){return L[i].f[f]}
+// Render a glyph centered and fitted into a WSxWS canvas; returns binary mask
+function rasterGlyph(str){
+  const B0=900,big=document.createElement('canvas');big.width=big.height=B0;
+  const bx=big.getContext('2d');
+  bx.fillStyle='#000';bx.textBaseline='alphabetic';bx.textAlign='center';bx.direction='ltr';
+  bx.font='300px '+WFONT;bx.fillText(str,B0/2,B0*.6);
+  const bd=bx.getImageData(0,0,B0,B0).data;
+  let x0=B0,y0=B0,x1=-1,y1=-1;
+  for(let y=0;y<B0;y++)for(let x=0;x<B0;x++)if(bd[(y*B0+x)*4+3]>110){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  const c=document.createElement('canvas');c.width=c.height=WS;
+  const x=c.getContext('2d');
+  if(x1<0)return new Uint8Array(WS*WS);
+  const bw=x1-x0+1,bh=y1-y0+1,sc=Math.min(WS*.7/bw,WS*.7/bh,1);
+  x.imageSmoothingQuality='high';
+  x.drawImage(big,x0,y0,bw,bh,WS/2-bw*sc/2,WS/2-bh*sc/2,bw*sc,bh*sc);
+  const d=x.getImageData(0,0,WS,WS).data,mask=new Uint8Array(WS*WS);
+  for(let k=0;k<WS*WS;k++)mask[k]=d[k*4+3]>110?1:0;
+  return mask;
+}
+function thin(src){
+  const W=WS,H=WS,img=Uint8Array.from(src);
+  const nb=(x,y)=>[img[(y-1)*W+x],img[(y-1)*W+x+1],img[y*W+x+1],img[(y+1)*W+x+1],img[(y+1)*W+x],img[(y+1)*W+x-1],img[y*W+x-1],img[(y-1)*W+x-1]];
+  let changed=true,guard=0;
+  while(changed&&guard++<60){
+    changed=false;
+    for(let step=0;step<2;step++){
+      const del=[];
+      for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
+        if(!img[y*W+x])continue;
+        const p=nb(x,y);let B=0,A=0;
+        for(let k=0;k<8;k++){B+=p[k];if(!p[k]&&p[(k+1)%8])A++}
+        if(B<2||B>6||A!==1)continue;
+        if(step===0){if(p[0]*p[2]*p[4]||p[2]*p[4]*p[6])continue}
+        else{if(p[0]*p[2]*p[6]||p[0]*p[4]*p[6])continue}
+        del.push(y*W+x);
+      }
+      if(del.length){changed=true;del.forEach(k=>img[k]=0)}
+    }
+  }
+  return img;
+}
+function skelStrokes(mask){
+  const sk=thin(mask),W=WS;
+  const lab=new Int32Array(W*W),comps=[];
+  const N8=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];
+  for(let s=0;s<W*W;s++){
+    if(!sk[s]||lab[s])continue;
+    const id=comps.length+1,q=[s],px=[];lab[s]=id;
+    while(q.length){const k=q.pop();px.push(k);const x=k%W,y=(k/W)|0;
+      for(const[d0,d1]of N8){const nx=x+d0,ny=y+d1;if(nx<0||ny<0||nx>=W||ny>=W)continue;const n=ny*W+nx;if(sk[n]&&!lab[n]){lab[n]=id;q.push(n)}}}
+    comps.push(px);
+  }
+  const strokes=[],dots=[];
+  comps.forEach(px=>{
+    if(px.length<14){
+      let sx=0,sy=0;px.forEach(k=>{sx+=k%W;sy+=(k/W)|0});dots.push({x:sx/px.length,y:sy/px.length,r:px.length});
+    } else strokes.push(px);
+  });
+  strokes.sort((a,b)=>b.length-a.length);
+  const segsAll=[];
+  strokes.forEach(px=>{
+    const set=new Set(px),vis=new Set();
+    const nbrs=k=>{const x=k%W,y=(k/W)|0,r=[];for(const[d0,d1]of N8){const n=(y+d1)*W+x+d0;if(set.has(n))r.push(n)}return r};
+    let start=null,bs=-1e9;
+    px.forEach(k=>{if(nbrs(k).length===1){const sc=(k%W)*1000-((k/W)|0);if(sc>bs){bs=sc;start=k}}});
+    if(start===null)px.forEach(k=>{const sc=(k%W)*1000-((k/W)|0);if(sc>bs){bs=sc;start=k}});
+    const segs=[],stack=[start];vis.add(start);let seg=[start];
+    while(stack.length){
+      const cur=stack[stack.length-1];
+      const un=nbrs(cur).filter(n=>!vis.has(n));
+      if(un.length){
+        un.sort((a,b)=>((a%W)+((a/W)|0)*.4)-((b%W)+((b/W)|0)*.4));
+        const n=un[0];vis.add(n);stack.push(n);seg.push(n);
+      } else {
+        stack.pop();
+        if(seg.length>1)segs.push(seg);
+        // resume from the nearest earlier node that still has unvisited neighbours
+        while(stack.length&&!nbrs(stack[stack.length-1]).some(n=>!vis.has(n)))stack.pop();
+        seg=stack.length?[stack[stack.length-1]]:[];
+        if(!stack.length)break;
+      }
+    }
+    segs.filter(s=>s.length>=9).forEach(s=>segsAll.push(s.map(k=>[k%W,(k/W)|0])));
+  });
+  dots.sort((a,b)=>b.x-a.x);
+  return {segs:segsAll,dots};
+}
+function drawArrow(x,pa,pb,col){
+  const ang=Math.atan2(pb[1]-pa[1],pb[0]-pa[0]),L1=13;
+  x.save();x.translate(pb[0],pb[1]);x.rotate(ang);x.fillStyle=col;
+  x.beginPath();x.moveTo(L1,0);x.lineTo(-L1*.4,-L1*.7);x.lineTo(-L1*.4,L1*.7);x.closePath();x.fill();x.restore();
+}
+function drawGuide(cv,glyphStr,info,prog){
+  const x=cv.getContext('2d');
+  x.clearRect(0,0,WS,WS);
+  x.fillStyle='#12304f';x.fillRect(0,0,WS,WS);
+  x.font='';x.fillStyle=WCOL.guide;
+  // guide glyph
+  const m=glyphMask(glyphStr);
+  const im=x.getImageData(0,0,WS,WS);
+  for(let k=0;k<WS*WS;k++)if(m[k]){im.data[k*4]=100;im.data[k*4+1]=140;im.data[k*4+2]=190;im.data[k*4+3]=255}
+  x.putImageData(im,0,0);
+  const total=info.segs.reduce((a,s)=>a+s.length,0)+info.dots.length*14;
+  let budget=prog*total,step=1;
+  x.lineCap='round';x.lineJoin='round';
+  info.segs.forEach(s=>{
+    const n=Math.min(s.length,Math.max(0,Math.floor(budget)));budget-=s.length;
+    if(n>=2){
+      x.strokeStyle=WCOL.ink;x.lineWidth=5;x.beginPath();x.moveTo(s[0][0],s[0][1]);
+      for(let k=1;k<n;k++)x.lineTo(s[k][0],s[k][1]);x.stroke();
+      for(let k=40;k<n;k+=55){drawArrow(x,s[Math.max(0,k-5)],s[Math.min(s.length-1,k+3)],'#ff7a59')}
+      if(n>=s.length&&s.length>12)drawArrow(x,s[s.length-9],s[s.length-1],'#ff7a59');
+      // step badge
+      if(s.length>=25){
+        x.fillStyle='#fff';x.beginPath();x.arc(s[0][0],s[0][1],11,0,7);x.fill();
+        x.fillStyle='#222';x.font='bold 13px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(step,s[0][0],s[0][1]);
+      }
+    }
+    if(s.length>=25)step++;
+  });
+  info.dots.forEach(d=>{
+    budget-=14;
+    if(budget>-14){
+      x.fillStyle=WCOL.ink;x.beginPath();x.arc(d.x,d.y,8,0,7);x.fill();
+      x.fillStyle='#222';x.font='bold 12px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(step,d.x,d.y);
+    }
+    step++;
+  });
+}
+const maskCache={};
+function glyphMask(s){return maskCache[s]||(maskCache[s]=rasterGlyph(s))}
+const infoCache={};
+function glyphInfo(s){return infoCache[s]||(infoCache[s]=skelStrokes(glyphMask(s)))}
+function wChooser(){
+  return `<div class="lettergrid">${L.map((l,i)=>`<button class="ar ${WST.i===i?'sel':''}" data-wi="${i}">${l.c}</button>`).join('')}</div>
+  <div class="row">${FORMS.map(f=>`<button data-wf="${f}" class="${WST.f===f?'on':''}" style="${WST.f===f?'background:var(--acc);color:#222':''}">${LBL[f]}</button>`).join('')}</div>`;
+}
+function wLearn(){
+  const l=L[WST.i],g=glyphOf(WST.i,WST.f);
+  view.innerHTML=`<div class="card"><h2 style="margin:0">How to write: <span class="ar" style="font-size:42px">${l.c}</span> ${l.n} — ${LBL[WST.f]}</h2>
+    <div class="note">Start at the numbered <b>1</b> circle and follow the arrows. Arabic is written from <b>right to left</b>; dots are added last. The guide is generated from the letter shape, so the stroke path is approximate.</div>
+    ${!l.j&&(WST.f==='initial'||WST.f==='medial')?'<div class="note">⚠ This letter does not join to the next letter, so this form looks the same as the '+(WST.f==='initial'?'isolated':'ending')+' form.</div>':''}
+    <canvas id="wc" width="${WS}" height="${WS}" style="width:100%;max-width:340px;border-radius:12px;margin-top:10px"></canvas>
+    <div class="row"><button id="wr">▶ Replay</button><button id="wp">◀ Previous</button><button id="wn">Next ▶</button></div></div>
+    <div class="card">${wChooser()}</div>`;
+  const cv=document.getElementById('wc'),info=glyphInfo(g),tok=++wAnim,t0=performance.now(),dur=Math.max(1800,Math.min(5000,info.segs.reduce((a,s)=>a+s.length,0)*14));
+  const frame=now=>{
+    if(tok!==wAnim||!document.body.contains(cv))return;
+    const p=Math.min(1,(now-t0)/dur);drawGuide(cv,g,info,p);
+    if(p<1)requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+  document.getElementById('wr').onclick=wLearn;
+  const step=d=>{WST.i=(WST.i+d+L.length)%L.length;wLearn()};
+  document.getElementById('wp').onclick=()=>step(-1);document.getElementById('wn').onclick=()=>step(1);
+  view.querySelectorAll('[data-wi]').forEach(b=>b.onclick=()=>{WST.i=+b.dataset.wi;wLearn()});
+  view.querySelectorAll('[data-wf]').forEach(b=>b.onclick=()=>{WST.f=b.dataset.wf;wLearn()});
+}
+/* Writing test */
+let wT={i:0,f:'isolated',hint:true,strokes:[],sc:0,tot:0,checked:false};
+function wNewTarget(){
+  const ps=poolArr().length?[...pool]:L.map((_,i)=>i);
+  wT.i=rnd(ps);wT.f=rnd(FORMS);wT.strokes=[];wT.checked=false;
+}
+function wTest(){
+  ++wAnim;
+  const l=L[wT.i],g=glyphOf(wT.i,wT.f);
+  view.innerHTML=`<div class="card"><div class="stat"><span>⭐ ${wT.sc}/${wT.tot}</span><span id="wpct"></span></div>
+    <div class="q">Write the <span class="tag">${LBL[wT.f]}</span> form of <b>${l.n}</b> <span class="ar" style="font-size:30px">(${l.c})</span></div>
+    <canvas id="wd" width="${WS}" height="${WS}" style="width:100%;max-width:340px;border-radius:12px;touch-action:none;background:#12304f;cursor:crosshair"></canvas>
+    <div class="opts"><label><input type="checkbox" id="wh" ${wT.hint?'checked':''}> Show faint guide</label></div>
+    <div class="row"><button id="wcl">🧹 Clear</button><button id="wu">↩ Undo</button><button id="wck">✔ Check</button><button id="wnx">Next ▶</button></div>
+    <div class="msg" id="msg"></div>
+    <div class="note">Draw the whole letter (with dots) large, with your finger or mouse. The check compares your shape with the real letter, ignoring exact size and position.</div></div>
+    <div class="card">${poolPicker()}</div>`;
+  bindPicker2();
+  const cv=document.getElementById('wd'),x=cv.getContext('2d');
+  const redraw=(overlay)=>{
+    x.fillStyle='#12304f';x.fillRect(0,0,WS,WS);
+    if(wT.hint||overlay){const m=glyphMask(g),im=x.getImageData(0,0,WS,WS);
+      for(let k=0;k<WS*WS;k++)if(m[k]){im.data[k*4]=overlay?62:90;im.data[k*4+1]=overlay?207:130;im.data[k*4+2]=overlay?142:180;im.data[k*4+3]=255}
+      x.putImageData(im,0,0)}
+    x.strokeStyle='#fff';x.lineWidth=9;x.lineCap='round';x.lineJoin='round';
+    wT.strokes.forEach(s=>{x.beginPath();x.moveTo(s[0][0],s[0][1]);s.forEach(p=>x.lineTo(p[0],p[1]));if(s.length===1)x.lineTo(s[0][0]+.1,s[0][1]);x.stroke()});
+    document.getElementById('wpct').textContent=wT.strokes.length?liveCov(g,wT.strokes):'';
+  };
+  redraw();
+  let drawing=false;
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*WS/r.width,(e.clientY-r.top)*WS/r.height]};
+  cv.onpointerdown=e=>{if(wT.checked)return;drawing=true;cv.setPointerCapture(e.pointerId);wT.strokes.push([pos(e)]);redraw()};
+  cv.onpointermove=e=>{if(!drawing)return;wT.strokes[wT.strokes.length-1].push(pos(e));redraw()};
+  cv.onpointerup=cv.onpointercancel=()=>{drawing=false};
+  document.getElementById('wh').onchange=e=>{wT.hint=e.target.checked;redraw()};
+  document.getElementById('wcl').onclick=()=>{wT.strokes=[];wT.checked=false;document.getElementById('msg').textContent='';redraw()};
+  document.getElementById('wu').onclick=()=>{if(!wT.checked){wT.strokes.pop();redraw()}};
+  document.getElementById('wnx').onclick=()=>{wNewTarget();wTest()};
+  document.getElementById('wck').onclick=()=>{
+    if(wT.checked)return;
+    const msg=document.getElementById('msg');
+    if(!wT.strokes.length){msg.textContent='✍ Draw the letter first.';return}
+    wT.checked=true;wT.tot++;
+    const r=wScore(g,wT.strokes);
+    redraw(true);
+    if(r.ok){wT.sc++;msg.innerHTML='✅ Great! Match '+r.pct+'%'}
+    else msg.innerHTML='❌ '+r.why+' (match '+r.pct+'%). The correct shape is shown in green — press Clear to retry or Next.';
+  };
+}
+function liveCov(g,strokes){
+  const m=glyphMask(g),c=document.createElement('canvas');c.width=c.height=WS;const x=c.getContext('2d');
+  x.strokeStyle='#000';x.lineWidth=18;x.lineCap='round';x.lineJoin='round';
+  strokes.forEach(s=>{x.beginPath();x.moveTo(s[0][0],s[0][1]);s.forEach(p=>x.lineTo(p[0],p[1]));if(s.length===1)x.lineTo(s[0][0]+.1,s[0][1]);x.stroke()});
+  const d=x.getImageData(0,0,WS,WS).data;let gt=0,gc=0,ut=0,uo=0;
+  for(let k=0;k<WS*WS;k++){const u=d[k*4+3]>110;if(m[k]){gt++;if(u)gc++}else if(u)uo++;if(u)ut++}
+  return 'Covered '+Math.round(gc/Math.max(gt,1)*100)+'% · outside '+(ut?Math.round(uo/ut*100):0)+'%';
+}
+function wRe(){({w2:wTest,w3:()=>wBrush('trace'),w4:()=>wBrush('paint')})[mode]()}
+function wBrush(kind){
+  ++wAnim;
+  const trace=kind==='trace',R=trace?9:13,THR=trace?.8:.92;
+  const l=L[wT.i],g=glyphOf(wT.i,wT.f),m=glyphMask(g),info=glyphInfo(g);
+  let glyphTot=0;for(let k=0;k<WS*WS;k++)glyphTot+=m[k];
+  const cov=new Uint8Array(WS*WS),out=new Uint8Array(WS*WS);
+  let covN=0,outN=0,done=false;
+  view.innerHTML=`<div class="card"><div class="stat"><span>⭐ ${wT.sc}/${wT.tot}</span><span id="wpct"></span></div>
+    <div class="q">${trace?'Trace':'Paint'} the <span class="tag">${LBL[wT.f]}</span> form of <b>${l.n}</b> <span class="ar" style="font-size:30px">(${l.c})</span></div>
+    <div class="note">${trace?'Follow the dashed arrows from the numbered start, covering the letter with your finger or mouse.':'Colour in the whole letter without going outside the lines.'}</div>
+    <canvas id="wb" width="${WS}" height="${WS}" style="width:100%;max-width:340px;border-radius:12px;touch-action:none;cursor:crosshair"></canvas>
+    <div class="row"><button id="wcl">🧹 Clear</button><button id="wnx">Next ▶</button></div>
+    <div class="msg" id="msg"></div></div><div class="card">${poolPicker()}</div>`;
+  bindPicker2();
+  const cv=document.getElementById('wb'),x=cv.getContext('2d'),im=x.createImageData(WS,WS),u32=new Uint32Array(im.data.buffer);
+  const C=(r,g2,b)=>(255<<24)|(b<<16)|(g2<<8)|r;
+  const cBg=C(18,48,79),cGl=trace?C(70,105,150):C(75,100,140),cOk=C(62,207,142),cBad=C(239,91,91);
+  const draw=()=>{
+    for(let k=0;k<WS*WS;k++)u32[k]=m[k]?(cov[k]?cOk:cGl):(out[k]?cBad:cBg);
+    x.putImageData(im,0,0);
+    if(trace){
+      x.setLineDash([7,8]);x.strokeStyle='rgba(255,255,255,.75)';x.lineWidth=3;x.lineCap='round';
+      info.segs.forEach(s=>{
+        x.beginPath();x.moveTo(s[0][0],s[0][1]);s.forEach(p=>x.lineTo(p[0],p[1]));x.stroke();
+      });
+      x.setLineDash([]);
+      info.segs.forEach(s=>{for(let k=40;k<s.length;k+=55)drawArrow(x,s[Math.max(0,k-5)],s[Math.min(s.length-1,k+3)],'#ff7a59');
+        if(s.length>12)drawArrow(x,s[s.length-9],s[s.length-1],'#ff7a59')});
+      let n=1;
+      info.segs.forEach(s=>{if(s.length>=25){x.fillStyle='#fff';x.beginPath();x.arc(s[0][0],s[0][1],11,0,7);x.fill();x.fillStyle='#222';x.font='bold 13px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(n++,s[0][0],s[0][1])}});
+      info.dots.forEach(d=>{x.fillStyle='#fff';x.beginPath();x.arc(d.x,d.y,8,0,7);x.fill();x.fillStyle='#222';x.font='bold 12px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(n++,d.x,d.y)});
+    }
+    const pct=Math.round(covN/glyphTot*100),bad=covN+outN?Math.round(outN/(covN+outN)*100):0;
+    document.getElementById('wpct').textContent='Covered '+pct+'% · outside '+bad+'%';
+  };
+  const stamp=(px,py)=>{
+    for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++){
+      if(dx*dx+dy*dy>R*R)continue;
+      const X=Math.round(px+dx),Y=Math.round(py+dy);if(X<0||Y<0||X>=WS||Y>=WS)continue;
+      const k=Y*WS+X;
+      if(m[k]){if(!cov[k]){cov[k]=1;covN++}}else if(!out[k]){out[k]=1;outN++}
+    }
+  };
+  const finish=()=>{
+    done=true;wT.tot++;
+    const acc=covN/(covN+outN),msg=document.getElementById('msg');
+    if(acc>=.7){wT.sc++;msg.textContent='✅ Great! Accuracy '+Math.round(acc*100)+'%'}
+    else msg.textContent='🙂 Filled, but too much went outside the letter ('+Math.round(acc*100)+'% accuracy). Try Clear for a neater one.';
+    setTimeout(()=>{if(mode===(trace?'w3':'w4')&&document.body.contains(cv)){wNewTarget();wRe()}},acc>=.7?1600:3000);
+  };
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*WS/r.width,(e.clientY-r.top)*WS/r.height]};
+  let last=null;
+  const move=p=>{
+    if(last){const dx=p[0]-last[0],dy=p[1]-last[1],n=Math.max(1,Math.ceil(Math.hypot(dx,dy)/3));for(let i=1;i<=n;i++)stamp(last[0]+dx*i/n,last[1]+dy*i/n)}
+    else stamp(p[0],p[1]);
+    last=p;draw();
+    if(!done&&covN/glyphTot>=THR)finish();
+  };
+  cv.onpointerdown=e=>{if(done)return;cv.setPointerCapture(e.pointerId);last=null;move(pos(e));cv._d=true};
+  cv.onpointermove=e=>{if(cv._d&&!done)move(pos(e))};
+  cv.onpointerup=cv.onpointercancel=()=>{cv._d=false;last=null};
+  document.getElementById('wcl').onclick=()=>{if(!done)wBrush(kind)};
+  document.getElementById('wnx').onclick=()=>{wNewTarget();wBrush(kind)};
+  draw();
+}
+function bindPicker2(){
+  view.querySelectorAll('.lettergrid button').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i;if(pool.has(i)&&pool.size>4)pool.delete(i);else pool.add(i);wRe();
+  });
+  const a=document.getElementById('all');if(a)a.onclick=e=>{e.preventDefault();pool=new Set(L.map((_,i)=>i));wRe()};
+}
+function wScore(g,strokes){
+  const m=glyphMask(g);
+  // bounding boxes
+  let gx0=1e9,gy0=1e9,gx1=-1,gy1=-1;
+  for(let k=0;k<WS*WS;k++)if(m[k]){const x=k%WS,y=(k/WS)|0;if(x<gx0)gx0=x;if(x>gx1)gx1=x;if(y<gy0)gy0=y;if(y>gy1)gy1=y}
+  let ux0=1e9,uy0=1e9,ux1=-1e9,uy1=-1e9;
+  strokes.forEach(s=>s.forEach(p=>{ux0=Math.min(ux0,p[0]);ux1=Math.max(ux1,p[0]);uy0=Math.min(uy0,p[1]);uy1=Math.max(uy1,p[1])}));
+  const gw=gx1-gx0+1,gh=gy1-gy0+1,uw=Math.max(ux1-ux0,1),uh=Math.max(uy1-uy0,1);
+  // reject shapes whose proportions are far from the letter's
+  const gAr=gw/gh,uAr=uw/uh;
+  if(uAr/gAr>2.4||gAr/uAr>2.4)return{ok:false,pct:0,why:'The proportions look different from the letter'};
+  const sc=Math.min(gw/uw,gh/uh),ox=gx0+gw/2-(ux0+uw/2)*sc,oy=gy0+gh/2-(uy0+uh/2)*sc;
+  const c=document.createElement('canvas');c.width=c.height=WS;const x=c.getContext('2d');
+  x.strokeStyle='#000';x.lineWidth=Math.max(10,9*sc);x.lineCap='round';x.lineJoin='round';
+  strokes.forEach(s=>{x.beginPath();s.forEach((p,k)=>{const X=p[0]*sc+ox,Y=p[1]*sc+oy;k?x.lineTo(X,Y):x.moveTo(X,Y)});if(s.length===1)x.lineTo(s[0][0]*sc+ox+.1,s[0][1]*sc+oy);x.stroke()});
+  const d=x.getImageData(0,0,WS,WS).data,u=new Uint8Array(WS*WS);
+  for(let k=0;k<WS*WS;k++)u[k]=d[k*4+3]>110?1:0;
+  const dil=(src,r)=>{const c2=document.createElement('canvas');c2.width=c2.height=WS;const y=c2.getContext('2d'),im=y.createImageData(WS,WS);
+    for(let k=0;k<WS*WS;k++)if(src[k]){im.data[k*4+3]=255}
+    y.putImageData(im,0,0);const c3=document.createElement('canvas');c3.width=c3.height=WS;const z=c3.getContext('2d');
+    z.filter='blur('+r+'px)';z.drawImage(c2,0,0);const dd=z.getImageData(0,0,WS,WS).data,o=new Uint8Array(WS*WS);
+    for(let k=0;k<WS*WS;k++)o[k]=dd[k*4+3]>20?1:0;return o};
+  const gD=dil(m,6),uD=dil(u,6);
+  let gTot=0,gHit=0,uTot=0,uHit=0;
+  for(let k=0;k<WS*WS;k++){
+    if(m[k]){gTot++;if(uD[k])gHit++}
+    if(u[k]){uTot++;if(gD[k])uHit++}
+  }
+  const rec=gHit/gTot,pre=uTot?uHit/uTot:0,pct=Math.round(Math.min(rec,pre)*100);
+  if(rec<.6)return{ok:false,pct,why:'Part of the letter is missing (check the dots and the full shape)'};
+  if(pre<.6)return{ok:false,pct,why:'Your drawing has parts that are not in the letter'};
+  return{ok:true,pct};
+}
+
+/* ===== Arabic font choice ===== */
+const FONTS={sa:['Lateef','"Lateef","Noto Naskh Arabic","Scheherazade New","Traditional Arabic","Segoe UI",serif'],
+  nq:['Noto Nastaliq Urdu','"Noto Nastaliq Urdu","Lateef","Noto Naskh Arabic","Segoe UI",serif'],
+  am:['Amiri Quran','"Amiri Quran","Amiri","Scheherazade New","Traditional Arabic","Segoe UI",serif']};
+function applyFont(k){
+  const f=FONTS[k]||FONTS.sa;localStorage.arFont=k;
+  document.documentElement.style.setProperty('--arfont',f[1]);WFONT=f[1];
+  Object.keys(maskCache).forEach(x=>delete maskCache[x]);Object.keys(infoCache).forEach(x=>delete infoCache[x]);
+  const redo=()=>{
+    const ls=document.querySelector('.top .on').dataset.s;
+    if(ls==='quran')qRender();else if(ls==='duas')dRender();else if(ls==='bangla')bRender();
+    else{const m=document.querySelector('#letters .tabs .on');if(m&&m.dataset.m[0]==='w'&&m.dataset.m!=='w1')wRe();else render()}
+  };
+  if(document.fonts&&document.fonts.load)document.fonts.load('40px '+f[1].split(',')[0],'بِسْمِ').then(redo,redo);else redo();
+}
+const fsel=document.getElementById('fontSel');fsel.value=localStorage.arFont||'sa';
+fsel.onchange=()=>applyFont(fsel.value);
+applyFont(fsel.value);
+
+/* ===== Bangla letters ===== */
+const BFONT='"Noto Sans Bengali","Hind Siliguri","Nirmala UI","Vrinda","Shonar Bangla",sans-serif';
+const BL=`অ|o|অজগর|ojogor|python|v
+আ|aa|আম|aam|mango|v
+ই|i|ইঁদুর|inbdur|mouse|v
+ঈ|ee|ঈগল|eegol|eagle|v
+উ|u|উট|ut|camel|v
+ঊ|oo|ঊষা|usha|dawn|v
+ঋ|ri|ঋষি|rishi|sage|v
+এ|e|এক|ek|one|v
+ঐ|oi|ঐরাবত|oirabot|royal elephant|v
+ও|o (long)|ওল|ol|yam|v
+ঔ|ou|ঔষধ|oushodh|medicine|v
+ক|ko|কলম|kolom|pen|c
+খ|kho|খাতা|khata|notebook|c
+গ|go|গরু|goru|cow|c
+ঘ|gho|ঘর|ghor|house|c
+ঙ|ngo|রঙ|rong|colour|c
+চ|cho|চাঁদ|chand|moon|c
+ছ|chho|ছাতা|chhata|umbrella|c
+জ|jo|জল|jol|water|c
+ঝ|jho|ঝড়|jhor|storm|c
+ঞ|ño|মিঞা|minya|sir (Mr.)|c
+ট|to|টাকা|taka|money|c
+ঠ|tho|ঠোঁট|thont|lips|c
+ড|do|ডিম|dim|egg|c
+ঢ|dho|ঢাক|dhak|drum|c
+ণ|no (ṇ)|ঘণ্টা|ghonta|bell|c
+ত|to (dental)|তারা|tara|star|c
+থ|tho (dental)|থালা|thala|plate|c
+দ|do (dental)|দাঁত|dant|tooth|c
+ধ|dho (dental)|ধান|dhan|rice paddy|c
+ন|no|নদী|nodi|river|c
+প|po|পাখি|pakhi|bird|c
+ফ|pho|ফল|phol|fruit|c
+ব|bo|বই|boi|book|c
+ভ|bho|ভাত|bhat|cooked rice|c
+ম|mo|মা|ma|mother|c
+য|jo (ya)|যন্ত্র|jontro|machine|c
+র|ro|রাজা|raja|king|c
+ল|lo|লাল|lal|red|c
+শ|sho|শাপলা|shapla|water lily|c
+ষ|sho (ṣ)|ষাঁড়|shnar|bull|c
+স|so|সূর্য|surjo|sun|c
+হ|ho|হাতি|hati|elephant|c
+ড়|ro (flap)|বড়|boro|big|c
+ঢ়|rho|আষাঢ়|ashar|Ashar (month)|c
+য়|yo|ময়ূর|moyur|peacock|c
+ৎ|t (khanda ta)|হঠাৎ|hothat|suddenly|c
+ং|ng (anusvara)|বাংলা|bangla|Bengali language|c
+ঃ|h (bisarga)|দুঃখ|dukkho|sorrow|c
+ঁ|nasal (chandrabindu)|চাঁদ|chand|moon|c`.split('\n').map(r=>{const [c,r1,w,wr,we,g]=r.split('|');return{c,r:r1,w,wr,we,g}});
+const KAR=[['া','aa-kar','কা','kaa'],['ি','i-kar','কি','ki'],['ী','dirgho ee-kar','কী','kee'],['ু','u-kar','কু','ku'],['ূ','dirgho oo-kar','কূ','koo'],['ৃ','ri-kar','কৃ','kri'],['ে','e-kar','কে','ke'],['ৈ','oi-kar','কৈ','koi'],['ো','o-kar','কো','ko'],['ৌ','ou-kar','কৌ','kou']];
+const B={g:'all',m:'learn',i:0,sc:0,tot:0,tk:0,box:JSON.parse(localStorage.bBox||'{}'),tr:true};
+const bEl=document.getElementById('bangla');
+const bPool=()=>BL.filter(l=>B.g==='all'||l.g===B.g);
+const bLater=(f,ms)=>{const k=B.tk;setTimeout(()=>{if(k===B.tk)f()},ms)};
+const bView=h=>{document.getElementById('bview').innerHTML=h};
+const bSay=t=>{if(!('speechSynthesis'in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='bn-BD';u.rate=.7;speechSynthesis.speak(u)};
+const bSayBtn=()=>('speechSynthesis'in window)?'<button data-say>🔊 Hear (device voice)</button>':'';
+const bModes=[['learn','📖 Learn'],['flash','🧠 Memorize cards'],['q1','🎯 Name the letter'],['q2','🔤 Find the letter'],['q3','❓ Missing letter in word'],['pairs','🃏 Memory pairs'],['kar','✍ Vowel signs (kar)'],['kq','🔊 Read the syllable'],['read','📚 Read the word'],['w1','🖋 How to write (arrows)'],['w2','✍ Writing test'],['w3','〰 Trace'],['w4','🎨 Paint']];
+function bRender(){
+  B.tk++;
+  bEl.innerHTML=`<div class="card"><div class="tabs" style="margin:0 0 6px">${[['all','All letters'],['v','স্বরবর্ণ Vowels'],['c','ব্যঞ্জনবর্ণ Consonants']].map(g=>`<button data-g="${g[0]}" class="${B.g===g[0]?'on':''}">${g[1]}</button>`).join('')}</div>
+    <div class="tabs" style="margin:0">${bModes.map(m=>`<button data-m="${m[0]}" class="${B.m===m[0]?'on':''}">${m[1]}</button>`).join('')}</div></div><div id="bview"></div>`;
+  bEl.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{B.g=b.dataset.g;B.i=0;B.sc=B.tot=0;bRender()});
+  bEl.querySelectorAll('.tabs [data-m]').forEach(b=>b.onclick=()=>{B.m=b.dataset.m;B.i=0;B.sc=B.tot=0;bRender()});
+  bRun();
+}
+function bRun(){({learn:bLearn,flash:bFlash,q1:bQ1,q2:bQ2,q3:bQ3,pairs:bPairs,kar:bKar,kq:bKq,read:bRead,w1:bW1,w2:bW2,w3:()=>bBrush('trace'),w4:()=>bBrush('paint')})[B.m]()}
+const bBn=(s,sz)=>`<span class="bn" style="font-size:${sz}px">${s}</span>`;
+const bStat=()=>`<div class="stat"><span>${B.g==='all'?'All':B.g==='v'?'Vowels':'Consonants'}</span><span>⭐ ${B.sc}/${B.tot}</span></div>`;
+function bOptsFor(l,key,n=4){
+  const p=bPool().filter(x=>x!==l&&x[key]!==l[key]);const all=p.length>=n-1?p:BL.filter(x=>x!==l&&x[key]!==l[key]);
+  const seen=new Set([l[key]]),out=[];
+  for(const x of shuffle(all)){if(!seen.has(x[key])){seen.add(x[key]);out.push(x)}if(out.length>=n-1)break}
+  return shuffle([l,...out]);
+}
+function bChoose(opts,right,show,after){
+  let lock=false;
+  bEl.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{
+    if(lock)return;lock=true;B.tot++;const good=opts[+b.dataset.o]===right;
+    bEl.querySelectorAll('[data-o]').forEach(x=>{if(opts[+x.dataset.o]===right)x.classList.add('ok')});
+    if(good){B.sc++;document.getElementById('msg').textContent='✅ Correct!'}else{b.classList.add('bad');document.getElementById('msg').textContent='❌ '+show(right)}
+    bLater(after,good?900:2000);
+  });
+}
+function bLearn(){
+  const p=bPool(),l=p[Math.min(B.i,p.length-1)];
+  bView(`<div class="card"><div class="bn big" style="line-height:1.3">${l.c}</div>
+    <h2 style="margin:4px 0">${l.r}</h2>
+    <div class="ayah"><div class="bn" style="font-size:44px">${l.w}</div><div class="tr">${l.wr}</div><div class="en">${l.we}</div></div>
+    <div class="row">${bSayBtn()}<button id="pv">◀ Previous</button><button id="nx">Next ▶</button></div></div>
+    <div class="card"><div class="lettergrid" style="grid-template-columns:repeat(8,1fr)">${p.map((x,i)=>`<button class="bn ${x===l?'sel':''}" data-i="${i}">${x.c}</button>`).join('')}</div></div>`);
+  bEl.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>bSay(l.c+' '+l.w));
+  document.getElementById('pv').onclick=()=>{B.i=(B.i-1+p.length)%p.length;bLearn()};
+  document.getElementById('nx').onclick=()=>{B.i=(B.i+1)%p.length;bLearn()};
+  bEl.querySelectorAll('.lettergrid [data-i]').forEach(b=>b.onclick=()=>{B.i=+b.dataset.i;bLearn()});
+}
+function bFlash(){
+  const p=bPool(),mast=p.filter(l=>(B.box[l.c]||0)>=4).length;
+  const wts=p.map(l=>6-Math.min(5,B.box[l.c]||0)),tot=wts.reduce((a,b)=>a+b,0);
+  let r=Math.random()*tot,k=0;while(k<p.length-1&&(r-=wts[k])>0)k++;
+  const l=p[k];let shown=false;
+  const draw=()=>{
+    bView(`<div class="card"><div class="stat"><span>Mastered ${mast}/${p.length}</span><span>Box ${B.box[l.c]||0}/5</span></div>
+    <div class="q">Say its sound and a word that uses it, then check</div>
+    <div class="bn big" style="line-height:1.3">${l.c}</div>
+    ${shown?`<h2 style="margin:4px 0">${l.r}</h2><div class="ayah"><div class="bn" style="font-size:40px">${l.w}</div><div class="tr">${l.wr}</div><div class="en">${l.we}</div></div>
+      <div class="row">${bSayBtn()}<button id="y">✅ I knew it</button><button id="n">🔁 Not yet</button></div>`:`<div class="row"><button id="rv">👁 Reveal</button></div>`}
+    <div class="note">Cards you miss come back more often. A letter is mastered after 4 correct recalls in a row.</div></div>`);
+    bEl.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>bSay(l.c+' '+l.w));
+    const set=v=>{B.box[l.c]=v;localStorage.bBox=JSON.stringify(B.box);bFlash()};
+    const rv=document.getElementById('rv');if(rv)rv.onclick=()=>{shown=true;draw()};
+    const y=document.getElementById('y');if(y)y.onclick=()=>set(Math.min(5,(B.box[l.c]||0)+1));
+    const n=document.getElementById('n');if(n)n.onclick=()=>set(0);
+  };
+  draw();
+}
+function bQ1(){
+  const l=rnd(bPool()),opts=bOptsFor(l,'r');
+  bView(`<div class="card">${bStat()}<div class="q">What is the sound of this letter?</div><div class="bn big" style="line-height:1.3">${l.c}</div>
+    <div class="grid">${opts.map((o,i)=>`<button class="names" data-o="${i}">${o.r}</button>`).join('')}</div><div class="msg" id="msg"></div></div>`);
+  bChoose(opts,l,x=>'It is '+x.r,bQ1);
+}
+function bQ2(){
+  const l=rnd(bPool()),opts=bOptsFor(l,'c');
+  bView(`<div class="card">${bStat()}<div class="q">Which letter makes the sound <span class="tag">${l.r}</span> ?</div><div class="note">Example: ${l.wr} (${l.we})</div>
+    <div class="grid">${opts.map((o,i)=>`<button class="bn" data-o="${i}">${o.c}</button>`).join('')}</div><div class="msg" id="msg"></div></div>`);
+  bChoose(opts,l,x=>'It is '+x.c,bQ2);
+}
+function bQ3(){
+  const l=rnd(bPool()),idx=l.w.indexOf(l.c);
+  const shownW=l.w.slice(0,idx)+'＿'+l.w.slice(idx+l.c.length);
+  const opts=bOptsFor(l,'c').filter(o=>o===l||!l.w.includes(o.c));
+  while(opts.length<4){const x=rnd(BL);if(!opts.includes(x)&&!l.w.includes(x.c))opts.push(x)}
+  const o2=shuffle(opts);
+  bView(`<div class="card">${bStat()}<div class="q">Which letter is missing from the word?</div>
+    <div class="ayah"><div class="bn" style="font-size:56px">${shownW}</div><div class="en">${l.we}</div>${B.tr?`<div class="tr">${l.wr}</div>`:''}</div>
+    <div class="grid">${o2.map((o,i)=>`<button class="bn" data-o="${i}">${o.c}</button>`).join('')}</div><div class="msg" id="msg"></div></div>`);
+  bChoose(o2,l,x=>'It is '+x.c+' → '+l.w,bQ3);
+}
+function bPairs(){
+  const ps=shuffle(bPool()).slice(0,6);
+  const cards=shuffle(ps.flatMap(l=>[{k:l.c,t:l.c,bn:1},{k:l.c,t:l.r}]));
+  let open=[],found=new Set(),moves=0,lock=false;
+  const draw=()=>{
+    bView(`<div class="card"><div class="stat"><span>Match each letter with its sound</span><span>Moves ${moves}</span></div>
+    <div class="grid" style="grid-template-columns:repeat(4,1fr)">${cards.map((c,i)=>{const up=open.includes(i)||found.has(c.k);return `<button data-c="${i}" class="${c.bn?'bn':''} ${found.has(c.k)?'ok':''}" style="font-size:${c.bn?40:15}px;min-height:72px">${up?c.t:'❓'}</button>`}).join('')}</div>
+    <div class="msg">${found.size===ps.length?'🎉 All matched in '+moves+' moves!':''}</div>
+    ${found.size===ps.length?'<div class="row"><button id="again">▶ Play again</button></div>':''}</div>`);
+    bEl.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{
+      const i=+b.dataset.c;if(lock||open.includes(i)||found.has(cards[i].k))return;
+      open.push(i);
+      if(open.length===2){
+        moves++;
+        if(cards[open[0]].k===cards[open[1]].k){found.add(cards[i].k);open=[];draw()}
+        else{lock=true;draw();bLater(()=>{open=[];lock=false;draw()},900)}
+      }else draw();
+    });
+    const a=document.getElementById('again');if(a)a.onclick=bPairs;
+  };
+  draw();
+}
+function bKar(){
+  const k=KAR[B.i%KAR.length];
+  bView(`<div class="card"><div class="q">Vowel signs (কার) change the sound of a consonant</div>
+    <div class="bn big" style="line-height:1.3">${k[2]}</div><h2 style="margin:4px 0">ক + ${bBn(k[0],30)} = ${bBn(k[2],30)} → <i>${k[3]}</i></h2>
+    <div class="note">${k[1]}</div>
+    <div class="row">${bSayBtn()}<button id="pv">◀ Previous</button><button id="nx">Next ▶</button></div></div>
+    <div class="card"><div class="lettergrid" style="grid-template-columns:repeat(5,1fr)">${KAR.map((x,i)=>`<button class="bn ${x===k?'sel':''}" data-i="${i}" style="font-size:26px">${x[2]}</button>`).join('')}</div></div>`);
+  bEl.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>bSay(k[2]));
+  document.getElementById('pv').onclick=()=>{B.i=(B.i-1+KAR.length)%KAR.length;bKar()};
+  document.getElementById('nx').onclick=()=>{B.i=(B.i+1)%KAR.length;bKar()};
+  bEl.querySelectorAll('.lettergrid [data-i]').forEach(b=>b.onclick=()=>{B.i=+b.dataset.i;bKar()});
+}
+function bKq(){
+  const cons=BL.filter(l=>l.g==='c'&&'কখগঘচজটডতদনপবমরলশসহ'.includes(l.c));
+  const c=rnd(cons),k=rnd(KAR),syl=c.c+k[0],base=c.r.split(' ')[0].replace(/o$/,'');
+  const right=base+k[3].slice(1);
+  const make=()=>base+rnd(KAR)[3].slice(1);
+  const set=new Set([right]);let guard=0;while(set.size<4&&guard++<50)set.add(make());
+  const opts=shuffle([...set]);
+  bView(`<div class="card">${bStat()}<div class="q">How do you read this syllable?</div><div class="bn big" style="line-height:1.3">${syl}</div>
+    <div class="grid">${opts.map((o,i)=>`<button class="names" data-o="${i}">${o}</button>`).join('')}</div><div class="msg" id="msg"></div>
+    <div class="row">${bSayBtn()}</div></div>`);
+  bEl.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>bSay(syl));
+  bChoose(opts,right,x=>'It is '+x,bKq);
+}
+function bRead(){
+  const l=rnd(bPool().filter(x=>x.w)),opts=bOptsFor(l,'we');
+  bView(`<div class="card">${bStat()}<div class="q">What does this word mean?</div><div class="bn" style="font-size:72px;line-height:1.4">${l.w}</div>
+    <div class="opts"><label><input type="checkbox" id="trc" ${B.tr?'checked':''}> Show how to say it</label></div>${B.tr?`<div class="tr" style="color:#9fd4ff;font-style:italic">${l.wr}</div>`:''}
+    <div class="grid">${opts.map((o,i)=>`<button class="names" data-o="${i}">${o.we}</button>`).join('')}</div><div class="msg" id="msg"></div>
+    <div class="row">${bSayBtn()}</div></div>`);
+  bEl.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>bSay(l.w));
+  document.getElementById('trc').onchange=e=>{B.tr=e.target.checked;bRead()};
+  bChoose(opts,l,x=>'It means '+x.we,bRead);
+}
+/* writing */
+function bRaster(s){const o=WFONT;WFONT=BFONT;try{return rasterGlyph(s)}finally{WFONT=o}}
+function bEns(s){if(!maskCache[s])maskCache[s]=bRaster(s);if(!infoCache[s])infoCache[s]=skelStrokes(maskCache[s])}
+let bAnim=0;
+const bTarget=()=>{const p=bPool();return p[Math.min(B.i,p.length-1)]};
+const bChooser=()=>`<div class="lettergrid" style="grid-template-columns:repeat(8,1fr)">${bPool().map((x,i)=>`<button class="bn ${x===bTarget()?'sel':''}" data-i="${i}">${x.c}</button>`).join('')}</div>`;
+function bBindChooser(f){bEl.querySelectorAll('.lettergrid [data-i]').forEach(b=>b.onclick=()=>{B.i=+b.dataset.i;f()})}
+function bW1(){
+  const l=bTarget(),g=l.c;bEns(g);const info=infoCache[g];
+  bView(`<div class="card"><h2 style="margin:0">How to write: ${bBn(l.c,42)} ${l.r}</h2>
+    <div class="note">Start at the numbered <b>1</b> circle and follow the arrows. Bangla is written left to right, usually with the headline (মাত্রা) drawn last. The guide is generated from the letter shape, so it is approximate.</div>
+    <canvas id="wc" width="${WS}" height="${WS}" style="width:100%;max-width:340px;border-radius:12px;margin-top:10px"></canvas>
+    <div class="row"><button id="wr">▶ Replay</button><button id="wp">◀ Previous</button><button id="wn">Next ▶</button></div></div><div class="card">${bChooser()}</div>`);
+  const cv=document.getElementById('wc'),tok=++bAnim,t0=performance.now(),dur=Math.max(1800,Math.min(5000,info.segs.reduce((a,s)=>a+s.length,0)*14));
+  const frame=now=>{if(tok!==bAnim||!document.body.contains(cv))return;const p=Math.min(1,(now-t0)/dur);drawGuide(cv,g,info,p);if(p<1)requestAnimationFrame(frame)};
+  requestAnimationFrame(frame);
+  const n=bPool().length;
+  document.getElementById('wr').onclick=bW1;
+  document.getElementById('wp').onclick=()=>{B.i=(B.i-1+n)%n;bW1()};document.getElementById('wn').onclick=()=>{B.i=(B.i+1)%n;bW1()};
+  bBindChooser(bW1);
+}
+const bWT={strokes:[],hint:true,checked:false};
+function bW2(){
+  ++bAnim;const l=bTarget(),g=l.c;bEns(g);
+  bView(`<div class="card"><div class="stat"><span id="wpct"></span><span>⭐ ${B.sc}/${B.tot}</span></div>
+    <div class="q">Write the letter <b>${l.r}</b> <span class="bn" style="font-size:30px">(${l.c})</span></div>
+    <canvas id="wd" width="${WS}" height="${WS}" style="width:100%;max-width:340px;border-radius:12px;touch-action:none;background:#12304f;cursor:crosshair"></canvas>
+    <div class="opts"><label><input type="checkbox" id="wh" ${bWT.hint?'checked':''}> Show faint guide</label></div>
+    <div class="row"><button id="wcl">🧹 Clear</button><button id="wu">↩ Undo</button><button id="wck">✔ Check</button><button id="wnx">Next ▶</button></div>
+    <div class="msg" id="msg"></div></div><div class="card">${bChooser()}</div>`);
+  bBindChooser(()=>{bWT.strokes=[];bWT.checked=false;bW2()});
+  const cv=document.getElementById('wd'),x=cv.getContext('2d');
+  const redraw=ov=>{
+    x.fillStyle='#12304f';x.fillRect(0,0,WS,WS);
+    if(bWT.hint||ov){const m=maskCache[g],im=x.getImageData(0,0,WS,WS);
+      for(let k=0;k<WS*WS;k++)if(m[k]){im.data[k*4]=ov?62:90;im.data[k*4+1]=ov?207:130;im.data[k*4+2]=ov?142:180;im.data[k*4+3]=255}
+      x.putImageData(im,0,0)}
+    x.strokeStyle='#fff';x.lineWidth=9;x.lineCap='round';x.lineJoin='round';
+    bWT.strokes.forEach(s=>{x.beginPath();x.moveTo(s[0][0],s[0][1]);s.forEach(p=>x.lineTo(p[0],p[1]));if(s.length===1)x.lineTo(s[0][0]+.1,s[0][1]);x.stroke()});
+    document.getElementById('wpct').textContent=bWT.strokes.length?liveCov(g,bWT.strokes):'';
+  };
+  redraw();
+  let drawing=false;
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*WS/r.width,(e.clientY-r.top)*WS/r.height]};
+  cv.onpointerdown=e=>{if(bWT.checked)return;drawing=true;cv.setPointerCapture(e.pointerId);bWT.strokes.push([pos(e)]);redraw()};
+  cv.onpointermove=e=>{if(!drawing)return;bWT.strokes[bWT.strokes.length-1].push(pos(e));redraw()};
+  cv.onpointerup=cv.onpointercancel=()=>{drawing=false};
+  document.getElementById('wh').onchange=e=>{bWT.hint=e.target.checked;redraw()};
+  document.getElementById('wcl').onclick=()=>{bWT.strokes=[];bWT.checked=false;document.getElementById('msg').textContent='';redraw()};
+  document.getElementById('wu').onclick=()=>{if(!bWT.checked){bWT.strokes.pop();redraw()}};
+  document.getElementById('wnx').onclick=()=>{const n=bPool().length;B.i=Math.floor(Math.random()*n);bWT.strokes=[];bWT.checked=false;bW2()};
+  document.getElementById('wck').onclick=()=>{
+    if(bWT.checked)return;const msg=document.getElementById('msg');
+    if(!bWT.strokes.length){msg.textContent='✍ Draw the letter first.';return}
+    bWT.checked=true;B.tot++;const r=wScore(g,bWT.strokes);redraw(true);
+    if(r.ok){B.sc++;msg.innerHTML='✅ Great! Match '+r.pct+'%'}
+    else msg.innerHTML='❌ '+r.why+' (match '+r.pct+'%). The correct shape is shown in green — press Clear to retry or Next.';
+  };
+}
+function bBrush(kind){
+  ++bAnim;
+  const trace=kind==='trace',R=trace?9:13,THR=trace?.8:.92;
+  const l=bTarget(),g=l.c;bEns(g);const m=maskCache[g],info=infoCache[g];
+  let glyphTot=0;for(let k=0;k<WS*WS;k++)glyphTot+=m[k];
+  const cov=new Uint8Array(WS*WS),out=new Uint8Array(WS*WS);let covN=0,outN=0,done=false;
+  bView(`<div class="card"><div class="stat"><span>⭐ ${B.sc}/${B.tot}</span><span id="wpct"></span></div>
+    <div class="q">${trace?'Trace':'Paint'} the letter <b>${l.r}</b> <span class="bn" style="font-size:30px">(${l.c})</span></div>
+    <div class="note">${trace?'Follow the dashed arrows from the numbered start, covering the letter with your finger or mouse.':'Colour in the whole letter without going outside the lines.'}</div>
+    <canvas id="wb" width="${WS}" height="${WS}" style="width:100%;max-width:340px;border-radius:12px;touch-action:none;cursor:crosshair"></canvas>
+    <div class="row"><button id="wcl">🧹 Clear</button><button id="wnx">Next ▶</button></div><div class="msg" id="msg"></div></div><div class="card">${bChooser()}</div>`);
+  bBindChooser(()=>bBrush(kind));
+  const cv=document.getElementById('wb'),x=cv.getContext('2d'),im=x.createImageData(WS,WS),u32=new Uint32Array(im.data.buffer);
+  const C=(r,g2,b)=>(255<<24)|(b<<16)|(g2<<8)|r,cBg=C(18,48,79),cGl=C(75,100,140),cOk=C(62,207,142),cBad=C(239,91,91);
+  const draw=()=>{
+    for(let k=0;k<WS*WS;k++)u32[k]=m[k]?(cov[k]?cOk:cGl):(out[k]?cBad:cBg);
+    x.putImageData(im,0,0);
+    if(trace){
+      x.setLineDash([7,8]);x.strokeStyle='rgba(255,255,255,.75)';x.lineWidth=3;x.lineCap='round';
+      info.segs.forEach(s=>{x.beginPath();x.moveTo(s[0][0],s[0][1]);s.forEach(p=>x.lineTo(p[0],p[1]));x.stroke()});
+      x.setLineDash([]);
+      info.segs.forEach(s=>{for(let k=40;k<s.length;k+=55)drawArrow(x,s[Math.max(0,k-5)],s[Math.min(s.length-1,k+3)],'#ff7a59')});
+      let n=1;
+      info.segs.forEach(s=>{if(s.length>=25){x.fillStyle='#fff';x.beginPath();x.arc(s[0][0],s[0][1],11,0,7);x.fill();x.fillStyle='#222';x.font='bold 13px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(n++,s[0][0],s[0][1])}});
+    }
+    const pct=Math.round(covN/glyphTot*100),bad=covN+outN?Math.round(outN/(covN+outN)*100):0;
+    document.getElementById('wpct').textContent='Covered '+pct+'% · outside '+bad+'%';
+  };
+  const stamp=(px,py)=>{
+    for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++){
+      if(dx*dx+dy*dy>R*R)continue;const X=Math.round(px+dx),Y=Math.round(py+dy);if(X<0||Y<0||X>=WS||Y>=WS)continue;
+      const k=Y*WS+X;if(m[k]){if(!cov[k]){cov[k]=1;covN++}}else if(!out[k]){out[k]=1;outN++}
+    }
+  };
+  const tk=bAnim;
+  const finish=()=>{
+    done=true;B.tot++;const acc=covN/(covN+outN),msg=document.getElementById('msg');
+    if(acc>=.7){B.sc++;msg.textContent='✅ Great! Accuracy '+Math.round(acc*100)+'%'}
+    else msg.textContent='🙂 Filled, but too much went outside the letter ('+Math.round(acc*100)+'% accuracy). Try Clear for a neater one.';
+    setTimeout(()=>{if(tk===bAnim&&document.body.contains(cv)){B.i=Math.floor(Math.random()*bPool().length);bBrush(kind)}},acc>=.7?1600:3000);
+  };
+  const pos=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*WS/r.width,(e.clientY-r.top)*WS/r.height]};
+  let last=null;
+  const move=p=>{
+    if(last){const dx=p[0]-last[0],dy=p[1]-last[1],n=Math.max(1,Math.ceil(Math.hypot(dx,dy)/3));for(let i=1;i<=n;i++)stamp(last[0]+dx*i/n,last[1]+dy*i/n)}
+    else stamp(p[0],p[1]);
+    last=p;draw();if(!done&&covN/glyphTot>=THR)finish();
+  };
+  cv.onpointerdown=e=>{if(done)return;cv.setPointerCapture(e.pointerId);last=null;move(pos(e));cv._d=true};
+  cv.onpointermove=e=>{if(cv._d&&!done)move(pos(e))};
+  cv.onpointerup=cv.onpointercancel=()=>{cv._d=false;last=null};
+  document.getElementById('wcl').onclick=()=>{if(!done)bBrush(kind)};
+  document.getElementById('wnx').onclick=()=>{B.i=Math.floor(Math.random()*bPool().length);bBrush(kind)};
+  draw();
+}
+</script>
+<a href="index.html" id="whoBtn" style="position:fixed;top:8px;left:8px;z-index:9999;background:#fff;color:#333;text-decoration:none;font:bold 14px/1 Arial,sans-serif;padding:9px 13px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.3)">👥 Who is playing?</a>
+</body>
+</html>

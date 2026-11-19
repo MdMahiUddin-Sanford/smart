@@ -40,6 +40,8 @@ h1{margin:6px 0;font-size:clamp(2rem,8vw,3.4rem);color:#e63946;text-shadow:3px 3
 @keyframes pop{50%{transform:scale(1.25)}}
 .wob{animation:wob .45s}
 @keyframes wob{25%{transform:translateX(-12px) rotate(-6deg)}75%{transform:translateX(12px) rotate(6deg)}}
+@keyframes howDraw{to{stroke-dashoffset:0}}
+@keyframes howShow{to{opacity:1}}
 .pulse{animation:pulse .5s ease-in-out 3}
 @keyframes pulse{50%{transform:scale(1.3);filter:brightness(1.3)}}
 .grp{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 10px;background:rgba(255,255,255,.55);border-radius:24px;margin:4px}
@@ -156,6 +158,7 @@ canvas.draw{display:block;touch-action:none;border-radius:20px;background:#fff;c
     <button class="big" style="background:#06a77d" onclick="startL('nbig')"><span class="ic">🐘</span>Bigger or smaller</button>
     <button class="big" style="background:#2ec4b6" onclick="startL('nbub')"><span class="ic">🫧</span>Pop the numbers</button>
     <button class="big" style="background:#e63946" onclick="startL('ntrace')"><span class="ic">✏️</span>Trace the number</button>
+    <button class="big" style="background:#f77f00" onclick="startL('npaint')"><span class="ic">🎨</span>Paint the number</button>
     <button class="big" style="background:#ff006e" onclick="startL('nballoon')"><span class="ic">🎈</span>Balloon pop</button>
     <button class="big" style="background:#f77f00" onclick="startL('ntap')"><span class="ic">👆</span>Tap and count</button>
     <button class="big" style="background:#118ab2" onclick="startL('ngive')"><span class="ic">🍪</span>Feed the monster</button>
@@ -504,7 +507,7 @@ function closeWin(){const b=$('winBox');b.classList.remove('on');b.onclick=null;
 /* ================= ABC LETTERS ================= */
 const LET="a apple 🍎|b ball ⚽|c cat 🐱|d dog 🐶|e elephant 🐘|f fish 🐟|g grapes 🍇|h house 🏠|i ice-cream 🍦|j juice 🧃|k key 🔑|l lion 🦁|m moon 🌙|n nose 👃|o orange 🍊|p pizza 🍕|q queen 👸|r rainbow 🌈|s sun ☀️|t tree 🌳|u umbrella ☂️|v violin 🎻|w watermelon 🍉|x x-ray 🦴|y yarn 🧶|z zebra 🦓"
   .split('|').map(s=>{const [l,w,e]=s.split(' ');return{l,u:l.toUpperCase(),w,e}});
-const LTITLES={learn:'📖 Learn ABC',pair:'🔠 Big and small',hear:'👂 Listen and find',pic:'🍎 First letter',order:'🔢 What comes next?',lbub:'🫧 Pop the letters',nlearn:'📖 Learn numbers',ncount:'🍎 Count them',nhear:'👂 Listen and find',nnext:'🔢 What comes next?',nbig:'🐘 Bigger or smaller',nbub:'🫧 Pop the numbers',ntrace:'✏️ Trace the number',nballoon:'🎈 Balloon pop',ntap:'👆 Tap and count',ngive:'🍪 Feed the monster',nsort:'📶 Small to big',trace:'✏️ Trace the letter',paint:'🎨 Paint the letter',balloon:'🎈 Balloon pop',find:'🖼️ Find the picture',spell:'🔡 Spell the word'};
+const LTITLES={learn:'📖 Learn ABC',pair:'🔠 Big and small',hear:'👂 Listen and find',pic:'🍎 First letter',order:'🔢 What comes next?',lbub:'🫧 Pop the letters',nlearn:'📖 Learn numbers',ncount:'🍎 Count them',nhear:'👂 Listen and find',nnext:'🔢 What comes next?',nbig:'🐘 Bigger or smaller',nbub:'🫧 Pop the numbers',ntrace:'✏️ Trace the number',npaint:'🎨 Paint the number',nballoon:'🎈 Balloon pop',ntap:'👆 Tap and count',ngive:'🍪 Feed the monster',nsort:'📶 Small to big',trace:'✏️ Trace the letter',paint:'🎨 Paint the letter',balloon:'🎈 Balloon pop',find:'🖼️ Find the picture',spell:'🔡 Spell the word'};
 const LTOTAL=8;
 let inLetters=false,lmode='learn',lr=0,lq=null,ldeck=[],li=0,lbState=null;
 const shuf=a=>[...a].sort(()=>Math.random()-.5);
@@ -526,6 +529,7 @@ function startL(m){
   else if(m==='nlearn'){ni=0;showNLearn()}
   else if(m==='trace')lTrace();
   else if(m==='ntrace')nTrace();
+  else if(m==='npaint'){pi=rnd(0,9);lPaint()}
   else if(m==='ntap')nTap();
   else if(m==='ngive')nGive();
   else if(m==='nsort')nSort();
@@ -653,6 +657,7 @@ function lPop(b){
 function lHint(){
   if(finished)return;
   const pulse=el=>{el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');setTimeout(()=>el.classList.remove('pulse'),1600)};
+  if(lmode==='npaint'){speak('Number '+pi);return}
   if(lmode==='trace'||lmode==='paint'){speak('Letter '+(lmode==='paint'?LET[pi].u:(trS&&trS.L.u)));return}
   if(lmode==='balloon'||lmode==='nballoon'){const S=balS;if(S&&S.T){const b=S.balloons.find(x=>S.same(x.L,S.T));if(b)pulse(b.el);speak((lmode==='nballoon'?'Pop the number ':'Pop the letter ')+S.T.u)}return}
   if(lmode==='ntrace'){if(trS)speak('Trace the number '+trS.L.u);return}
@@ -783,9 +788,9 @@ function attachDraw(C,getColor,onDot){
 function lTrace(){
   if(lr>=4)return winL();
   const L=ldraw(),ch=rnd(0,1)?L.u:L.l,col=lcol(L.l.charCodeAt(0));
-  const C=mkCanvas(ch,true);trS={L,C,done:false};
-  const A=$('lArea');A.innerHTML=`<div class="card" style="padding:6px;width:auto"></div><div class="row"><button class="big" style="background:#8d99ae" onclick="traceClear()"><span class="ic">🗑️</span></button></div>`;
-  A.firstChild.appendChild(C.cv);
+  const C=mkCanvas(ch,true);trS={L,C,ch,done:false};
+  const A=$('lArea');A.innerHTML=`<div class="card" style="padding:6px;width:auto"></div><div class="row"><button class="big" style="background:#8d99ae" onclick="traceClear()"><span class="ic">🗑️</span></button><button class="big" style="background:#ff9f1c" onclick="howToggle()"><span class="ic">➡️</span>How to write</button></div><div id="howBox"></div>`;
+  A.firstChild.appendChild(C.cv);howRender();
   lsay('Trace the letter with your finger! ☝️ '+'⭐'.repeat(lr));
   attachDraw(C,()=>col,(x,y)=>{
     if(trS.done)return;
@@ -800,9 +805,105 @@ function lTrace(){
 }
 function traceClear(){if(!trS||trS.done)return;trS.C.guide();trS.C.pts.forEach(q=>q.hit=false)}
 
+/* how-to-write arrows: strokes in order, drawn in a 100 x 130 box (baseline 90, small letters start at 40) */
+const STROKES={
+A:["M50 10 L15 90","M50 10 L85 90","M28 62 L72 62"],
+B:["M22 10 V90","M22 10 H55 C80 10 80 48 55 48 H22","M22 48 H60 C88 48 88 90 60 90 H22"],
+C:["M85 25 C70 5 15 5 15 50 C15 95 70 95 85 75"],
+D:["M22 10 V90","M22 10 H45 C95 10 95 90 45 90 H22"],
+E:["M22 10 V90","M22 10 H80","M22 50 H70","M22 90 H80"],
+F:["M22 10 V90","M22 10 H80","M22 50 H70"],
+G:["M85 25 C70 5 15 5 15 50 C15 95 80 98 85 60 H55"],
+H:["M20 10 V90","M80 10 V90","M20 50 H80"],
+I:["M50 10 V90","M30 10 H70","M30 90 H70"],
+J:["M65 10 V65 C65 95 20 95 18 65"],
+K:["M22 10 V90","M80 10 L22 55","M40 40 L82 90"],
+L:["M25 10 V90 H78"],
+M:["M15 90 V10 L50 65 L85 10 V90"],
+N:["M20 90 V10 L80 90 V10"],
+O:["M50 10 C10 10 10 90 50 90 C90 90 90 10 50 10"],
+P:["M22 10 V90","M22 10 H52 C85 10 85 52 52 52 H22"],
+Q:["M50 10 C10 10 10 90 50 90 C90 90 90 10 50 10","M58 65 L85 95"],
+R:["M22 10 V90","M22 10 H52 C85 10 85 50 52 50 H22","M52 50 L82 90"],
+S:["M80 25 C70 5 20 5 20 30 C20 50 80 50 80 70 C80 95 25 95 18 72"],
+T:["M50 10 V90","M20 10 H80"],
+U:["M20 10 V60 C20 100 80 100 80 60 V10"],
+V:["M15 10 L50 90 L85 10"],
+W:["M10 10 L28 90 L50 40 L72 90 L90 10"],
+X:["M18 10 L82 90","M82 10 L18 90"],
+Y:["M18 10 L50 50","M82 10 L50 50 V90"],
+Z:["M20 10 H80 L20 90 H80"],
+a:["M72 60 C65 38 20 40 20 65 C20 92 65 95 72 72","M72 40 V90"],
+b:["M25 10 V90","M25 55 C35 38 80 40 80 65 C80 92 35 95 25 75"],
+c:["M75 50 C60 35 20 38 20 65 C20 92 60 95 75 80"],
+d:["M72 60 C65 38 20 40 20 65 C20 92 65 95 72 72","M72 10 V90"],
+e:["M20 65 H78 C78 35 20 35 20 65 C20 92 60 95 76 80"],
+f:["M70 15 C45 5 38 20 38 40 V90","M20 45 H62"],
+g:["M72 60 C65 38 20 40 20 65 C20 90 62 92 72 70","M72 40 V100 C72 125 35 123 22 110"],
+h:["M25 10 V90","M25 55 C30 35 75 35 75 58 V90"],
+i:["M50 40 V90","M50 20 V22"],
+j:["M52 40 V100 C52 120 30 120 22 110","M52 20 V22"],
+k:["M25 10 V90","M72 40 L25 68","M42 58 L75 90"],
+l:["M50 10 V90"],
+m:["M18 40 V90","M18 55 C22 35 50 38 50 58 V90","M50 55 C54 35 82 38 82 58 V90"],
+n:["M25 40 V90","M25 55 C30 35 75 35 75 58 V90"],
+o:["M50 40 C10 40 10 92 50 92 C90 92 90 40 50 40"],
+p:["M25 40 V120","M25 55 C35 38 80 40 80 65 C80 92 35 95 25 75"],
+q:["M72 60 C65 38 20 40 20 65 C20 92 65 95 72 72","M72 40 V120"],
+r:["M30 40 V90","M30 58 C35 40 55 38 72 45"],
+s:["M72 48 C60 36 25 38 28 54 C30 66 70 64 72 78 C74 95 30 95 22 80"],
+t:["M45 15 V80 C45 92 60 92 72 85","M22 42 H68"],
+u:["M25 40 V70 C25 98 72 98 72 65","M72 40 V90"],
+v:["M20 40 L50 90 L80 40"],
+w:["M12 40 L30 90 L50 55 L70 90 L88 40"],
+x:["M22 40 L78 90","M78 40 L22 90"],
+y:["M22 40 L50 90","M78 40 L40 120 C35 127 25 127 18 122"],
+z:["M22 40 H78 L22 90 H78"]
+};
+let trHow=false;
+Object.assign(STROKES,{
+0:["M50 10 C10 10 10 90 50 90 C90 90 90 10 50 10"],
+1:["M35 28 L55 10 V90"],
+2:["M20 30 C20 0 80 0 80 32 C80 55 40 70 20 90 H82"],
+3:["M20 20 C30 0 78 5 75 30 C73 48 50 50 45 50 C80 50 82 90 50 90 C30 90 20 80 18 70"],
+4:["M65 10 L15 65 H88","M65 10 V90"],
+5:["M27 10 L24 48 C55 38 82 55 78 72 C74 95 35 95 20 80","M27 10 H78"],
+6:["M70 12 C40 15 18 40 20 68 C22 95 78 95 78 68 C78 45 30 42 21 68"],
+7:["M18 10 H82 L40 90"],
+8:["M50 50 C15 45 22 10 50 10 C78 10 85 45 50 50 C12 55 15 90 50 90 C85 90 88 55 50 50"],
+9:["M78 40 C70 5 22 10 22 32 C22 55 70 55 78 40 C78 70 65 90 35 90"]
+});
+function howSVG(ch){
+  const st=STROKES[ch]||[],cols=['#ef476f','#118ab2','#06d6a0','#f77f00'];
+  const lines=[10,40,90].map(y=>`<line x1="0" x2="100" y1="${y}" y2="${y}" stroke="#ddd" stroke-dasharray="4 4"/>`).join('');
+  const body=st.map((d,i)=>`<path class="hp" data-i="${i}" d="${d}" fill="none" stroke="${cols[i%4]}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/>`).join('');
+  return `<svg viewBox="-5 0 110 130" style="width:min(240px,60vw);height:auto;background:#fff;border-radius:16px">${lines}${body}<g id="hmk"></g></svg>`;
+}
+function howDecorate(box){
+  const svg=box.querySelector('svg'),mk=svg.querySelector('#hmk'),cols=['#ef476f','#118ab2','#06d6a0','#f77f00'];
+  svg.querySelectorAll('.hp').forEach((p,i)=>{
+    const L=p.getTotalLength(),a=p.getPointAtLength(0);
+    p.style.strokeDasharray=L;p.style.strokeDashoffset=L;
+    p.style.animation=`howDraw 1s ${i*1.2}s ease-in-out forwards`;p.style.setProperty('--l',L);
+    if(L>6){
+      const e=p.getPointAtLength(L),b=p.getPointAtLength(L-9),ang=Math.atan2(e.y-b.y,e.x-b.x)*180/Math.PI;
+      mk.insertAdjacentHTML('beforeend',`<polygon points="0,-7 12,0 0,7" fill="${cols[i%4]}" transform="translate(${e.x},${e.y}) rotate(${ang})" style="opacity:0;animation:howShow .1s ${i*1.2+.95}s forwards"/>`);
+    }
+    mk.insertAdjacentHTML('beforeend',`<circle cx="${a.x}" cy="${a.y}" r="8" fill="#fff" stroke="${cols[i%4]}" stroke-width="3"/><text x="${a.x}" y="${a.y+4}" text-anchor="middle" font-size="11" font-weight="bold" font-family="Arial" fill="#222">${i+1}</text>`);
+  });
+}
+function howRender(){
+  const box=$('howBox');if(!box)return;
+  if(!trHow||!trS){box.innerHTML='';return}
+  const ch=trS.ch;
+  box.innerHTML=`<div class="card" style="padding:8px;margin-top:8px;width:auto"><div class="ttl" style="font-size:1.2rem">1️⃣ 2️⃣ 3️⃣ Follow the arrows: <b>${ch}</b></div>${howSVG(ch)}</div>`;
+  howDecorate(box);
+}
+function howToggle(){trHow=!trHow;howRender()}
+
 /* paint */
 function lPaint(){
-  const L=LET[pi],ch=pi%2?L.l:L.u;
+  const NP=lmode==='npaint',L=NP?null:LET[pi],ch=NP?String(pi):(pi%2?L.l:L.u);
   const C=mkCanvas(ch,false);
   const A=$('lArea');
   A.innerHTML=`<div class="card" style="padding:6px;width:auto"></div>
@@ -813,10 +914,10 @@ function lPaint(){
   PAL.forEach(col=>{const b=document.createElement('div');b.className='pal'+(col===pcol?' on':'');b.style.background=col;
     b.onclick=()=>{pcol=col;document.querySelectorAll('.pal').forEach(x=>x.classList.toggle('on',x===b));sfx.click()};$('pal').appendChild(b)});
   attachDraw(C,()=>pcol,null);
-  lsay(`Paint the letter! 🎨  ${L.u}${L.l}`);
-  setTimeout(()=>speak(`${L.u}. ${L.u} for ${L.w}`),250);
+  if(NP){lsay(`Paint the number! 🎨  ${pi}`);setTimeout(()=>speak(`${pi}. ${numWord(pi)}`),250)}
+  else{lsay(`Paint the letter! 🎨  ${L.u}${L.l}`);setTimeout(()=>speak(`${L.u}. ${L.u} for ${L.w}`),250)}
 }
-function paintMove(d){pi=(pi+d+26)%26;lPaint()}
+function paintMove(d){const n=lmode==='npaint'?10:26;pi=(pi+d+n)%n;lPaint()}
 
 /* balloon pop */
 function lBalloons(){
@@ -901,9 +1002,9 @@ const wobble=el=>{el.classList.remove('wob');void el.offsetWidth;el.classList.ad
 function nTrace(){
   if(lr>=4)return winL();
   const d=rnd(0,9),L=nobj(d),col=lcol(d);
-  const C=mkCanvas(String(d),true);trS={L,C,done:false};
-  const A=$('lArea');A.innerHTML=`<div class="card" style="padding:6px;width:auto"></div><div class="row"><button class="big" style="background:#8d99ae" onclick="traceClear()"><span class="ic">🗑️</span></button></div>`;
-  A.firstChild.appendChild(C.cv);
+  const C=mkCanvas(String(d),true);trS={L,C,ch:String(d),done:false};
+  const A=$('lArea');A.innerHTML=`<div class="card" style="padding:6px;width:auto"></div><div class="row"><button class="big" style="background:#8d99ae" onclick="traceClear()"><span class="ic">🗑️</span></button><button class="big" style="background:#ff9f1c" onclick="howToggle()"><span class="ic">➡️</span>How to write</button></div><div id="howBox"></div>`;
+  A.firstChild.appendChild(C.cv);howRender();
   lsay('Trace the number with your finger! ☝️ '+stars());
   attachDraw(C,()=>col,(x,y)=>{
     if(trS.done)return;
